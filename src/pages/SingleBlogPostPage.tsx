@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useParams, Link, useLocation } from "react-router-dom"; // Added useLocation
+import React, { useEffect, useMemo } from "react"; // useMemo added
+import { useParams, Link, useLocation } from "react-router-dom"; 
 import { useDispatch, useSelector } from "react-redux";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
@@ -39,7 +39,7 @@ const ThreadsIcon = () => (
 const SingleBlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const dispatch: AppDispatch = useDispatch();
-  const location = useLocation(); // Hook to get current URL
+  const location = useLocation();
   const { post, status, error } = useSelector((state: RootState) => state.blog);
 
   useEffect(() => {
@@ -91,22 +91,26 @@ const SingleBlogPostPage: React.FC = () => {
     );
   }
 
-  // --- LOGIC FOR SHARING PREVIEW (COPIED FROM ProductDetail.tsx) ---
+  // --- LOGIC FOR SHARING PREVIEW (Matching ProductDetail.tsx) ---
   const backendApiUrl =
     import.meta.env.VITE_BACKEND_URL || "https://architect-backend.vercel.app";
   
-  // Create Absolute Image URL for Sharing
-  // If the image path is relative (e.g. /uploads/img.jpg), prepend the backend URL.
-  // If it's already an S3/Cloudinary link (starts with http), use it as is.
+  // This logic is crucial for Facebook/WhatsApp to see the image
   const absoluteImageUrl = post.mainImage?.startsWith("http")
     ? post.mainImage
     : `${backendApiUrl}${post.mainImage}`;
 
-  // Use window.location.origin to get the base domain (e.g., https://houseplanfiles.com)
   const canonicalUrl = `${window.location.origin}${location.pathname}`;
 
-  // Encoding for Social Links
-  const encodedUrl = encodeURIComponent(canonicalUrl);
+  // --- KEY CHANGE: Use the Backend Share URL like ProductDetail.tsx ---
+  // This forces the scraper to hit the backend first, which serves the meta tags.
+  const cacheBuster = `?v=${new Date().getTime()}`;
+  
+  // NOTE: Aapko backend me '/share/blog/:slug' route handle karna padega,
+  // same jaise aapne product ke liye kiya hai.
+  const shareUrl = `${backendApiUrl}/share/blog/${slug}${cacheBuster}`;
+
+  const encodedUrl = encodeURIComponent(shareUrl); // Sharing the backend link
   const encodedTitle = encodeURIComponent(post.title);
   const encodedImage = encodeURIComponent(absoluteImageUrl);
 
@@ -169,13 +173,17 @@ const SingleBlogPostPage: React.FC = () => {
         />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* --- Open Graph Data for Social Preview (FB, WhatsApp, LinkedIn) --- */}
+        {/* --- Open Graph Data for Social Preview --- */}
         <meta property="og:title" content={post.title} />
         <meta
           property="og:description"
           content={post.metaDescription || post.description}
         />
+        {/* Ensures image shows up on WhatsApp/FB */}
         <meta property="og:image" content={absoluteImageUrl} />
+        <meta property="og:image:secure_url" content={absoluteImageUrl} /> 
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="article" />
         <meta property="article:published_time" content={post.createdAt} />
@@ -222,7 +230,7 @@ const SingleBlogPostPage: React.FC = () => {
 
                 <div className="mb-8 rounded-lg overflow-hidden">
                   <img
-                    src={absoluteImageUrl} // Use the absolute URL here for consistency
+                    src={absoluteImageUrl}
                     alt={post.imageAltText || post.title}
                     title={post.imageTitleText || post.title}
                     className="w-full h-auto object-cover"
@@ -256,11 +264,12 @@ const SingleBlogPostPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* "Leave a Comment" Form Section */}
+              {/* Comment Form Removed for brevity - same as before */}
               <section className="mt-12 pt-8 border-t border-gray-200">
                 <h2 className="text-2xl font-bold text-foreground mb-6">
                   Leave a Comment
                 </h2>
+                {/* ... existing comment form code ... */}
                 <form className="space-y-4">
                   <p className="text-sm text-muted-foreground">
                     Your email address will not be published. Required fields
