@@ -58,7 +58,7 @@
   widget-id="aaanf1"
 ></script>
 
-<!-- ================= POPUP CONTROL LOGIC (FIXED) ================= -->
+<!-- ================= POPUP CONTROL LOGIC (FINAL FIXED) ================= -->
 <script>
   const COOLDOWN_TIME = 180000; // 3 minutes
   const STORAGE_KEY = "aisensy_popup_last_time";
@@ -79,21 +79,16 @@
     if (window.AiSensy) {
       try {
         window.AiSensy.open();
-        markPopupTime();
+        markPopupTime(); // cooldown yahin start hoga
       } catch (err) {
         console.log("AiSensy popup error:", err);
       }
     }
   }
 
-  // Page load ke 3 sec baad
+  // Page load ke 3 sec baad sirf ek baar
   window.addEventListener("load", () => {
     setTimeout(openPopup, 3000);
-  });
-
-  // User click kare (close ya kahin bhi) → cooldown start
-  document.addEventListener("click", () => {
-    markPopupTime();
   });
 </script>
 <!-- =============================================================== -->
