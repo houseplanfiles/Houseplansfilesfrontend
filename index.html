@@ -58,10 +58,11 @@
   widget-id="aaanf1"
 ></script>
 
-<!-- ================= POPUP CONTROL LOGIC (FINAL FIXED) ================= -->
+<!-- ================= POPUP CONTROL LOGIC (FINAL PERFECT FIX) ================= -->
 <script>
   const COOLDOWN_TIME = 180000; // 3 minutes
   const STORAGE_KEY = "aisensy_popup_last_time";
+  const SESSION_KEY = "aisensy_popup_shown_session";
 
   function canOpenPopup() {
     const lastTime = localStorage.getItem(STORAGE_KEY);
@@ -71,27 +72,32 @@
 
   function markPopupTime() {
     localStorage.setItem(STORAGE_KEY, Date.now());
+    sessionStorage.setItem(SESSION_KEY, "true"); // 👈 session me mark
   }
 
   function openPopup() {
+    // same session me dubara kabhi nahi
+    if (sessionStorage.getItem(SESSION_KEY)) return;
+
+    // 3 min cooldown
     if (!canOpenPopup()) return;
 
     if (window.AiSensy) {
       try {
         window.AiSensy.open();
-        markPopupTime(); // cooldown yahin start hoga
+        markPopupTime();
       } catch (err) {
         console.log("AiSensy popup error:", err);
       }
     }
   }
 
-  // Page load ke 3 sec baad sirf ek baar
+  // Page load ke 3 sec baad sirf first page par
   window.addEventListener("load", () => {
     setTimeout(openPopup, 3000);
   });
 </script>
-<!-- =============================================================== -->
+<!-- ======================================================================== -->
 
 </body>
 </html>
