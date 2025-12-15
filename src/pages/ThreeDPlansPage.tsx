@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
   ServerCrash,
@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Search,
+  Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -36,6 +38,7 @@ import { RootState, AppDispatch } from "@/lib/store";
 import useDebounce from "@/hooks/useDebounce";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import DisplayPrice from "@/components/DisplayPrice";
+import { Helmet } from "react-helmet-async";
 
 const slugify = (text: any) => {
   if (!text) return "";
@@ -48,6 +51,84 @@ const slugify = (text: any) => {
     .replace(/\-\-+/g, "-");
 };
 
+// --- VIDEO MODAL (From Products.tsx Logic) ---
+const VideoModal = ({
+  videoUrl,
+  onClose,
+}: {
+  videoUrl: string;
+  onClose: () => void;
+}) => {
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return null;
+    let videoId;
+    try {
+      const urlObj = new URL(url);
+      if (urlObj.hostname === "youtu.be") {
+        videoId = urlObj.pathname.slice(1);
+      } else {
+        videoId = urlObj.searchParams.get("v");
+      }
+    } catch (e) {
+      const regex =
+        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(regex);
+      videoId = match ? match[1] : null;
+    }
+
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    }
+    return null;
+  };
+
+  const embedUrl = getYouTubeEmbedUrl(videoUrl);
+
+  if (!embedUrl) {
+    onClose();
+    return null;
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.8, y: 50 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.8, y: 50 }}
+        className="relative w-full max-w-4xl bg-black rounded-lg overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="aspect-video">
+          <iframe
+            width="100%"
+            height="100%"
+            src={embedUrl}
+            title="YouTube video player"
+            loading="lazy"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full hover:bg-black/80 transition-colors"
+          aria-label="Close video player"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// --- SIDEBAR (Added Search) ---
 const FilterSidebar = ({ filters, setFilters, isOpen, onClose }: any) => (
   <>
     {/* Mobile Overlay */}
@@ -71,7 +152,6 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }: any) => (
         overflow-y-auto
       `}
     >
-      {/* Mobile Header */}
       <div className="flex items-center justify-between mb-4 lg:hidden">
         <h3 className="text-xl font-bold text-gray-800 flex items-center">
           <Filter className="w-5 h-5 mr-2 text-gray-500" />
@@ -85,13 +165,37 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }: any) => (
         </button>
       </div>
 
-      {/* Desktop Header */}
       <h3 className="hidden lg:flex text-xl font-bold mb-4 items-center text-gray-800">
         <Filter className="w-5 h-5 mr-2 text-gray-500" />
         Filters
       </h3>
 
       <div className="space-y-4 sm:space-y-6">
+        {/* Added Search Field */}
+        <div>
+          <Label
+            htmlFor="searchTerm"
+            className="font-semibold text-gray-600 text-sm"
+          >
+            Search
+          </Label>
+          <div className="relative mt-2">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              id="searchTerm"
+              placeholder="Search plans..."
+              value={filters.searchTerm}
+              onChange={(e) =>
+                setFilters((prev: any) => ({
+                  ...prev,
+                  searchTerm: e.target.value,
+                }))
+              }
+              className="pl-10 bg-gray-100 border-transparent h-11"
+            />
+          </div>
+        </div>
+
         <div>
           <Label
             htmlFor="plotSize"
@@ -279,6 +383,7 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }: any) => (
         <Button
           onClick={() => {
             setFilters({
+              searchTerm: "",
               plotArea: "all",
               plotSize: "all",
               bhk: "all",
@@ -295,7 +400,6 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }: any) => (
           Clear Filters
         </Button>
 
-        {/* Mobile Apply Button */}
         <Button
           onClick={onClose}
           className="w-full lg:hidden bg-teal-600 hover:bg-teal-700 text-white"
@@ -307,7 +411,7 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }: any) => (
   </>
 );
 
-const ProductCard = ({ plan, userOrders }: any) => {
+const ProductCard = ({ plan, userOrders, onPlayVideo }: any) => {
   const navigate = useNavigate();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { userInfo } = useSelector((state: RootState) => state.user);
@@ -484,6 +588,15 @@ const ProductCard = ({ plan, userOrders }: any) => {
               fill={isWishlisted ? "currentColor" : "none"}
             />
           </button>
+
+          {plan.youtubeLink && (
+            <button
+              onClick={() => onPlayVideo(plan.youtubeLink)}
+              className="w-8 h-8 sm:w-9 sm:h-9 bg-red-500/90 rounded-full flex items-center justify-center shadow-sm text-white hover:bg-red-600"
+            >
+              <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -602,6 +715,7 @@ const ProductCard = ({ plan, userOrders }: any) => {
 
 const ThreeDPlansPage = () => {
   const dispatch: AppDispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     products: adminProducts,
@@ -620,6 +734,7 @@ const ThreeDPlansPage = () => {
   const { orders } = useSelector((state: RootState) => state.orders);
 
   const [filters, setFilters] = useState({
+    searchTerm: "", // Added Search
     plotArea: "all",
     plotSize: "all",
     bhk: "all",
@@ -632,33 +747,29 @@ const ThreeDPlansPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [jumpToPage, setJumpToPage] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [playingVideoUrl, setPlayingVideoUrl] = useState<string | null>(null);
 
-  const debouncedFilters = useDebounce(filters, 300);
+  const debouncedSearchTerm = useDebounce(filters.searchTerm, 300);
 
+  // Exact Logic from Products.tsx for Fetching & Reseting
   useEffect(() => {
     const params: any = {
       pageNumber: currentPage,
       limit: 12,
-      planCategory: "elevations",
+      planCategory: "elevations", // STRICTLY ELEVATIONS
     };
 
-    if (debouncedFilters.plotSize !== "all")
-      params.plotSize = debouncedFilters.plotSize;
-    if (debouncedFilters.plotArea !== "all")
-      params.plotArea = debouncedFilters.plotArea;
-    if (debouncedFilters.bhk !== "all") params.bhk = debouncedFilters.bhk;
-    if (debouncedFilters.direction !== "all")
-      params.direction = debouncedFilters.direction;
-    if (debouncedFilters.floors !== "all")
-      params.floors = debouncedFilters.floors;
-    if (debouncedFilters.propertyType !== "all")
-      params.propertyType = debouncedFilters.propertyType;
+    if (debouncedSearchTerm) params.searchTerm = debouncedSearchTerm;
+    if (filters.plotSize !== "all") params.plotSize = filters.plotSize;
+    if (filters.plotArea !== "all") params.plotArea = filters.plotArea;
+    if (filters.bhk !== "all") params.bhk = filters.bhk;
+    if (filters.direction !== "all") params.direction = filters.direction;
+    if (filters.floors !== "all") params.floors = filters.floors;
+    if (filters.propertyType !== "all")
+      params.propertyType = filters.propertyType;
     if (sortBy !== "newest") params.sortBy = sortBy;
-    if (
-      debouncedFilters.budget[0] !== 500 ||
-      debouncedFilters.budget[1] !== 100000
-    ) {
-      params.budget = `${debouncedFilters.budget[0]}-${debouncedFilters.budget[1]}`;
+    if (filters.budget[0] !== 500 || filters.budget[1] !== 100000) {
+      params.budget = `${filters.budget[0]}-${filters.budget[1]}`;
     }
 
     dispatch(fetchProducts(params));
@@ -667,13 +778,30 @@ const ThreeDPlansPage = () => {
     if (userInfo) {
       dispatch(fetchMyOrders());
     }
-  }, [dispatch, userInfo, currentPage, debouncedFilters, sortBy]);
+  }, [dispatch, userInfo, currentPage, debouncedSearchTerm, filters, sortBy]);
+
+  // Page Reset Logic
+  const prevFiltersRef = useRef({
+    ...filters,
+    searchTerm: debouncedSearchTerm,
+    sortBy: sortBy,
+  });
 
   useEffect(() => {
-    if (currentPage !== 1) {
+    const currentFiltersState = {
+      ...filters,
+      searchTerm: debouncedSearchTerm,
+      sortBy: sortBy,
+    };
+
+    if (
+      JSON.stringify(currentFiltersState) !==
+      JSON.stringify(prevFiltersRef.current)
+    ) {
       setCurrentPage(1);
+      prevFiltersRef.current = currentFiltersState;
     }
-  }, [debouncedFilters, sortBy]);
+  }, [debouncedSearchTerm, filters, sortBy]);
 
   const combinedProducts = useMemo(
     () => [
@@ -706,9 +834,31 @@ const ThreeDPlansPage = () => {
     setJumpToPage("");
   };
 
+  const handlePlayVideo = (url: string) => {
+    setPlayingVideoUrl(url);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
+      <Helmet>
+        <title>3D Floor Plans | Elevations & Architectural Designs</title>
+        <meta
+          name="description"
+          content="Explore detailed 3D floor plans and elevations."
+        />
+      </Helmet>
+
       <Navbar />
+
+      <AnimatePresence>
+        {playingVideoUrl && (
+          <VideoModal
+            videoUrl={playingVideoUrl}
+            onClose={() => setPlayingVideoUrl(null)}
+          />
+        )}
+      </AnimatePresence>
+
       <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
           <FilterSidebar
@@ -788,8 +938,26 @@ const ThreeDPlansPage = () => {
                       No Plans Found
                     </h3>
                     <p className="mt-2 text-sm sm:text-base text-gray-500">
-                      Try adjusting your filters to see more results.
+                      Try adjusting your filters or search term.
                     </p>
+                    <Button
+                      onClick={() =>
+                        setFilters({
+                          searchTerm: "",
+                          plotArea: "all",
+                          plotSize: "all",
+                          bhk: "all",
+                          direction: "all",
+                          floors: "all",
+                          propertyType: "all",
+                          budget: [500, 100000],
+                        })
+                      }
+                      variant="outline"
+                      className="mt-4"
+                    >
+                      Clear Filters
+                    </Button>
                   </div>
                 ) : (
                   <motion.div
@@ -801,6 +969,7 @@ const ThreeDPlansPage = () => {
                         key={`${plan.source}-${plan._id}`}
                         plan={plan}
                         userOrders={orders}
+                        onPlayVideo={handlePlayVideo}
                       />
                     ))}
                   </motion.div>
