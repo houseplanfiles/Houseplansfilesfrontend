@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async"; // ✅ STEP 1: HELMET IMPORT KAREIN
+import { Link, useLocation } from "react-router-dom"; // Added useLocation
+import { Helmet } from "react-helmet-async";
 import { Calendar, User, Loader2, ServerCrash } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -11,6 +11,7 @@ import { RootState, AppDispatch } from "@/lib/store";
 
 const BlogsPage = () => {
   const dispatch: AppDispatch = useDispatch();
+  const location = useLocation();
   const { posts, status, error } = useSelector(
     (state: RootState) => state.blog
   );
@@ -21,30 +22,36 @@ const BlogsPage = () => {
     }
   }, [dispatch, status]);
 
-  const siteUrl = "https://www.yourwebsite.com"; 
+  const backendApiUrl =
+    import.meta.env.VITE_BACKEND_URL || "https://architect-backend.vercel.app";
+  const siteUrl = window.location.origin;
 
-  // ✅ DYNAMIC META TAGS KE LIYE DATA TAIYAAR KAREIN
+  // Setup Meta Tags for the Blog Listing Page
   const latestPost: BlogPost | undefined = posts?.[0];
   const pageTitle =
-    "Our Blog - Latest Articles and Insights | Your Company Name";
+    "Our Blog - Latest House Plans & Design Insights | HousePlanFiles";
   const pageDescription =
-    latestPost?.metaDescription ||
-    latestPost?.description ||
-    "Explore our latest articles, insights, and updates. Stay informed with expert advice and industry news from Your Company Name.";
-  const ogImage = latestPost?.mainImage || `${siteUrl}/default-blog-image.jpg`; // Default image ka path daalein
+    "Explore our latest articles, house plan tips, and architectural insights. Stay informed with expert advice from HousePlanFiles.";
+
+  // Calculate Image URL for the listing page (use latest post image or a default)
+  let ogImage = `${siteUrl}/default-blog-image.jpg`; // Fallback
+  if (latestPost && latestPost.mainImage) {
+    ogImage = latestPost.mainImage.startsWith("http")
+      ? latestPost.mainImage
+      : `${backendApiUrl}${latestPost.mainImage}`;
+  }
 
   return (
     <>
-      {/* ✅ DYNAMIC HELMET TAGS */}
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <link rel="canonical" href={`${siteUrl}/blogs`} />
+        <link rel="canonical" href={`${siteUrl}${location.pathname}`} />
 
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content={ogImage} />
-        <meta property="og:url" content={`${siteUrl}/blogs`} />
+        <meta property="og:url" content={`${siteUrl}${location.pathname}`} />
         <meta property="og:type" content="website" />
 
         <meta name="twitter:card" content="summary_large_image" />
@@ -90,44 +97,51 @@ const BlogsPage = () => {
 
             {status === "succeeded" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                {posts.map((post, index) => (
-                  <motion.div
-                    key={post._id}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="group"
-                  >
-                    <Link to={`/blog/${post.slug}`}>
-                      <div className="bg-card rounded-2xl shadow-soft overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col">
-                        <div className="overflow-hidden">
-                          <img
-                            src={post.mainImage}
-                            alt={post.imageAltText} // ✅ ALT TEXT KA ISTEMAL KAREIN
-                            className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                        <div className="p-6 flex flex-col flex-grow">
-                          <h3 className="text-xl font-bold text-foreground mb-3 leading-tight group-hover:text-primary transition-colors duration-200">
-                            {post.title}
-                          </h3>
-                          <p className="text-muted-foreground text-sm flex-grow mb-4">
-                            {post.description}
-                          </p>
-                          <div className="flex items-center text-muted-foreground text-xs mt-auto">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            <span className="mr-4">
-                              {new Date(post.createdAt).toLocaleDateString()}
-                            </span>
-                            <User className="w-4 h-4 mr-2" />
-                            <span>{post.author}</span>
+                {posts.map((post, index) => {
+                  // Logic for Image URL in the grid
+                  const gridImageUrl = post.mainImage?.startsWith("http")
+                    ? post.mainImage
+                    : `${backendApiUrl}${post.mainImage}`;
+
+                  return (
+                    <motion.div
+                      key={post._id}
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="group"
+                    >
+                      <Link to={`/blog/${post.slug}`}>
+                        <div className="bg-card rounded-2xl shadow-soft overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col">
+                          <div className="overflow-hidden">
+                            <img
+                              src={gridImageUrl}
+                              alt={post.imageAltText || post.title}
+                              className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          </div>
+                          <div className="p-6 flex flex-col flex-grow">
+                            <h3 className="text-xl font-bold text-foreground mb-3 leading-tight group-hover:text-primary transition-colors duration-200">
+                              {post.title}
+                            </h3>
+                            <p className="text-muted-foreground text-sm flex-grow mb-4 line-clamp-3">
+                              {post.description}
+                            </p>
+                            <div className="flex items-center text-muted-foreground text-xs mt-auto">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              <span className="mr-4">
+                                {new Date(post.createdAt).toLocaleDateString()}
+                              </span>
+                              <User className="w-4 h-4 mr-2" />
+                              <span>{post.author}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </div>
