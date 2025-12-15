@@ -512,7 +512,7 @@ const HomeElevations = () => {
   if (processedData.length === 0) return null;
 
   return (
-    <section className="py-6 md:py-12 bg-background border-b">
+    <section className="py-6 md:py-12 bg-background border-b border-gray-200">
       <VideoModal
         videoId={playingVideoId}
         onClose={() => setPlayingVideoId(null)}
