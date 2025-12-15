@@ -80,14 +80,16 @@ interface IProductFormData {
   price?: number;
   salePrice?: number;
   taxRate?: number;
-  category?: string;
+  // category removed from here as we handle it with local state now
 }
 
-interface MultiSelectCountryProps {
+// Updated Interface to accept itemName for display
+interface MultiSelectProps {
   selected: string[];
   setSelected: React.Dispatch<React.SetStateAction<string[]>>;
   options: { value: string; label: string }[];
   placeholder: string;
+  itemName?: string; // Added to make it generic
 }
 
 const countries = [
@@ -194,11 +196,13 @@ const categories = [
   "Temple & Mosque",
 ];
 
-const MultiSelectCountry: React.FC<MultiSelectCountryProps> = ({
+// Renamed and updated to be generic
+const MultiSelectCheckbox: React.FC<MultiSelectProps> = ({
   selected,
   setSelected,
   options,
   placeholder,
+  itemName = "items",
 }) => {
   const handleSelect = (value: string) => {
     setSelected((prev) =>
@@ -206,7 +210,9 @@ const MultiSelectCountry: React.FC<MultiSelectCountryProps> = ({
     );
   };
   const displayText =
-    selected.length > 0 ? `${selected.length} countries selected` : placeholder;
+    selected.length > 0
+      ? `${selected.length} ${itemName} selected`
+      : placeholder;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -269,6 +275,8 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   const [direction, setDirection] = useState<string>("");
   const [planType, setPlanType] = useState<string>("");
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  // NEW: State for multiple categories
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSale, setIsSale] = useState<boolean>(false);
   const [crossSell, setCrossSell] = useState<string[]>([]);
   const [upSell, setUpSell] = useState<string[]>([]);
@@ -291,11 +299,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         price: product.price ?? product["Regular price"] ?? 0,
         salePrice: product.salePrice ?? product["Sale price"] ?? undefined,
         taxRate: product.taxRate ?? product["Tax class"] ?? undefined,
-        category:
-          (Array.isArray(product.category)
-            ? product.category[0]
-            : product.category) ||
-          (product.Categories ? product.Categories.split(",")[0].trim() : ""),
         seoTitle: product.seo?.title || "",
         seoAltText: product.seo?.altText || "",
         seoDescription: product.seo?.description || "",
@@ -311,15 +314,33 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       setPropertyType(product.propertyType || "");
       setDirection(product.direction || "");
       setPlanType(product.planType || "");
-      const countries = Array.isArray(product.country)
+
+      // Handle Countries
+      const countriesList = Array.isArray(product.country)
         ? product.country
         : typeof product.country === "string"
-          ? product.country
-              .split(",")
-              .map((c) => c.trim())
-              .filter(Boolean)
-          : [];
-      setSelectedCountries(countries);
+        ? product.country
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean)
+        : [];
+      setSelectedCountries(countriesList);
+
+      // Handle Categories (NEW Logic)
+      const categoriesList = Array.isArray(product.category)
+        ? product.category
+        : typeof product.category === "string"
+        ? product.category
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean)
+        : typeof product.Categories === "string"
+        ? product.Categories.split(",")
+            .map((c) => c.trim())
+            .filter(Boolean)
+        : [];
+      setSelectedCategories(categoriesList);
+
       setIsSale(product.isSale || product["Is featured?"] === 1 || false);
       const getProductIds = (prodList: any) => {
         if (!prodList) return [];
@@ -409,6 +430,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
     if (selectedCountries.length > 0)
       formData.append("country", selectedCountries.join(","));
+    
+    // NEW: Append selected categories
+    if (selectedCategories.length > 0)
+      formData.append("category", selectedCategories.join(","));
+
     if (propertyType) formData.append("propertyType", propertyType);
     if (direction) formData.append("direction", direction);
     if (planType) formData.append("planType", planType);
@@ -573,7 +599,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                   </div>
                   <div className="md:col-span-3">
                     <Label htmlFor="country">Country</Label>
-                    <MultiSelectCountry
+                    <MultiSelectCheckbox
                       selected={selectedCountries}
                       setSelected={setSelectedCountries}
                       options={countries.map((c) => ({
@@ -581,6 +607,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                         label: c.label,
                       }))}
                       placeholder="Select countries..."
+                      itemName="countries"
                     />
                   </div>
                 </CardContent>
@@ -916,27 +943,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                     </Select>
                   </div>
                   <div>
+                    {/* UPDATED: Replaced Select with MultiSelectCheckbox */}
                     <Label>Category</Label>
-                    <Controller
-                      name="category"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60 overflow-y-auto">
-                            {categories.map((cat, index) => (
-                              <SelectItem key={index} value={cat}>
-                                {cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+                    <MultiSelectCheckbox
+                      selected={selectedCategories}
+                      setSelected={setSelectedCategories}
+                      options={categories.map((cat) => ({
+                        value: cat,
+                        label: cat,
+                      }))}
+                      placeholder="Select categories..."
+                      itemName="categories"
                     />
                   </div>
                   <div>
