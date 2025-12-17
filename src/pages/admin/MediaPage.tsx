@@ -13,16 +13,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Download,
   Loader2,
   ServerCrash,
   Search,
   ChevronLeft,
   ChevronRight,
+  FileText,
+  Image as ImageIcon,
 } from "lucide-react";
 import useDebounce from "@/hooks/useDebounce";
 import { fetchMediaItems } from "@/lib/features/media/mediaSlice";
-import { Product } from "@/lib/features/products/productSlice";
 
 const MediaPage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -47,25 +47,28 @@ const MediaPage = () => {
   const getFileExtension = (url: string = ""): string => {
     if (!url) return "file";
     try {
-      const pathname = new URL(url).pathname;
-      const parts = pathname.split(".");
+      const cleanUrl = url.split("?")[0];
+      const parts = cleanUrl.split(".");
       return parts.length > 1 ? parts.pop()! : "file";
     } catch (e) {
-      const parts = url.split("?")[0].split(".");
-      return parts.length > 1 ? parts.pop()! : "file";
+      return "file";
     }
   };
 
   const handleDownload = async (url: string | undefined, filename: string) => {
     if (!url) {
-      toast.error("No file URL available to download.");
+      toast.error("No file URL available.");
       return;
     }
+
     try {
-      toast.info(`Downloading ${filename}...`);
-      const response = await fetch(url);
-      if (!response.ok)
-        throw new Error(`Network response was not ok for ${url}`);
+      toast.info(`Downloading: ${filename}...`);
+
+      // Attempt fetch with CORS mode to allow renaming
+      const response = await fetch(url, { mode: "cors" });
+
+      if (!response.ok) throw new Error("Fetch failed");
+
       const blob = await response.blob();
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
@@ -74,10 +77,11 @@ const MediaPage = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(link.href);
-      toast.success(`Downloaded ${filename}`);
+      toast.success("Download success");
     } catch (err) {
-      toast.error(`Failed to download ${filename}.`);
-      console.error(err);
+      console.error("Download fallback triggered:", err);
+      // Fallback: Open in new tab if CORS blocks the download
+      window.open(url, "_blank");
     }
   };
 
@@ -125,56 +129,89 @@ const MediaPage = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="rounded-lg border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Product Name</TableHead>
               <TableHead>Product No.</TableHead>
               <TableHead>Plan Type</TableHead>
-              <TableHead className="text-center">Actions</TableHead>
+              <TableHead>Main Image</TableHead>
+              <TableHead>Plan Files (PDFs)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map((product) => {
               const productIdentifier = product.productNo || "product";
-              const planFileUrl =
-                product.planFile && product.planFile.length > 0
-                  ? product.planFile[0]
-                  : undefined;
+
+              // Logic to handle Array or String or Undefined
+              let planFiles: string[] = [];
+              if (Array.isArray(product.planFile)) {
+                planFiles = product.planFile;
+              } else if (typeof product.planFile === "string") {
+                planFiles = [product.planFile];
+              }
+
+              // Debugging: Check console to see how many files are coming
+              // console.log(`Product: ${product.productNo}`, planFiles);
 
               return (
                 <TableRow key={product._id}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell
+                    className="font-medium max-w-[200px] truncate"
+                    title={product.name}
+                  >
+                    {product.name}
+                  </TableCell>
                   <TableCell>{productIdentifier}</TableCell>
                   <TableCell>{product.planType}</TableCell>
-                  <TableCell className="text-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handleDownload(
-                          product.mainImage,
-                          `${productIdentifier}-main-image.${getFileExtension(product.mainImage)}`
-                        )
-                      }
-                      disabled={!product.mainImage}
-                    >
-                      <Download className="mr-2 h-4 w-4" /> Main Image
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handleDownload(
-                          planFileUrl,
-                          `${productIdentifier}-plan-file.${getFileExtension(planFileUrl)}`
-                        )
-                      }
-                      disabled={!planFileUrl}
-                    >
-                      <Download className="mr-2 h-4 w-4" /> Plan File
-                    </Button>
+
+                  {/* Main Image Button */}
+                  <TableCell>
+                    {product.mainImage ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                        onClick={() =>
+                          handleDownload(
+                            product.mainImage,
+                            `${productIdentifier}-main.${getFileExtension(product.mainImage)}`
+                          )
+                        }
+                      >
+                        <ImageIcon className="mr-2 h-4 w-4" /> Image
+                      </Button>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No Image</span>
+                    )}
+                  </TableCell>
+
+                  {/* PDF Download Buttons */}
+                  <TableCell>
+                    <div className="flex flex-col gap-2">
+                      {planFiles.length > 0 ? (
+                        planFiles.map((url, index) => (
+                          <Button
+                            key={index}
+                            variant="secondary"
+                            size="sm"
+                            className="w-full justify-start text-xs"
+                            onClick={() =>
+                              handleDownload(
+                                url,
+                                `${productIdentifier}-plan-${index + 1}.${getFileExtension(url)}`
+                              )
+                            }
+                          >
+                            <FileText className="mr-2 h-3 w-3" />
+                            PDF {index + 1}
+                          </Button>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-sm">No PDFs</span>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );
