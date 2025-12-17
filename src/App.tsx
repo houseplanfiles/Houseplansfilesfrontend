@@ -100,6 +100,8 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import PackagesPage from "./pages/PackagesPage";
 import MarketPlace from "./pages/MarketPlace";
 import CityPartnersPage from "./pages/CityPartnersPage";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
+
 
 const queryClient = new QueryClient();
 
@@ -116,6 +118,7 @@ const App = () => (
                     <Toaster />
                     <Sonner />
                     <ScrollToTop />
+                    <WhatsAppWidget />
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/products" element={<Products />} />
