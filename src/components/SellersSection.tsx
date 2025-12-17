@@ -32,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// Import DisplayPrice for currency conversion
+import DisplayPrice from "@/components/DisplayPrice";
 
 // --- Inquiry Modal (No changes) ---
 const InquiryModal = ({ product, onClose }) => {
@@ -149,12 +151,13 @@ const InquiryModal = ({ product, onClose }) => {
 };
 
 // --- OPTIMIZED PRODUCT CARD (Wider Mobile Look) ---
+// Now uses DisplayPrice for currency support
 const ProductCard = ({ product, onInquiryClick, isMobile = false }) => (
   <div
     className={`bg-white rounded-lg flex flex-col group transition-all duration-300 border hover:border-orange-500 hover:shadow-xl hover:-translate-y-2
     ${
       isMobile
-        ? "w-full p-2 shadow-sm border-gray-200" // Reduced padding to give more width to content
+        ? "w-full p-2 shadow-sm border-gray-200"
         : "w-80 flex-shrink-0 snap-start p-4 shadow-md rounded-xl"
     }`}
   >
@@ -188,7 +191,7 @@ const ProductCard = ({ product, onInquiryClick, isMobile = false }) => (
         {product.category}
       </p>
 
-      {/* Title - Allowed 2 lines on mobile for better width utilization */}
+      {/* Title */}
       <h3
         className={`font-bold text-gray-900 leading-tight
         ${isMobile ? "text-xs line-clamp-2 h-8" : "text-lg truncate"}
@@ -227,11 +230,12 @@ const ProductCard = ({ product, onInquiryClick, isMobile = false }) => (
         </div>
       </div>
 
-      {/* Price */}
+      {/* Price with Currency Support */}
       <div
         className={`font-extrabold text-gray-800 ${isMobile ? "mt-1.5 text-sm" : "mt-3 text-2xl"}`}
       >
-        ₹{product.price.toLocaleString()}
+        {/* Changed from manual ₹ to DisplayPrice component */}
+        <DisplayPrice inrPrice={product.price} />
       </div>
 
       {/* Action Button */}
@@ -311,7 +315,6 @@ const SellersSection: FC = () => {
 
   const handleMobilePageChange = (page) => {
     setMobilePage(page);
-    // Optional: Scroll smooth to grid top
   };
 
   const handleOpenInquiryModal = (product) => {
@@ -332,7 +335,6 @@ const SellersSection: FC = () => {
   return (
     <>
       <section className="py-8 md:py-20 bg-gray-50">
-        {/* CHANGED: Reduced side padding on mobile (px-1) to allow cards to be wider */}
         <div className="max-w-7xl mx-auto px-1 md:px-8">
           {/* --- BANNER --- */}
           <div className="px-2 md:px-0 mb-6 md:mb-12">
@@ -355,7 +357,7 @@ const SellersSection: FC = () => {
             </div>
           </div>
 
-          {/* --- FILTERS (With side margin on mobile) --- */}
+          {/* --- FILTERS --- */}
           <div className="mx-2 md:mx-auto bg-white/90 backdrop-blur-sm p-3 md:p-4 rounded-xl shadow-sm mb-6 md:mb-10 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 items-end max-w-4xl border border-gray-100">
             <div className="md:col-span-1">
               <Label htmlFor="search-filter" className="text-xs md:text-sm">
@@ -494,7 +496,6 @@ const SellersSection: FC = () => {
                       MOBILE VIEW: Grid + Pagination
                      ===================================== */}
                   <div className="md:hidden">
-                    {/* CHANGED: Grid gap reduced to gap-2 and padding removed from container side to maximize width */}
                     <div className="grid grid-cols-2 gap-2">
                       <AnimatePresence mode="wait">
                         {currentMobileItems.map((product) => (
