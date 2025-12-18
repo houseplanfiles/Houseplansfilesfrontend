@@ -28,14 +28,16 @@ import {
   ChevronRight,
   X,
   ZoomIn,
+  Lock,
+  Eye,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 
-// --- Customized Gallery Card for Mobile & Desktop ---
+// --- Customized Gallery Card (Thumbnails Clear rahenge taaki user attract ho) ---
 const GalleryImageCard = ({
   items,
   onCardClick,
-  index, // Added index for Priority Loading logic
+  index,
 }: {
   items: GalleryItem[];
   onCardClick: () => void;
@@ -60,7 +62,6 @@ const GalleryImageCard = ({
     [emblaApi]
   );
 
-  // Optimization: First 4 items load eagerly (LCP), rest lazy
   const isPriority = index < 4;
 
   return (
@@ -73,19 +74,17 @@ const GalleryImageCard = ({
           {items.map((item, imgIndex) => (
             <div className="flex-grow-0 flex-shrink-0 w-full" key={item._id}>
               <div className="aspect-square w-full bg-gray-100 relative">
-                {/* CLS & LCP Optimization */}
                 <img
                   src={item.imageUrl}
                   alt={item.altText || item.title}
                   width="400"
                   height="400"
                   className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
-                  // Only priority load the first image of the first few cards
                   loading={isPriority && imgIndex === 0 ? "eager" : "lazy"}
                   // @ts-ignore
                   fetchPriority={isPriority && imgIndex === 0 ? "high" : "auto"}
                 />
-                {/* Zoom Icon - Hidden on mobile, visible on desktop hover */}
+                {/* Zoom Icon */}
                 <div className="absolute top-4 right-4 bg-black/60 p-2 rounded-full opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
                   <ZoomIn className="h-5 w-5 text-white" />
                 </div>
@@ -94,7 +93,6 @@ const GalleryImageCard = ({
           ))}
         </div>
 
-        {/* Carousel Arrows - Only show on Desktop hover to keep mobile clean */}
         {items.length > 1 && (
           <div className="hidden md:block">
             <Button
@@ -116,7 +114,6 @@ const GalleryImageCard = ({
           </div>
         )}
 
-        {/* Mobile Indicator for multiple images */}
         {items.length > 1 && (
           <div className="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full md:hidden">
             +{items.length - 1}
@@ -124,7 +121,6 @@ const GalleryImageCard = ({
         )}
       </div>
 
-      {/* Overlay Text Content - Optimized for Mobile */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2 md:p-4 pointer-events-none">
         <div className="transition-transform duration-300 transform md:group-hover:-translate-y-2">
           <h3 className="text-white font-bold text-xs md:text-lg drop-shadow-md line-clamp-1">
@@ -281,20 +277,17 @@ const GalleryPage: React.FC = () => {
     }
     return (
       <>
-        {/* Mobile View: grid-cols-2 | Desktop View: grid-cols-4 */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
           {currentItemGroups.map((group, index) => (
             <GalleryImageCard
               key={`${group[0].title}-${index}`}
               items={group}
               onCardClick={() => handleCardClick(group)}
-              // Passing index to control loading priority
               index={index}
             />
           ))}
         </div>
 
-        {/* Pagination Section */}
         {totalPages > 1 && (
           <div className="mt-8 md:mt-12 flex flex-wrap justify-center items-center gap-2 md:gap-4">
             <Button
@@ -348,9 +341,7 @@ const GalleryPage: React.FC = () => {
     <div className="bg-[#F7FAFA] min-h-screen">
       <Navbar />
       <main className="pb-16">
-        {/* --- HERO BANNER IMAGE SECTION (Optimized for LCP) --- */}
         <div className="relative w-full h-48 md:h-80 overflow-hidden flex items-center justify-center mb-8 md:mb-12 bg-black">
-          {/* LCP Optimization: Use img tag instead of background-image for faster discovery */}
           <img
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
             alt="Interior Design Gallery Banner"
@@ -360,22 +351,17 @@ const GalleryPage: React.FC = () => {
             fetchPriority="high"
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
-
-          {/* Content */}
           <div className="relative z-10 text-center px-4 text-white">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2 md:mb-4 drop-shadow-lg">
               Our Project Gallery
             </h1>
             <p className="text-sm md:text-lg max-w-2xl mx-auto opacity-95 font-light drop-shadow-md">
-              Explore a collection of our best designs and projects. Get
-              inspired for your next home.
+              Explore a collection of our best designs and projects.
             </p>
           </div>
         </div>
 
-        {/* --- Content Area --- */}
         <div className="container mx-auto px-3 md:px-4">
-          {/* Filter */}
           <div className="flex justify-center mb-8 md:mb-12">
             <div className="w-full max-w-xs">
               <label className="block text-center text-xs md:text-sm font-medium text-slate-700 mb-2">
@@ -408,21 +394,26 @@ const GalleryPage: React.FC = () => {
       </main>
       <Footer />
 
-      {/* Full Screen Image Modal */}
+      {/* --- PROTECTED MODAL START (Changes Here) --- */}
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
-        <DialogContent className="max-w-[100vw] h-[100vh] md:max-w-6xl md:h-auto md:max-h-[95vh] p-0 bg-black border-none overflow-hidden flex flex-col justify-center">
+        <DialogContent className="max-w-[100vw] h-[100vh] md:max-w-6xl md:h-auto md:max-h-[95vh] p-0 bg-black/95 border-none overflow-hidden flex flex-col justify-center">
           {selectedGroup && (
             <>
-              {/* Header with Close Button */}
-              <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/60 to-transparent p-4">
+              {/* Header */}
+              <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
                     <h2 className="text-white text-lg md:text-3xl font-bold drop-shadow-lg line-clamp-1">
                       {selectedGroup[currentImageIndex].title}
                     </h2>
-                    <p className="text-orange-400 text-xs md:text-base font-semibold mt-0.5">
-                      {selectedGroup[currentImageIndex].category}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-orange-400 text-xs md:text-base font-semibold">
+                        {selectedGroup[currentImageIndex].category}
+                      </p>
+                      <span className="flex items-center gap-1 text-[10px] text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                        <Lock size={10} /> Preview Locked
+                      </span>
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
@@ -435,23 +426,51 @@ const GalleryPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Main Image Container */}
-              <div className="relative w-full h-full flex items-center justify-center bg-black">
+              {/* Main Image Container - BLURRED & WATERMARKED */}
+              <div 
+                className="relative w-full h-full flex items-center justify-center bg-zinc-900 overflow-hidden select-none"
+                onContextMenu={(e) => e.preventDefault()} // Right Click Blocked
+              >
+                {/* 1. Blurred Image */}
                 <img
                   src={selectedGroup[currentImageIndex].imageUrl}
-                  alt={selectedGroup[currentImageIndex].altText}
-                  // Modal image can just be responsive, keeping loading lazy unless first
+                  alt="Protected Content"
                   loading="lazy"
-                  className="max-w-full max-h-full object-contain"
+                  className="max-w-full max-h-full object-contain pointer-events-none opacity-60"
+                  style={{ 
+                    filter: "blur(5px)", // 5px blur se image clear nahi dikhegi
+                    transform: "scale(1.02)"
+                  }}
                 />
 
-                {/* Navigation Buttons (Large Screen & Mobile Tap Zones) */}
+                {/* 2. Grid Pattern Overlay (to ruin screenshot quality) */}
+                <div 
+                  className="absolute inset-0 z-10 pointer-events-none opacity-20" 
+                  style={{ 
+                    backgroundImage: "linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)",
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "0 0, 10px 10px"
+                  }}
+                ></div>
+
+                {/* 3. Text Watermark */}
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
+                  <Lock className="text-white/20 w-24 h-24 mb-4" />
+                  <h1 className="text-white/30 text-4xl md:text-6xl font-black tracking-widest -rotate-12">
+                    PREVIEW ONLY
+                  </h1>
+                  <p className="text-white/30 text-lg md:text-2xl font-bold mt-4 tracking-wider -rotate-12">
+                    BUY TO VIEW CLEARLY
+                  </p>
+                </div>
+
+                {/* Navigation Buttons */}
                 {selectedGroup.length > 1 && (
                   <>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full h-10 w-10 md:h-14 md:w-14 backdrop-blur-sm z-30"
+                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full h-10 w-10 md:h-14 md:w-14 backdrop-blur-sm z-30 border border-white/10"
                       onClick={(e) => {
                         e.stopPropagation();
                         handlePrevImage();
@@ -463,7 +482,7 @@ const GalleryPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full h-10 w-10 md:h-14 md:w-14 backdrop-blur-sm z-30"
+                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full h-10 w-10 md:h-14 md:w-14 backdrop-blur-sm z-30 border border-white/10"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleNextImage();
@@ -476,26 +495,28 @@ const GalleryPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Bottom Section with Thumbnails and Button */}
-              <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/90 via-black/60 to-transparent pb-6 pt-12 px-4">
-                {/* Thumbnail Strip (Hidden on very small screens if needed, mostly fine) */}
+              {/* Bottom Section */}
+              <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/90 to-transparent pb-6 pt-12 px-4">
+                
+                {/* Thumbnails (Also slightly blurred) */}
                 {selectedGroup.length > 1 && (
                   <div className="flex justify-center mb-4">
-                    <div className="flex gap-2 bg-black/60 p-2 rounded-full backdrop-blur-sm overflow-x-auto max-w-full scrollbar-hide">
+                    <div className="flex gap-2 bg-black/60 p-2 rounded-full backdrop-blur-md border border-white/10 overflow-x-auto max-w-full scrollbar-hide">
                       {selectedGroup.map((item, index) => (
                         <button
                           key={item._id}
                           onClick={() => setCurrentImageIndex(index)}
-                          className={`shrink-0 w-10 h-10 md:w-16 md:h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                          className={`shrink-0 w-10 h-10 md:w-16 md:h-16 rounded-lg overflow-hidden border-2 transition-all relative ${
                             index === currentImageIndex
                               ? "border-orange-500 scale-110"
-                              : "border-white/30 hover:border-white/60"
+                              : "border-white/20 opacity-50"
                           }`}
                         >
+                          <div className="absolute inset-0 bg-black/20 z-10" />
                           <img
                             src={item.imageUrl}
                             alt=""
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover blur-[1px]" // Thumbnails bhi thode blur
                           />
                         </button>
                       ))}
@@ -503,21 +524,24 @@ const GalleryPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Buy Now Button */}
-                {selectedGroup[currentImageIndex].productLink?.trim() && (
-                  <div className="flex justify-center">
+                {/* Buy Button */}
+                {selectedGroup[currentImageIndex].productLink?.trim() ? (
+                  <div className="flex flex-col items-center gap-3">
+                     <p className="text-white/70 text-xs md:text-sm text-center flex items-center gap-2">
+                       <Eye className="w-4 h-4" /> Want to see the clear image?
+                     </p>
                     <Link
                       to={selectedGroup[currentImageIndex].productLink}
                       onClick={handleCloseModal}
                       className="w-full md:max-w-md"
                     >
-                      <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold h-12 md:h-14 text-sm md:text-lg shadow-2xl rounded-full">
+                      <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold h-12 md:h-14 text-sm md:text-lg shadow-2xl rounded-full border-t border-orange-400 animate-pulse">
                         <ShoppingCart className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                        Buy Plan Now
+                        Buy Plan to Unlock
                       </Button>
                     </Link>
                   </div>
-                )}
+                ) : null}
               </div>
             </>
           )}
