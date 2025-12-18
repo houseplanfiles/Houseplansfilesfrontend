@@ -43,6 +43,7 @@ import {
   FileText,
   MapPin,
   CreditCard,
+  Download,
 } from "lucide-react";
 
 const professionalSubRoles = [
@@ -106,6 +107,8 @@ const AllUsersPage = () => {
   const [contractorType, setContractorType] = useState("Normal");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // New state for export loading
+  const [isExporting, setIsExporting] = useState(false);
   const USERS_PER_PAGE = 10;
 
   const {
@@ -143,7 +146,6 @@ const AllUsersPage = () => {
     }
   }, [actionStatus, error, dispatch]);
 
-  // --- Fix: Populate Edit Modal with correct flat fields ---
   useEffect(() => {
     if (selectedUser && isEditModalOpen) {
       reset({
@@ -154,10 +156,10 @@ const AllUsersPage = () => {
         email: selectedUser.email,
         phone: selectedUser.phone,
         city: selectedUser.city,
-        upiId: selectedUser.upiId, // Flat field
-        bankName: selectedUser.bankName, // Flat field
-        bankAccountNumber: selectedUser.bankAccountNumber, // Flat field
-        ifscCode: selectedUser.ifscCode, // Flat field
+        upiId: selectedUser.upiId,
+        bankName: selectedUser.bankName,
+        bankAccountNumber: selectedUser.bankAccountNumber,
+        ifscCode: selectedUser.ifscCode,
       });
       setRole(selectedUser.role || "");
       setStatus(selectedUser.status || "");
@@ -170,81 +172,121 @@ const AllUsersPage = () => {
     }
   }, [selectedUser, reset, isEditModalOpen]);
 
-  // --- Fix: CSV Export Logic for flat fields ---
-  const handleExportCSV = () => {
-    if (!users || users.length === 0) {
-      toast.error("No data available to export.");
-      return;
+  // --- UPDATED CSV EXPORT LOGIC (Fetches ALL Pages) ---
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
+      toast.info("Fetching all users for export, please wait...");
+
+      // 1. Fetch ALL data by setting a very high limit
+      // Note: We use .unwrap() to get the result payload directly
+      const resultAction = await dispatch(
+        fetchUsers({
+          page: 1,
+          limit: 100000, // Fetch up to 100,000 users to ensure we get everything
+          search: searchTerm,
+          role: filterRole === "all" ? "" : filterRole,
+          status: filterStatus === "all" ? "" : filterStatus,
+          city: filterCity,
+        })
+      ).unwrap();
+
+      // 2. Extract the full user list from the payload
+      // Adjust 'resultAction.users' based on your actual API response structure
+      let allUsersData = [];
+      if (resultAction && Array.isArray(resultAction.users)) {
+        allUsersData = resultAction.users;
+      } else if (resultAction && Array.isArray(resultAction.data)) {
+        allUsersData = resultAction.data;
+      } else if (Array.isArray(resultAction)) {
+        allUsersData = resultAction;
+      }
+
+      if (!allUsersData || allUsersData.length === 0) {
+        toast.error("No data available to export.");
+        setIsExporting(false);
+        // Restore table view
+        handleFetchUsers(currentPage);
+        return;
+      }
+
+      // 3. Generate CSV from ALL data
+      const headers = [
+        "ID",
+        "Name",
+        "Email",
+        "Phone",
+        "City",
+        "Role",
+        "Profession",
+        "Contractor Type",
+        "Status",
+        "UPI ID",
+        "Bank Name",
+        "Account No",
+        "IFSC Code",
+        "Registered Date",
+      ];
+
+      const csvRows = [
+        headers.join(","),
+        ...allUsersData.map((user: any) => {
+          const name =
+            user.name || user.businessName || user.companyName || "N/A";
+          const professionVal =
+            user.role === "professional" ? user.profession : "N/A";
+          const contractorVal =
+            user.role === "Contractor" ? user.contractorType : "N/A";
+          const date = user.createdAt
+            ? format(new Date(user.createdAt), "yyyy-MM-dd")
+            : "";
+          const safeName = `"${name.replace(/"/g, '""')}"`;
+          const safeCity = user.city ? `"${user.city}"` : "N/A";
+
+          const upi = user.upiId || "N/A";
+          const bankName = user.bankName || "N/A";
+          const accNo = user.bankAccountNumber
+            ? `"${user.bankAccountNumber}"`
+            : "N/A";
+          const ifsc = user.ifscCode || "N/A";
+
+          return [
+            user._id,
+            safeName,
+            user.email,
+            user.phone || "",
+            safeCity,
+            user.role,
+            professionVal,
+            contractorVal,
+            user.status,
+            upi,
+            bankName,
+            accNo,
+            ifsc,
+            date,
+          ].join(",");
+        }),
+      ];
+
+      const csvString = csvRows.join("\n");
+      const blob = new Blob([csvString], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `All_Users_Export_${format(new Date(), "yyyy-MM-dd")}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Successfully exported ${allUsersData.length} users!`);
+    } catch (err) {
+      console.error("Export Failed", err);
+      toast.error("Failed to export data.");
+    } finally {
+      setIsExporting(false);
+      // 4. Important: Re-fetch the current page to fix pagination in UI
+      handleFetchUsers(currentPage);
     }
-
-    const headers = [
-      "ID",
-      "Name",
-      "Email",
-      "Phone",
-      "City",
-      "Role",
-      "Profession",
-      "Contractor Type",
-      "Status",
-      "UPI ID",
-      "Bank Name",
-      "Account No",
-      "IFSC Code",
-      "Registered Date",
-    ];
-
-    const csvRows = [
-      headers.join(","),
-      ...users.map((user) => {
-        const name =
-          user.name || user.businessName || user.companyName || "N/A";
-        const professionVal =
-          user.role === "professional" ? user.profession : "N/A";
-        const contractorVal =
-          user.role === "Contractor" ? user.contractorType : "N/A";
-        const date = user.createdAt
-          ? format(new Date(user.createdAt), "yyyy-MM-dd")
-          : "";
-        const safeName = `"${name.replace(/"/g, '""')}"`;
-        const safeCity = user.city ? `"${user.city}"` : "N/A";
-
-        // Access flat fields directly
-        const upi = user.upiId || "N/A";
-        const bankName = user.bankName || "N/A";
-        const accNo = user.bankAccountNumber
-          ? `"${user.bankAccountNumber}"`
-          : "N/A";
-        const ifsc = user.ifscCode || "N/A";
-
-        return [
-          user._id,
-          safeName,
-          user.email,
-          user.phone || "",
-          safeCity,
-          user.role,
-          professionVal,
-          contractorVal,
-          user.status,
-          upi,
-          bankName,
-          accNo,
-          ifsc,
-          date,
-        ].join(",");
-      }),
-    ];
-
-    const csvString = csvRows.join("\n");
-    const blob = new Blob([csvString], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `users_export.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success("Data exported successfully!");
   };
 
   const handleDelete = (userId: string) => {
@@ -274,7 +316,6 @@ const AllUsersPage = () => {
     }, 200);
   };
 
-  // --- Fix: onSubmit sends flat fields ---
   const onSubmit = async (data: any) => {
     if (!selectedUser) return;
     setIsSubmitting(true);
@@ -283,15 +324,11 @@ const AllUsersPage = () => {
       ...data,
       role,
       status,
-      // Pass flat fields directly
       bankName: data.bankName,
-      bankAccountNumber: data.bankAccountNumber, // Note: input name in form is 'accountNumber' below? let's match it.
+      bankAccountNumber: data.bankAccountNumber,
       ifscCode: data.ifscCode,
       upiId: data.upiId,
     };
-
-    // Ensure form field names match what we are assigning above
-    // In form below I named inputs: bankName, bankAccountNumber, ifscCode
 
     if (status === "Approved") {
       userData.isApproved = true;
@@ -341,12 +378,22 @@ const AllUsersPage = () => {
             All Users Management
           </h1>
           <div className="flex gap-2">
+            {/* Export Button with Loading State */}
             <Button
               variant="outline"
               className="border-green-600 text-green-700 hover:bg-green-50"
               onClick={handleExportCSV}
+              disabled={isExporting}
             >
-              <FileSpreadsheet className="mr-2 h-4 w-4" /> Export CSV
+              {isExporting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Exporting...
+                </>
+              ) : (
+                <>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" /> Export All CSV
+                </>
+              )}
             </Button>
             <Link to="/admin/users/add">
               <Button className="btn-primary flex items-center gap-2">
@@ -356,7 +403,7 @@ const AllUsersPage = () => {
           </div>
         </div>
 
-        {/* Filters Section (Same as before) */}
+        {/* Filters Section */}
         <div className="bg-white p-4 rounded-xl shadow-sm border grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
           <div className="relative col-span-1 md:col-span-2">
             <Label className="text-xs mb-1 block text-gray-500">Search</Label>
@@ -490,7 +537,6 @@ const AllUsersPage = () => {
                         </span>
                       </td>
 
-                      {/* --- Fix: Table Cell for Bank Details (Use flat fields) --- */}
                       <td className="p-4 align-top">
                         <div className="flex flex-col gap-1 text-xs">
                           {user.upiId ? (
@@ -655,7 +701,6 @@ const AllUsersPage = () => {
                 />
               </div>
 
-              {/* --- Fix: Edit Bank & UPI Fields (Use flat field names) --- */}
               <div className="border-t pt-4 mt-2">
                 <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <CreditCard className="w-4 h-4" /> Bank & Payment Details
@@ -684,7 +729,7 @@ const AllUsersPage = () => {
                     <Input
                       id="bankAccountNumber"
                       placeholder="Acc. Number"
-                      {...register("bankAccountNumber")} // Register as flat field
+                      {...register("bankAccountNumber")}
                       disabled={isSubmitting}
                     />
                   </div>
