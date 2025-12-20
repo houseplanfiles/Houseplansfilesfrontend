@@ -219,12 +219,7 @@ const InteriorDesignRequestPage: React.FC = () => {
                     <h3 className="text-2xl font-bold text-gray-800">
                       Complete House Plan File
                     </h3>
-                    <div className="my-4">
-                      <span className="text-6xl font-bold text-orange-500">
-                        ₹14999-19999 started
-                      </span>
-                      <p className="text-lg text-gray-600">Price</p>
-                    </div>
+                    
                     <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
                       <p className="font-semibold text-gray-800 mb-2">
                         Includes:
@@ -254,12 +249,6 @@ const InteriorDesignRequestPage: React.FC = () => {
                       Complete House Plan File With Interior Design And Video
                       Walkthrough
                     </h3>
-                    <div className="my-4">
-                      <span className="text-7xl font-bold text-orange-500">
-                        ₹30
-                      </span>
-                      <p className="text-lg text-gray-600">Per sqft</p>
-                    </div>
                     <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
                       <p className="font-semibold text-gray-800 mb-2">
                         Includes Everything in Standard, plus:
