@@ -16,11 +16,16 @@ import {
   resetActionStatus,
 } from "@/lib/features/inquiries/inquirySlice";
 
+// ✅ useNavigate added
+import { useNavigate } from "react-router-dom";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -36,6 +41,9 @@ import {
   Briefcase,
   Paintbrush,
   HardHat,
+  UserPlus,
+  Search,
+  Filter,
 } from "lucide-react";
 
 type ContractorType = {
@@ -262,6 +270,8 @@ const ContractorCard: FC<{
 
 const ConstructionPartnersSection: FC = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { contractors, contractorListStatus } = useSelector(
     (state: RootState) => state.user
   );
@@ -310,156 +320,191 @@ const ConstructionPartnersSection: FC = () => {
   };
 
   return (
-    <>
-      {/* 
-         ADDED: border-b border-gray-200 to section
-         This adds the bottom line you requested.
-      */}
-      <section className="py-8 md:py-16 bg-soft-teal border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-2 md:px-8">
-          <div className="text-center mb-6 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-extrabold text-gray-800 tracking-tight">
-              Our City Partners
-            </h2>
-            <p className="mt-2 md:mt-4 text-xs md:text-lg text-gray-600 max-w-2xl mx-auto">
-              Connect with approved contractors.
-            </p>
-          </div>
+    // ✅ Reverted entire background to bg-soft-teal
+    <div className="bg-soft-teal border-b border-gray-200 pb-16">
+      {/* ✅ HERO BANNER SECTION (Changed from bg-gray-900 back to bg-soft-teal) */}
+      <div className="relative bg-soft-teal pt-20 pb-32 sm:pt-24 sm:pb-40 overflow-hidden">
+        {/* Background image removed, gradient removed */}
 
-          {/* Filters */}
-          <div className="max-w-2xl mx-auto mb-6 bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-md space-y-3">
-            <div>
-              <Label className="font-semibold text-gray-700 text-xs">
-                Filter by City
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+          <Badge className="bg-orange-500 hover:bg-orange-600 mb-6 px-4 py-1.5 text-sm font-medium rounded-full">
+            Trusted Network
+          </Badge>
+          {/* ✅ Text colors changed to Dark (gray-900) since background is light */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-6">
+            City Partners & Contractors
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+            Find verified professionals for your dream project. From civil work
+            to interior design, we have the best partners.
+          </p>
+
+          <div className="flex justify-center">
+            <Button
+              onClick={() => navigate("/register")}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-6 px-10 rounded-full shadow-lg hover:shadow-orange-500/20 transition-all transform hover:-translate-y-1 text-lg flex items-center gap-2"
+            >
+              <UserPlus className="w-6 h-6" />
+              Register With Us
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ OVERLAPPING FILTER SECTION */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20 mb-12">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-6 md:p-8">
+          <div className="flex flex-col md:flex-row gap-8 items-end">
+            {/* City Search */}
+            <div className="w-full md:w-1/2">
+              <Label
+                htmlFor="city-filter"
+                className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block"
+              >
+                Find by City
               </Label>
-              <div className="relative mt-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
-                  placeholder="e.g., Delhi..."
+                  id="city-filter"
+                  placeholder="Search City (e.g. Delhi, Mumbai)"
                   value={cityFilter}
                   onChange={(e) => setCityFilter(e.target.value)}
-                  className="pl-9 h-9 text-sm"
+                  className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-gray-900 transition-all text-base"
                 />
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
             </div>
-            <div>
-              <Label className="font-semibold text-gray-700 text-xs">
-                Filter by Profession
+
+            {/* Profession Filter */}
+            <div className="w-full md:w-1/2">
+              <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-2">
+                <Filter className="w-3 h-3" /> Profession
               </Label>
-              <div className="grid grid-cols-3 gap-2 mt-1">
-                <Button
-                  variant={professionFilter === "All" ? "default" : "outline"}
+              <div className="grid grid-cols-3 gap-3">
+                <button
                   onClick={() => setProfessionFilter("All")}
-                  className="h-8 text-xs"
+                  className={`h-12 rounded-lg text-sm font-medium transition-all border ${
+                    professionFilter === "All"
+                      ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
                   All
-                </Button>
-                <Button
-                  variant={
-                    professionFilter === "Building" ? "default" : "outline"
-                  }
+                </button>
+                <button
                   onClick={() => setProfessionFilter("Building")}
-                  className="h-8 text-xs"
+                  className={`h-12 rounded-lg text-sm font-medium transition-all border flex items-center justify-center gap-2 ${
+                    professionFilter === "Building"
+                      ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
-                  <HardHat className="w-3 h-3 mr-1" /> Building
-                </Button>
-                <Button
-                  variant={
-                    professionFilter === "Interior" ? "default" : "outline"
-                  }
+                  <HardHat className="w-4 h-4" />
+                  <span className="hidden sm:inline">Building</span>
+                </button>
+                <button
                   onClick={() => setProfessionFilter("Interior")}
-                  className="h-8 text-xs"
+                  className={`h-12 rounded-lg text-sm font-medium transition-all border flex items-center justify-center gap-2 ${
+                    professionFilter === "Interior"
+                      ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
-                  <Paintbrush className="w-3 h-3 mr-1" /> Interior
-                </Button>
+                  <Paintbrush className="w-4 h-4" />
+                  <span className="hidden sm:inline">Interior</span>
+                </button>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {contractorListStatus === "loading" && (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            </div>
-          )}
+      {/* Main Content Section (Cards) */}
+      <div className="max-w-7xl mx-auto px-2 md:px-8">
+        {contractorListStatus === "loading" && (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        )}
 
-          {contractorListStatus === "succeeded" && (
-            <div className="relative">
-              {approvedContractors.length === 0 ? (
-                <div className="w-full text-center py-12 text-gray-500 bg-white/50 rounded-xl">
-                  <p className="text-sm">No approved partners found.</p>
-                </div>
-              ) : (
-                <>
-                  {/* DESKTOP VIEW */}
-                  <div className="hidden md:block">
-                    {approvedContractors.length > 3 && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/80"
-                          onClick={() => scroll("left")}
-                        >
-                          <ChevronLeft />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/80"
-                          onClick={() => scroll("right")}
-                        >
-                          <ChevronRight />
-                        </Button>
-                      </>
-                    )}
-                    <div
-                      ref={scrollContainerRef}
-                      className="flex overflow-x-auto scroll-smooth py-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide"
-                    >
-                      <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
-                      <div className="flex gap-8">
-                        {approvedContractors.map((contractor) => (
-                          <ContractorCard
-                            key={contractor._id}
-                            contractor={contractor}
-                            onContact={handleContactClick}
-                            isMobile={false}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* MOBILE VIEW - Partition Type Scroll */}
-                  <div className="md:hidden">
-                    <div className="flex overflow-x-auto gap-4 pb-4 -mx-2 px-2 snap-x scrollbar-hide">
-                      <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+        {contractorListStatus === "succeeded" && (
+          <div className="relative">
+            {approvedContractors.length === 0 ? (
+              <div className="w-full text-center py-12 text-gray-500 bg-white/50 rounded-xl">
+                <p className="text-sm">No approved partners found.</p>
+              </div>
+            ) : (
+              <>
+                {/* DESKTOP VIEW */}
+                <div className="hidden md:block">
+                  {approvedContractors.length > 3 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/80"
+                        onClick={() => scroll("left")}
+                      >
+                        <ChevronLeft />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/80"
+                        onClick={() => scroll("right")}
+                      >
+                        <ChevronRight />
+                      </Button>
+                    </>
+                  )}
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex overflow-x-auto scroll-smooth py-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide"
+                  >
+                    <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
+                    <div className="flex gap-8">
                       {approvedContractors.map((contractor) => (
-                        <div
+                        <ContractorCard
                           key={contractor._id}
-                          className="min-w-[46vw] max-w-[46vw] snap-start"
-                        >
-                          <ContractorCard
-                            contractor={contractor}
-                            onContact={handleContactClick}
-                            isMobile={true}
-                          />
-                        </div>
+                          contractor={contractor}
+                          onContact={handleContactClick}
+                          isMobile={false}
+                        />
                       ))}
                     </div>
                   </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
+                </div>
+
+                {/* MOBILE VIEW - Partition Type Scroll */}
+                <div className="md:hidden">
+                  <div className="flex overflow-x-auto gap-4 pb-4 -mx-2 px-2 snap-x scrollbar-hide">
+                    <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+                    {approvedContractors.map((contractor) => (
+                      <div
+                        key={contractor._id}
+                        className="min-w-[46vw] max-w-[46vw] snap-start"
+                      >
+                        <ContractorCard
+                          contractor={contractor}
+                          onContact={handleContactClick}
+                          isMobile={true}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
       <ContactModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         user={selectedContractor}
       />
-    </>
+    </div>
   );
 };
 
