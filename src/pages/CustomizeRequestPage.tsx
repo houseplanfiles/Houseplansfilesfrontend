@@ -196,10 +196,6 @@ const CustomizeFloorPlanPage = () => {
                       Floor Plan
                     </h3>
                     <div className="my-4">
-                      <span className="text-7xl font-bold text-orange-500">
-                        ₹1
-                      </span>
-                      <p className="text-lg text-gray-600">Per sq.ft.</p>
                       <p className="text-sm text-gray-500 mt-1">
                         Built-up Area
                       </p>
@@ -233,10 +229,6 @@ const CustomizeFloorPlanPage = () => {
                       Floor Plan
                     </h3>
                     <div className="my-4">
-                      <span className="text-7xl font-bold text-orange-500">
-                        ₹5
-                      </span>
-                      <p className="text-lg text-gray-600">Per sq.ft.</p>
                     </div>
                     <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
                       <p className="flex items-center text-gray-700">
