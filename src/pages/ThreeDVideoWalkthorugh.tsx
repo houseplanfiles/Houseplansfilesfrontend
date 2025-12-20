@@ -305,9 +305,6 @@ const ThreeDWalkthroughPage = () => {
                 <h3 className="text-2xl font-bold text-center text-gray-900">
                   3D Elevation and video walkthrough
                 </h3>
-                <p className="text-center text-6xl font-extrabold text-orange-500 mt-4">
-                  ₹2999
-                </p>
                 <p className="text-center text-lg font-semibold text-gray-500">
                   starting
                 </p>
@@ -349,9 +346,6 @@ const ThreeDWalkthroughPage = () => {
                 <h3 className="text-2xl font-bold text-center text-gray-900">
                   3D elevation and video walkthrough
                 </h3>
-                <p className="text-center text-6xl font-extrabold text-orange-500 mt-4">
-                  ₹4999
-                </p>
                 <p className="text-center text-lg font-semibold text-gray-500">
                   1
                 </p>
