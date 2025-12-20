@@ -222,10 +222,6 @@ const ThreeDElevationPage: React.FC = () => {
                       Floor Plan + 3D Elevation
                     </h3>
                     <div className="my-4">
-                      <span className="text-7xl font-bold text-orange-500">
-                        ₹3
-                      </span>
-                      <p className="text-lg text-gray-600">Per sq.ft.</p>
                     </div>
                     <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
                       <p className="flex items-center text-gray-700">
@@ -252,10 +248,6 @@ const ThreeDElevationPage: React.FC = () => {
                       Floor Plan + 3D Elevation
                     </h3>
                     <div className="my-4">
-                      <span className="text-7xl font-bold text-orange-500">
-                        ₹7.5
-                      </span>
-                      <p className="text-lg text-gray-600">Per sqft</p>
                     </div>
                     <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
                       <p className="flex items-center text-gray-700">
