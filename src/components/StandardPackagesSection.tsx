@@ -1,46 +1,47 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+// 📁 src/components/StandardPackagesSection.tsx
+
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle,
-  Loader2,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AppDispatch, RootState } from "@/lib/store";
-import { fetchAllPackages } from "@/lib/features/packages/packageSlice";
 import { Button } from "@/components/ui/button";
 
-const StandardPackagesSection = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+// Define Package type for props
+interface Package {
+  _id: string;
+  title: string;
+  price: number;
+  unit: string;
+  areaType?: string;
+  isPopular?: boolean;
+  features?: string[];
+}
+interface StandardPackagesProps {
+  packages: Package[];
+}
 
-  // Mobile View State for "View More"
+const StandardPackagesSection: React.FC<StandardPackagesProps> = ({
+  packages: standardPackages,
+}) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showAllMobile, setShowAllMobile] = useState(false);
 
-  const { packages, status, error } = useSelector(
-    (state: RootState) => state.packages
-  );
+  if (!standardPackages || standardPackages.length === 0) return null;
 
-  useEffect(() => {
-    dispatch(fetchAllPackages());
-  }, [dispatch]);
-
-  const standardPackages = packages.filter(
-    (pkg) => pkg.packageType === "standard"
-  );
-
-  // --- Mobile Logic: Show 4 initially ---
+  // --- Mobile Logic ---
   const initialMobileCount = 4;
   const mobileVisiblePackages = showAllMobile
     ? standardPackages
     : standardPackages.slice(0, initialMobileCount);
   const hasMoreMobile = standardPackages.length > initialMobileCount;
 
-  // --- Scroll Logic for Desktop ---
+  // --- Scroll Logic ---
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = scrollContainerRef.current.offsetWidth * 0.8;
@@ -50,16 +51,6 @@ const StandardPackagesSection = () => {
       });
     }
   };
-
-  if (status === "loading") {
-    return (
-      <section className="py-16 bg-soft-teal text-center">
-        <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
-      </section>
-    );
-  }
-
-  if (status === "failed") return null;
 
   return (
     <section className="py-8 md:py-16 bg-soft-teal">
@@ -78,12 +69,9 @@ const StandardPackagesSection = () => {
           </p>
         </motion.div>
 
-        {/* ==========================
-            DESKTOP VIEW (SLIDER)
-            Hidden on Mobile (hidden md:block)
-           ========================== */}
+        {/* --- DESKTOP VIEW (SLIDER) --- */}
         <div className="hidden md:block relative">
-          {standardPackages.length > 1 && (
+          {standardPackages.length > 3 && (
             <>
               <Button
                 variant="outline"
@@ -103,13 +91,11 @@ const StandardPackagesSection = () => {
               </Button>
             </>
           )}
-
           <div
             ref={scrollContainerRef}
             className="flex overflow-x-auto gap-6 px-1 pb-4 snap-x snap-mandatory scrollbar-hide"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {/* Copying your original desktop card design exactly */}
             {standardPackages.map((pkg, index) => (
               <motion.div
                 key={pkg._id}
@@ -117,8 +103,7 @@ const StandardPackagesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`flex-shrink-0 w-[45vw] lg:w-[30vw] xl:w-[23vw] snap-start bg-card border-2 rounded-xl text-center transition-all duration-300 relative flex flex-col h-[520px]
-                  ${pkg.isPopular ? "border-primary shadow-lg" : "border-gray-200 hover:border-primary hover:shadow-lg"}`}
+                className={`flex-shrink-0 w-[45vw] lg:w-[30vw] xl:w-[23vw] snap-start bg-card border-2 rounded-xl text-center transition-all duration-300 relative flex flex-col ${pkg.isPopular ? "border-primary shadow-lg" : "border-gray-200 hover:border-primary hover:shadow-lg"}`}
               >
                 {pkg.isPopular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full z-10">
@@ -150,28 +135,26 @@ const StandardPackagesSection = () => {
                     ))}
                   </div>
                 </div>
-                <div className="px-5 pb-4 pt-3 border-t bg-card">
-                  <Link
-                    to="/booking-form"
-                    state={{
-                      packageName: pkg.title,
-                      packageUnit: pkg.unit,
-                      packagePrice: pkg.price,
-                    }}
-                    className="w-full btn-primary text-center block text-sm py-2.5 rounded-lg font-semibold"
-                  >
-                    Choose Plan
-                  </Link>
+                <div className="px-5 pb-4 pt-3 border-t bg-card mt-auto">
+                  <Button asChild size="lg" className="w-full font-semibold">
+                    <Link
+                      to="/booking-form"
+                      state={{
+                        packageName: pkg.title,
+                        packageUnit: pkg.unit,
+                        packagePrice: pkg.price,
+                      }}
+                    >
+                      Choose Plan
+                    </Link>
+                  </Button>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        {/* ==========================
-            MOBILE VIEW (GRID 2 Cols)
-            Hidden on Desktop (block md:hidden)
-           ========================== */}
+        {/* --- MOBILE VIEW (GRID) --- */}
         <div className="block md:hidden">
           <div className="grid grid-cols-2 gap-2">
             <AnimatePresence>
@@ -188,8 +171,6 @@ const StandardPackagesSection = () => {
                       POPULAR
                     </div>
                   )}
-
-                  {/* Compact Header */}
                   <div className="text-center mb-1 mt-1">
                     <h3 className="text-xs font-bold text-foreground truncate">
                       {pkg.title}
@@ -203,8 +184,6 @@ const StandardPackagesSection = () => {
                       </span>
                     </div>
                   </div>
-
-                  {/* Ultra Compact Features (Show only 3) */}
                   <div className="flex-grow space-y-1 mb-2">
                     {(pkg.features || []).slice(0, 3).map((feature, i) => (
                       <div key={i} className="flex items-start gap-1">
@@ -215,31 +194,28 @@ const StandardPackagesSection = () => {
                       </div>
                     ))}
                   </div>
-
-                  {/* Button */}
                   <div className="mt-auto">
-                    <Link
-                      to="/booking-form"
-                      state={{
-                        packageName: pkg.title,
-                        packageUnit: pkg.unit,
-                        packagePrice: pkg.price,
-                      }}
+                    <Button
+                      asChild
+                      size="sm"
+                      className="w-full h-7 text-[10px] font-semibold"
                     >
-                      <Button
-                        size="sm"
-                        className="w-full h-7 text-[10px] font-semibold"
+                      <Link
+                        to="/booking-form"
+                        state={{
+                          packageName: pkg.title,
+                          packageUnit: pkg.unit,
+                          packagePrice: pkg.price,
+                        }}
                       >
                         Select
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
-
-          {/* Show More Button Mobile */}
           {hasMoreMobile && (
             <div className="text-center mt-4">
               <Button
@@ -248,14 +224,11 @@ const StandardPackagesSection = () => {
                 onClick={() => setShowAllMobile(!showAllMobile)}
                 className="text-xs gap-1 h-8 px-4"
               >
+                {showAllMobile ? "Show Less" : "View All"}
                 {showAllMobile ? (
-                  <>
-                    Show Less <ChevronUp className="w-3 h-3" />
-                  </>
+                  <ChevronUp className="w-3 h-3" />
                 ) : (
-                  <>
-                    View All <ChevronDown className="w-3 h-3" />
-                  </>
+                  <ChevronDown className="w-3 h-3" />
                 )}
               </Button>
             </div>
