@@ -1,46 +1,48 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+// 📁 src/components/PremiumPackagesSection.tsx
+
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle,
-  Loader2,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AppDispatch, RootState } from "@/lib/store";
-import { fetchAllPackages } from "@/lib/features/packages/packageSlice";
 import { Button } from "@/components/ui/button";
 
-const PremiumPackagesSection = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+// Define Package type for props
+interface Package {
+  _id: string;
+  title: string;
+  price: number;
+  unit: string;
+  areaType?: string;
+  isPopular?: boolean;
+  features?: string[];
+  includes?: string[];
+}
+interface PremiumPackagesProps {
+  packages: Package[];
+}
 
-  // Mobile toggle
+const PremiumPackagesSection: React.FC<PremiumPackagesProps> = ({
+  packages: premiumPackages,
+}) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showAllMobile, setShowAllMobile] = useState(false);
 
-  const { packages, status } = useSelector(
-    (state: RootState) => state.packages
-  );
+  if (!premiumPackages || premiumPackages.length === 0) return null;
 
-  useEffect(() => {
-    dispatch(fetchAllPackages());
-  }, [dispatch]);
-
-  const premiumPackages = packages.filter(
-    (pkg) => pkg.packageType === "premium"
-  );
-
-  // Mobile Show Logic
+  // --- Mobile Logic ---
   const initialMobileCount = 4;
   const mobileVisiblePackages = showAllMobile
     ? premiumPackages
     : premiumPackages.slice(0, initialMobileCount);
   const hasMoreMobile = premiumPackages.length > initialMobileCount;
 
-  // Desktop Scroll Logic
+  // --- Scroll Logic ---
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = scrollContainerRef.current.offsetWidth * 0.8;
@@ -50,16 +52,6 @@ const PremiumPackagesSection = () => {
       });
     }
   };
-
-  if (status === "loading") {
-    return (
-      <section className="py-16 bg-background text-center">
-        <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
-      </section>
-    );
-  }
-
-  if (status === "failed") return null;
 
   return (
     <section className="py-8 md:py-16 bg-background">
@@ -78,9 +70,9 @@ const PremiumPackagesSection = () => {
           </p>
         </motion.div>
 
-        {/* --- DESKTOP SLIDER (Hidden on Mobile) --- */}
+        {/* --- DESKTOP VIEW (SLIDER) --- */}
         <div className="hidden md:block relative">
-          {premiumPackages.length > 1 && (
+          {premiumPackages.length > 3 && (
             <>
               <Button
                 variant="outline"
@@ -100,10 +92,9 @@ const PremiumPackagesSection = () => {
               </Button>
             </>
           )}
-
           <div
             ref={scrollContainerRef}
-            className="flex overflow-x-auto gap-6 px-1 pb-4 snap-x snap-mandatory"
+            className="flex overflow-x-auto gap-6 px-1 pb-4 snap-x snap-mandatory scrollbar-hide"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {premiumPackages.map((pkg, index) => (
@@ -113,8 +104,7 @@ const PremiumPackagesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`flex-shrink-0 w-[45vw] lg:w-[30vw] xl:w-[23vw] snap-start bg-card border-2 rounded-xl text-center transition-all duration-300 relative flex flex-col h-[520px]
-                  ${pkg.isPopular ? "border-primary shadow-lg" : "border-gray-200 hover:border-primary hover:shadow-lg"}`}
+                className={`flex-shrink-0 w-[45vw] lg:w-[30vw] xl:w-[23vw] snap-start bg-card border-2 rounded-xl text-center transition-all duration-300 relative flex flex-col ${pkg.isPopular ? "border-primary shadow-lg" : "border-gray-200 hover:border-primary hover:shadow-lg"}`}
               >
                 {pkg.isPopular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full z-10">
@@ -148,25 +138,26 @@ const PremiumPackagesSection = () => {
                     )}
                   </div>
                 </div>
-                <div className="px-5 pb-4 pt-3 border-t bg-card">
-                  <Link
-                    to="/booking-form"
-                    state={{
-                      packageName: pkg.title,
-                      packageUnit: pkg.unit,
-                      packagePrice: pkg.price,
-                    }}
-                    className="w-full btn-primary text-center block text-sm py-2.5 rounded-lg font-semibold"
-                  >
-                    Choose Plan
-                  </Link>
+                <div className="px-5 pb-4 pt-3 border-t bg-card mt-auto">
+                  <Button asChild size="lg" className="w-full font-semibold">
+                    <Link
+                      to="/booking-form"
+                      state={{
+                        packageName: pkg.title,
+                        packageUnit: pkg.unit,
+                        packagePrice: pkg.price,
+                      }}
+                    >
+                      Choose Plan
+                    </Link>
+                  </Button>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        {/* --- MOBILE GRID (Hidden on Desktop) --- */}
+        {/* --- MOBILE VIEW (GRID) --- */}
         <div className="block md:hidden">
           <div className="grid grid-cols-2 gap-2">
             <AnimatePresence>
@@ -183,7 +174,6 @@ const PremiumPackagesSection = () => {
                       POPULAR
                     </div>
                   )}
-
                   <div className="text-center mb-1 mt-1">
                     <h3 className="text-xs font-bold text-foreground truncate">
                       {pkg.title}
@@ -197,7 +187,6 @@ const PremiumPackagesSection = () => {
                       </span>
                     </div>
                   </div>
-
                   <div className="flex-grow space-y-1 mb-2">
                     {[...(pkg.features || []), ...(pkg.includes || [])]
                       .slice(0, 3)
@@ -210,29 +199,28 @@ const PremiumPackagesSection = () => {
                         </div>
                       ))}
                   </div>
-
                   <div className="mt-auto">
-                    <Link
-                      to="/booking-form"
-                      state={{
-                        packageName: pkg.title,
-                        packageUnit: pkg.unit,
-                        packagePrice: pkg.price,
-                      }}
+                    <Button
+                      asChild
+                      size="sm"
+                      className="w-full h-7 text-[10px] font-semibold"
                     >
-                      <Button
-                        size="sm"
-                        className="w-full h-7 text-[10px] font-semibold"
+                      <Link
+                        to="/booking-form"
+                        state={{
+                          packageName: pkg.title,
+                          packageUnit: pkg.unit,
+                          packagePrice: pkg.price,
+                        }}
                       >
                         Select
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
-
           {hasMoreMobile && (
             <div className="text-center mt-4">
               <Button
@@ -241,14 +229,11 @@ const PremiumPackagesSection = () => {
                 onClick={() => setShowAllMobile(!showAllMobile)}
                 className="text-xs gap-1 h-8 px-4"
               >
+                {showAllMobile ? "Show Less" : "View All"}
                 {showAllMobile ? (
-                  <>
-                    Show Less <ChevronUp className="w-3 h-3" />
-                  </>
+                  <ChevronUp className="w-3 h-3" />
                 ) : (
-                  <>
-                    View All <ChevronDown className="w-3 h-3" />
-                  </>
+                  <ChevronDown className="w-3 h-3" />
                 )}
               </Button>
             </div>
