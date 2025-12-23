@@ -1,15 +1,23 @@
-import { useState } from "react";
+// 📁 src/pages/PackagesPage.tsx
+
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { Loader2, ChevronDown } from "lucide-react";
+
+import { AppDispatch, RootState } from "@/lib/store";
+import { fetchAllPackages } from "@/lib/features/packages/packageSlice";
+
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import StandardPackagesSection from "@/components/StandardPackagesSection";
 import PremiumPackagesSection from "@/components/PremiumPackagesSection";
 import CorporatePackagesSection from "@/components/CorporatePackagesSection";
-import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// --- FAQ aur CTA Sections (Aapke original code se) ---
 const faqData = [
   {
     question: "How long does it take to get a house plan?",
@@ -36,7 +44,6 @@ const FaqSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const handleToggle = (index: number) =>
     setOpenIndex(openIndex === index ? null : index);
-
   return (
     <section className="py-10 md:py-20 bg-soft-teal">
       <div className="container mx-auto px-4">
@@ -82,7 +89,6 @@ const FaqSection = () => {
     </section>
   );
 };
-
 const CtaSection = () => (
   <section className="gradient-orange py-10 md:py-20">
     <motion.div
@@ -108,8 +114,29 @@ const CtaSection = () => (
     </motion.div>
   </section>
 );
+// --- End of FAQ and CTA Sections ---
 
 const PackagesPage = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const { packages, status, error } = useSelector(
+    (state: RootState) => state.packages
+  );
+
+  // Sirf ek baar data fetch karein jab page load ho
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchAllPackages());
+    }
+  }, [status, dispatch]);
+
+  // Data ko yahin filter karein
+  const standardPackages = packages.filter(
+    (pkg) => pkg.packageType === "standard"
+  );
+  const premiumPackages = packages.filter(
+    (pkg) => pkg.packageType === "premium"
+  );
+
   return (
     <>
       <Helmet>
@@ -121,26 +148,22 @@ const PackagesPage = () => {
           content="Explore our comprehensive design packages."
         />
       </Helmet>
-
       <Navbar />
       <main className="overflow-x-hidden">
-        {/* --- HERO SECTION WITH BACKGROUND IMAGE --- */}
+        {/* --- HERO SECTION --- */}
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
           className="relative py-16 md:py-32 text-center text-white"
           style={{
-            // Aap yahan apni image ka URL daal sakte hain
             backgroundImage:
               "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-          {/* Dark Overlay for text readability */}
           <div className="absolute inset-0 bg-black/60 z-0"></div>
-
           <div className="container mx-auto px-4 relative z-10">
             <h1 className="text-3xl md:text-6xl font-extrabold mb-3 md:mb-6">
               Our Architectural Packages
@@ -152,9 +175,27 @@ const PackagesPage = () => {
           </div>
         </motion.section>
 
-        <StandardPackagesSection />
-        <PremiumPackagesSection />
-        <CorporatePackagesSection />
+        {/* Loading aur Error State ko handle karein */}
+        {status === "loading" && (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        )}
+
+        {status === "failed" && (
+          <div className="text-center py-20 text-red-500">
+            <p>Error loading packages: {error}</p>
+          </div>
+        )}
+
+        {/* Jab data aa jaye, tab sections ko render karein */}
+        {status === "succeeded" && (
+          <>
+            <StandardPackagesSection packages={standardPackages} />
+            <PremiumPackagesSection packages={premiumPackages} />
+            <CorporatePackagesSection />
+          </>
+        )}
 
         <FaqSection />
         <CtaSection />
