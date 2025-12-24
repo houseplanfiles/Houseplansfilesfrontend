@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { Helmet } from "react-helmet-async"; // Helmet को import करें
+import { Helmet } from "react-helmet-async";
 import { RootState, store } from "@/lib/store";
 import {
   submitCustomizationRequest,
@@ -12,19 +12,19 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, Star } from "lucide-react";
+import { Loader2, UploadCloud, Send, Maximize, Briefcase } from "lucide-react";
 
-// Form styles defined locally
+// Modern UI Styles
 const formStyles = {
-  label: "block text-sm font-medium text-gray-700 mb-2",
+  label: "block text-sm font-semibold text-gray-700 mb-2",
   input:
-    "w-full px-4 py-3 bg-gray-100 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition",
+    "w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm",
   select:
-    "w-full px-4 py-3 bg-gray-100 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition",
+    "w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm appearance-none",
   textarea:
-    "w-full px-4 py-3 bg-gray-100 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px] resize-y transition",
-  fileInput:
-    "w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-500/10 file:text-orange-600 hover:file:bg-orange-500/20 cursor-pointer",
+    "w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent min-h-[120px] resize-y transition-all duration-200 shadow-sm",
+  fileInputWrapper:
+    "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-orange-50 transition-colors",
 };
 
 const InteriorDesignRequestPage: React.FC = () => {
@@ -33,6 +33,14 @@ const InteriorDesignRequestPage: React.FC = () => {
     (state: RootState) => state.customization
   );
   const [formKey, setFormKey] = useState<number>(Date.now());
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  // File selection handler
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFileName(e.target.files[0].name);
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,9 +51,12 @@ const InteriorDesignRequestPage: React.FC = () => {
 
   useEffect(() => {
     if (actionStatus === "succeeded") {
-      toast.success("Request submitted successfully!");
+      toast.success(
+        "Request submitted successfully! Our team will contact you shortly."
+      );
       dispatch(resetStatus());
       setFormKey(Date.now());
+      setFileName(null);
     }
     if (actionStatus === "failed") {
       toast.error(String(error) || "Submission failed. Please try again.");
@@ -57,50 +68,68 @@ const InteriorDesignRequestPage: React.FC = () => {
 
   return (
     <>
-      {/* --- Helmet Tag for SEO --- */}
       <Helmet>
-        <title>Complete House Plan File | Detailed Blueprints & Designs</title>
+        <title>Interior Design Services | Residential & Commercial</title>
         <meta
           name="description"
-          content="Create your ideal home with our customizable house plan files. Easily modify layouts, room sizes, and design details to match your unique style and requirements. Start designing today!"
+          content="Transform your space with our expert interior design services. Whether residential or commercial, we bring your vision to life with detailed plans and walkthroughs."
         />
       </Helmet>
 
       <Navbar />
-      <div className="max-w-6xl mx-auto p-4 md:p-8 py-12 md:py-16">
-        <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-          <form key={formKey} onSubmit={handleSubmit}>
-            <div className="flex flex-col-reverse lg:flex-row">
-              {/* === FORM SECTION (Left Side) === */}
-              <div className="w-full lg:w-1/2 p-8 md:p-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
-                  Design Your Interior Space
-                </h2>
-                <div className="space-y-5">
+
+      {/* Main Background */}
+      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 md:px-8">
+        {/* Centered Container */}
+        <div className="max-w-3xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-10">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
+              Design Your{" "}
+              <span className="text-orange-600">Interior Space</span>
+            </h1>
+            <p className="text-lg text-gray-600 max-w-xl mx-auto">
+              Get detailed interior layouts, 3D views, and walkthroughs tailored
+              to your specific room dimensions and style.
+            </p>
+          </div>
+
+          {/* Form Card */}
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="p-8 md:p-10">
+              <form key={formKey} onSubmit={handleSubmit} className="space-y-6">
+                {/* Row 1: Name & Email */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className={formStyles.label}>
-                      Name
+                      Full Name
                     </label>
                     <input
                       type="text"
                       id="name"
                       name="name"
+                      placeholder="John Doe"
                       className={formStyles.input}
                       required
                     />
                   </div>
                   <div>
                     <label htmlFor="email" className={formStyles.label}>
-                      Email
+                      Email Address
                     </label>
                     <input
                       type="email"
                       id="email"
                       name="email"
+                      placeholder="john@example.com"
                       className={formStyles.input}
                       required
                     />
                   </div>
+                </div>
+
+                {/* Row 2: Phone & Country */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label
                       htmlFor="whatsappNumber"
@@ -112,11 +141,11 @@ const InteriorDesignRequestPage: React.FC = () => {
                       type="tel"
                       id="whatsappNumber"
                       name="whatsappNumber"
+                      placeholder="+91 98765 43210"
                       className={formStyles.input}
                       required
                     />
                   </div>
-                  {/* ++ FIX HERE: Changed name="country" to name="countryName" ++ */}
                   <div>
                     <label htmlFor="countryName" className={formStyles.label}>
                       Country
@@ -125,45 +154,60 @@ const InteriorDesignRequestPage: React.FC = () => {
                       type="text"
                       id="countryName"
                       name="countryName"
-                      className={formStyles.input}
                       defaultValue="India"
+                      className={formStyles.input}
                       required
                     />
                   </div>
-                  <div>
-                    <label className={formStyles.label}>Room Size</label>
-                    <div className="flex gap-4">
-                      <div className="flex-1">
-                        <label htmlFor="roomWidth" className={formStyles.label}>
-                          Width (Ft)
-                        </label>
-                        <input
-                          type="number"
-                          id="roomWidth"
-                          name="roomWidth"
-                          className={formStyles.input}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label
-                          htmlFor="roomLength"
-                          className={formStyles.label}
-                        >
-                          Length (Ft)
-                        </label>
-                        <input
-                          type="number"
-                          id="roomLength"
-                          name="roomLength"
-                          className={formStyles.input}
-                        />
-                      </div>
+                </div>
+
+                {/* Row 3: Room Dimensions */}
+                <div className="bg-orange-50/50 p-5 rounded-lg border border-orange-100">
+                  <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <Maximize className="w-4 h-4 mr-2 text-orange-600" /> Room
+                    Dimensions (Feet)
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="roomWidth"
+                        className="text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Width
+                      </label>
+                      <input
+                        type="number"
+                        id="roomWidth"
+                        name="roomWidth"
+                        placeholder="e.g. 12"
+                        className={`${formStyles.input} mt-1`}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="roomLength"
+                        className="text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Length
+                      </label>
+                      <input
+                        type="number"
+                        id="roomLength"
+                        name="roomLength"
+                        placeholder="e.g. 15"
+                        className={`${formStyles.input} mt-1`}
+                      />
                     </div>
                   </div>
-                  <div>
-                    <label htmlFor="designFor" className={formStyles.label}>
-                      Design For
-                    </label>
+                </div>
+
+                {/* Row 4: Design For (Select) */}
+                <div>
+                  <label htmlFor="designFor" className={formStyles.label}>
+                    <Briefcase className="w-4 h-4 inline mr-1 text-orange-500" />{" "}
+                    Project Type
+                  </label>
+                  <div className="relative">
                     <select
                       id="designFor"
                       name="designFor"
@@ -176,107 +220,79 @@ const InteriorDesignRequestPage: React.FC = () => {
                         Commercial Interior Design
                       </option>
                     </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                      <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                      </svg>
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor="description" className={formStyles.label}>
-                      Description
-                    </label>
-                    <textarea
-                      id="description"
-                      name="description"
-                      placeholder="Your message..."
-                      className={formStyles.textarea}
-                    ></textarea>
-                  </div>
-                  <div>
-                    <label className={formStyles.label}>
-                      Upload Reference (Image or PDF)
-                    </label>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label htmlFor="description" className={formStyles.label}>
+                    Description & Style Preferences
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    placeholder="Tell us about the theme, colors, or specific furniture requirements..."
+                    className={formStyles.textarea}
+                  ></textarea>
+                </div>
+
+                {/* File Upload - Modern UI */}
+                <div>
+                  <label className={formStyles.label}>
+                    Upload Reference (Image/PDF)
+                  </label>
+                  <div className="relative">
                     <input
                       type="file"
                       name="referenceFile"
-                      className={formStyles.fileInput}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      onChange={handleFileChange}
                     />
+                    <div className={formStyles.fileInputWrapper}>
+                      <UploadCloud className="h-8 w-8 text-orange-500 mb-2" />
+                      <p className="text-sm font-medium text-gray-700">
+                        {fileName ? (
+                          <span className="text-orange-600">{fileName}</span>
+                        ) : (
+                          "Click to upload or drag and drop"
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Help us understand your vision better
+                      </p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-4">
                   <Button
                     type="submit"
-                    className="w-full mt-6 text-lg py-3.5 h-14 bg-orange-500 hover:bg-orange-600 text-white"
+                    className="w-full text-lg py-6 bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 rounded-xl"
                     disabled={isLoading}
                   >
-                    {isLoading && (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        Start Designing <Send className="ml-2 h-5 w-5" />
+                      </>
                     )}
-                    Send Request
                   </Button>
                 </div>
-              </div>
-
-              {/* === CARDS SECTION (Right Side) === */}
-              <div className="w-full lg:w-1/2 bg-gray-50 p-8 flex items-stretch justify-center">
-                <div className="flex h-full w-full flex-col items-center justify-center gap-y-8">
-                  {/* == STANDARD CARD (CUSTOM PRICE) == */}
-                  <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 text-center shadow-md flex flex-col h-full">
-                    <h3 className="text-2xl font-bold text-gray-800">
-                      Complete House Plan File
-                    </h3>
-                    
-                    <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
-                      <p className="font-semibold text-gray-800 mb-2">
-                        Includes:
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        Floor plan
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        Furniture layout
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        Column layout
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        Door/Window schedule
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* == PREMIUM CARD (₹40/sqft) == */}
-                  <div className="w-full max-w-sm rounded-xl border-2 border-orange-500 bg-white p-8 text-center shadow-lg flex flex-col h-full">
-                    <h3 className="text-2xl font-bold text-gray-800 leading-tight">
-                      Complete House Plan File With Interior Design And Video
-                      Walkthrough
-                    </h3>
-                    <div className="border-t pt-6 mt-4 text-left space-y-3 flex-grow">
-                      <p className="font-semibold text-gray-800 mb-2">
-                        Includes Everything in Standard, plus:
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        Electrical layout
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        Plumbing layout
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        3D Interior Views
-                      </p>
-                      <p className="flex items-center text-gray-700">
-                        <CheckCircle className="w-5 h-5 mr-3 text-green-500" />{" "}
-                        3D Video Walkthrough
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );
