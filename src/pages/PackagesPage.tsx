@@ -1,5 +1,4 @@
 // 📁 src/pages/PackagesPage.tsx
-
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
