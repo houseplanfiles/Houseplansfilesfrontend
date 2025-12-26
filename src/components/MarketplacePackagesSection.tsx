@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
 interface Package {
   _id: string;
   title: string;
@@ -298,3 +297,4 @@ const MarketplacePackagesSection: React.FC<MarketplacePackagesProps> = ({
 };
 
 export default MarketplacePackagesSection;
+
