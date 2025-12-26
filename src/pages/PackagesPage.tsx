@@ -14,6 +14,8 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import StandardPackagesSection from "@/components/StandardPackagesSection";
 import PremiumPackagesSection from "@/components/PremiumPackagesSection";
+import CityPartnerPackagesSection from "@/components/CityPartnerPackagesSection";
+import MarketplacePackagesSection from "@/components/MarketplacePackagesSection";
 import CorporatePackagesSection from "@/components/CorporatePackagesSection";
 import { Button } from "@/components/ui/button";
 
@@ -193,6 +195,8 @@ const PackagesPage = () => {
           <>
             <StandardPackagesSection packages={standardPackages} />
             <PremiumPackagesSection packages={premiumPackages} />
+            <CityPartnerPackagesSection />
+            <MarketplacePackagesSection />
             <CorporatePackagesSection />
           </>
         )}
