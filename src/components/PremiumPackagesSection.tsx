@@ -1,247 +1,308 @@
-// 📁 src/components/PremiumPackagesSection.tsx
-
-import React, { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { RootState, AppDispatch } from "@/lib/store";
 import {
-  CheckCircle,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+  fetchAllPremiumRequests,
+  updatePremiumRequest,
+  deletePremiumRequest,
+  resetActionStatus,
+  type PremiumRequest,
+} from "@/lib/features/premiumRequest/premiumRequestSlice";
+
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Trash2, Loader2, Inbox, Edit, RefreshCw } from "lucide-react";
+import EditRequestModal from "./EditRequestModal";
 
-// Define Package type for props
-interface Package {
-  _id: string;
-  title: string;
-  price: number;
-  unit: string;
-  areaType?: string;
-  isPopular?: boolean;
-  features?: string[];
-  includes?: string[];
-}
-interface PremiumPackagesProps {
-  packages: Package[];
-}
+const PremiumRequestsPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { requests, listStatus, actionStatus, error } = useSelector(
+    (state: RootState) => state.premiumRequests
+  );
 
-const PremiumPackagesSection: React.FC<PremiumPackagesProps> = ({
-  packages: premiumPackages,
-}) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showAllMobile, setShowAllMobile] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [selectedRequest, setSelectedRequest] = useState<PremiumRequest | null>(
+    null
+  );
 
-  if (!premiumPackages || premiumPackages.length === 0) return null;
+  // Fetch requests on component mount
+  useEffect(() => {
+    dispatch(fetchAllPremiumRequests());
+  }, [dispatch]);
 
-  // --- Mobile Logic ---
-  const initialMobileCount = 4;
-  const mobileVisiblePackages = showAllMobile
-    ? premiumPackages
-    : premiumPackages.slice(0, initialMobileCount);
-  const hasMoreMobile = premiumPackages.length > initialMobileCount;
-
-  // --- Scroll Logic ---
-  const scroll = (direction: "left" | "right") => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.offsetWidth * 0.8;
-      scrollContainerRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
+  // Reset action status when needed
+  useEffect(() => {
+    if (actionStatus === "succeeded") {
+      const timer = setTimeout(() => {
+        dispatch(resetActionStatus());
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [actionStatus, dispatch]);
+
+  const handleRefresh = useCallback(() => {
+    dispatch(fetchAllPremiumRequests());
+    toast.info("Refreshing requests...");
+  }, [dispatch]);
+
+  const handleStatusChange = useCallback(
+    async (requestId: string, newStatus: PremiumRequest["status"]) => {
+      try {
+        const result = await dispatch(
+          updatePremiumRequest({
+            requestId,
+            updateData: { status: newStatus },
+          })
+        );
+
+        if (updatePremiumRequest.fulfilled.match(result)) {
+          toast.success(`Request status updated to ${newStatus}`);
+        } else {
+          throw new Error(result.payload as string);
+        }
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to update status");
+      }
+    },
+    [dispatch]
+  );
+
+  const handleDelete = useCallback(
+    async (requestId: string) => {
+      if (
+        !window.confirm("Are you sure you want to delete this premium request?")
+      ) {
+        return;
+      }
+
+      try {
+        const result = await dispatch(deletePremiumRequest(requestId));
+
+        if (deletePremiumRequest.fulfilled.match(result)) {
+          toast.success("Request deleted successfully!");
+        } else {
+          throw new Error(result.payload as string);
+        }
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to delete request");
+      }
+    },
+    [dispatch]
+  );
+
+  const handleEditClick = useCallback((request: PremiumRequest) => {
+    setSelectedRequest(request);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsEditModalOpen(false);
+    setSelectedRequest(null);
+  }, []);
+
+  const requestsArray = Array.isArray(requests) ? requests : [];
 
   return (
-    <section className="py-8 md:py-16 bg-background">
-      <div className="container mx-auto px-2 md:px-4">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-6 md:mb-12"
-        >
-          <h2 className="text-2xl md:text-4xl font-bold text-foreground">
-            Premium Packages
-          </h2>
-          <p className="text-xs md:text-lg text-muted-foreground mt-1">
-            Comprehensive designs for your needs.
-          </p>
-        </motion.div>
-
-        {/* --- DESKTOP VIEW (SLIDER) --- */}
-        <div className="hidden md:block relative">
-          {premiumPackages.length > 3 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 rounded-full h-12 w-12 bg-white/80 backdrop-blur-sm hover:bg-white flex"
-                onClick={() => scroll("left")}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 rounded-full h-12 w-12 bg-white/80 backdrop-blur-sm hover:bg-white flex"
-                onClick={() => scroll("right")}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            </>
-          )}
-          <div
-            ref={scrollContainerRef}
-            className="flex overflow-x-auto gap-6 px-1 pb-4 snap-x snap-mandatory scrollbar-hide"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {premiumPackages.map((pkg, index) => (
-              <motion.div
-                key={pkg._id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`flex-shrink-0 w-[45vw] lg:w-[30vw] xl:w-[23vw] snap-start bg-card border-2 rounded-xl text-center transition-all duration-300 relative flex flex-col ${pkg.isPopular ? "border-primary shadow-lg" : "border-gray-200 hover:border-primary hover:shadow-lg"}`}
-              >
-                {pkg.isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full z-10">
-                    MOST POPULAR
-                  </div>
-                )}
-                <div className="flex-grow overflow-y-auto px-5 pt-6 pb-3">
-                  <h3 className="text-xl font-bold text-foreground mb-3">
-                    {pkg.title}
-                  </h3>
-                  <div className="mb-3">
-                    <span className="text-4xl font-extrabold text-primary">
-                      ₹{pkg.price}
-                    </span>
-                    <p className="text-sm text-muted-foreground">{pkg.unit}</p>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    {pkg.areaType}
-                  </p>
-                  <div className="text-left mt-2 text-xs space-y-1">
-                    {[...(pkg.features || []), ...(pkg.includes || [])].map(
-                      (f, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <CheckCircle
-                            size={12}
-                            className="text-green-500 mt-0.5"
-                          />
-                          <span>{f}</span>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-                <div className="px-5 pb-4 pt-3 border-t bg-card mt-auto">
-                  <Button asChild size="lg" className="w-full font-semibold">
-                    <Link
-                      to="/booking-form"
-                      state={{
-                        packageName: pkg.title,
-                        packageUnit: pkg.unit,
-                        packagePrice: pkg.price,
-                      }}
-                    >
-                      Choose Plan
-                    </Link>
-                  </Button>
-                </div>
-              </motion.div>
-            ))}
+    <>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Premium Consultation Requests
+            </h1>
+            <p className="text-gray-600 mt-2">
+              View and manage all premium plan consultation requests from users.
+            </p>
+            {requestsArray.length > 0 && (
+              <div className="mt-4 text-sm text-gray-600">
+                <span>
+                  Total Requests: <strong>{requestsArray.length}</strong>
+                </span>
+              </div>
+            )}
           </div>
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={listStatus === "loading"}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${listStatus === "loading" ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
 
-        {/* --- MOBILE VIEW (GRID) --- */}
-        <div className="block md:hidden">
-          <div className="grid grid-cols-2 gap-2">
-            <AnimatePresence>
-              {mobileVisiblePackages.map((pkg) => (
-                <motion.div
-                  key={pkg._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className={`bg-card border rounded-lg flex flex-col p-2 relative ${pkg.isPopular ? "border-primary shadow-sm" : "border-border"}`}
-                >
-                  {pkg.isPopular && (
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-10 whitespace-nowrap">
-                      POPULAR
-                    </div>
-                  )}
-                  <div className="text-center mb-1 mt-1">
-                    <h3 className="text-xs font-bold text-foreground truncate">
-                      {pkg.title}
-                    </h3>
-                    <div className="flex justify-center items-baseline gap-0.5">
-                      <span className="text-lg font-extrabold text-primary">
-                        ₹{pkg.price}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground">
-                        /{pkg.unit}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-grow space-y-1 mb-2">
-                    {[...(pkg.features || []), ...(pkg.includes || [])]
-                      .slice(0, 3)
-                      .map((feature, i) => (
-                        <div key={i} className="flex items-start gap-1">
-                          <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-[9px] text-foreground leading-tight line-clamp-1">
-                            {feature}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                  <div className="mt-auto">
-                    <Button
-                      asChild
-                      size="sm"
-                      className="w-full h-7 text-[10px] font-semibold"
-                    >
-                      <Link
-                        to="/booking-form"
-                        state={{
-                          packageName: pkg.title,
-                          packageUnit: pkg.unit,
-                          packagePrice: pkg.price,
-                        }}
-                      >
-                        Select
-                      </Link>
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600 text-sm">{error}</p>
           </div>
-          {hasMoreMobile && (
-            <div className="text-center mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAllMobile(!showAllMobile)}
-                className="text-xs gap-1 h-8 px-4"
-              >
-                {showAllMobile ? "Show Less" : "View All"}
-                {showAllMobile ? (
-                  <ChevronUp className="w-3 h-3" />
-                ) : (
-                  <ChevronDown className="w-3 h-3" />
-                )}
-              </Button>
+        )}
+
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border">
+          {listStatus === "loading" ? (
+            <div className="p-12 flex items-center justify-center text-gray-500">
+              <Loader2 className="mr-2 h-6 w-6 animate-spin" /> Loading
+              Requests...
+            </div>
+          ) : !requestsArray || requestsArray.length === 0 ? (
+            <div className="p-12 text-center text-gray-500">
+              <Inbox className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="mt-2 font-semibold">No premium requests found.</p>
+              <p className="text-sm mt-1">
+                Premium consultation requests will appear here when customers
+                submit them.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="p-4 font-semibold text-sm text-gray-600">
+                      Package
+                    </th>
+                    <th className="p-4 font-semibold text-sm text-gray-600">
+                      Customer
+                    </th>
+                    <th className="p-4 font-semibold text-sm text-gray-600">
+                      City
+                    </th>
+                    <th className="p-4 font-semibold text-sm text-gray-600">
+                      Date
+                    </th>
+                    <th className="p-4 font-semibold text-sm text-gray-600">
+                      Status
+                    </th>
+                    <th className="p-4 font-semibold text-sm text-gray-600 text-center">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requestsArray.map((req: PremiumRequest) => (
+                    <tr
+                      key={req._id}
+                      className="border-t hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="p-4 font-medium text-gray-800">
+                        {req.packageName}
+                      </td>
+                      <td className="p-4">
+                        <div className="font-medium text-gray-800">
+                          {req.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {req.whatsapp}
+                        </div>
+                        {req.email && (
+                          <div className="text-sm text-gray-500">
+                            {req.email}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-4 text-gray-600">{req.city}</td>
+                      <td className="p-4 text-gray-600">
+                        {format(new Date(req.createdAt), "dd MMM, yyyy")}
+                      </td>
+                      <td className="p-4">
+                        <Select
+                          value={req.status}
+                          onValueChange={(
+                            newStatus: PremiumRequest["status"]
+                          ) => handleStatusChange(req._id, newStatus)}
+                          disabled={actionStatus === "loading"}
+                        >
+                          <SelectTrigger className="w-36">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Pending">
+                              <span className="flex items-center">
+                                <span className="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                                Pending
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="Contacted">
+                              <span className="flex items-center">
+                                <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                                Contacted
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="In Progress">
+                              <span className="flex items-center">
+                                <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                                In Progress
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="Completed">
+                              <span className="flex items-center">
+                                <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                Completed
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="Cancelled">
+                              <span className="flex items-center">
+                                <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                                Cancelled
+                              </span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="p-4 text-center">
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleEditClick(req)}
+                            disabled={actionStatus === "loading"}
+                            title="Edit Request"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="text-red-500 hover:text-red-500 hover:bg-red-50"
+                            onClick={() => handleDelete(req._id)}
+                            disabled={actionStatus === "loading"}
+                            title="Delete Request"
+                          >
+                            {actionStatus === "loading" ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
       </div>
-    </section>
+
+      {selectedRequest && (
+        <EditRequestModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseModal}
+          request={selectedRequest}
+        />
+      )}
+    </>
   );
 };
 
-export default PremiumPackagesSection;
+export default PremiumRequestsPage;
