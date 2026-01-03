@@ -24,21 +24,18 @@ const ContactUs = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- ✨ बदलाव यहाँ किया गया है ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // web3forms के लिए डेटा तैयार करें
     const dataToSend = {
       ...formData,
-      access_key: "047f7aa7-1008-4f0e-ab62-55bea05a1449", // आपकी Access Key
+      access_key: "047f7aa7-1008-4f0e-ab62-55bea05a1449",
       subject: "New Contact Form Submission from Your Website",
       from_name: "HousePlanFiles",
     };
 
     try {
-      // सीधे web3forms API पर पोस्ट करें
       const response = await axios.post(
         "https://api.web3forms.com/submit",
         dataToSend,
@@ -54,7 +51,7 @@ const ContactUs = () => {
         toast.success(
           "Message sent successfully! We will get back to you soon."
         );
-        setFormData({ name: "", email: "", message: "" }); // फॉर्म को रीसेट करें
+        setFormData({ name: "", email: "", message: "" });
       } else {
         toast.error(response.data.message || "Something went wrong.");
       }
@@ -68,8 +65,9 @@ const ContactUs = () => {
 
   return (
     <>
+      {/* --- SEO METADATA UPDATED HERE --- */}
       <Helmet>
-        <title>CONTACT HOUSEPLANFILES</title>
+        <title>contact details of house plan files</title>
         <meta
           name="description"
           content="Get in touch with HousePlanFiles for readymade house plans, custom designs, construction services, and consultation. Contact us today for expert support"
