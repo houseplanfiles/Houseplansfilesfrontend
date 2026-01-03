@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async"; // Helmet को import करें
+import { Helmet } from "react-helmet-async"; // Helmet ko import karen
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -121,12 +121,12 @@ const corporatePackages = [
 const CareersPage = () => {
   return (
     <div className="bg-gray-50">
-      {/* --- Helmet Tag for SEO --- */}
+      {/* --- Helmet Tag for SEO (UPDATED) --- */}
       <Helmet>
-        <title>VACANCY IN HOUSEPLANFILES</title>
+        <title>various Careers opportunities at HousePlanFiles</title>
         <meta
           name="description"
-          content="Explore career opportunities at HousePlanFiles.com. Join our team of architects, contractors, and designers. Apply now for vacancies in home design and construction services"
+          content="Explore career opportunities at HousePlanFiles — join our team in design, marketing, tech & more. Grow your career with India’s top home plan platform!"
         />
       </Helmet>
 
@@ -280,5 +280,4 @@ const CareersPage = () => {
     </div>
   );
 };
-
 export default CareersPage;
