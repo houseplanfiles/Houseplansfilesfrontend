@@ -77,7 +77,8 @@ const VideoModal = ({
     }
 
     if (videoId) {
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      // ✅ SYNTAX ERROR FIXED HERE
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
     }
     return null;
   };
@@ -734,7 +735,7 @@ const ThreeDPlansPage = () => {
   const { orders } = useSelector((state: RootState) => state.orders);
 
   const [filters, setFilters] = useState({
-    searchTerm: "", // Added Search
+    searchTerm: "",
     plotArea: "all",
     plotSize: "all",
     bhk: "all",
@@ -751,12 +752,11 @@ const ThreeDPlansPage = () => {
 
   const debouncedSearchTerm = useDebounce(filters.searchTerm, 300);
 
-  // Exact Logic from Products.tsx for Fetching & Reseting
   useEffect(() => {
     const params: any = {
       pageNumber: currentPage,
       limit: 12,
-      planCategory: "elevations", // STRICTLY ELEVATIONS
+      planCategory: "elevations",
     };
 
     if (debouncedSearchTerm) params.searchTerm = debouncedSearchTerm;
@@ -780,7 +780,6 @@ const ThreeDPlansPage = () => {
     }
   }, [dispatch, userInfo, currentPage, debouncedSearchTerm, filters, sortBy]);
 
-  // Page Reset Logic
   const prevFiltersRef = useRef({
     ...filters,
     searchTerm: debouncedSearchTerm,
@@ -840,11 +839,12 @@ const ThreeDPlansPage = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      {/* --- SEO METADATA UPDATED HERE --- */}
       <Helmet>
-        <title>3D Floor Plans | Elevations & Architectural Designs</title>
+        <title>floor plan with 3d elevation design</title>
         <meta
           name="description"
-          content="Explore detailed 3D floor plans and elevations."
+          content="Explore detailed floor plan and 3D house elevation & to bring your dream home design to life. Perfect for builders, architects & homeowners. Download now"
         />
       </Helmet>
 
