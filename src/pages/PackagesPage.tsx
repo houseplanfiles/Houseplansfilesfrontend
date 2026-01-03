@@ -44,7 +44,8 @@ const faqData = [
 ];
 
 const FaqSection = () => {
-  const [openIndex, setOpenIndex] useState<number | null>(null);
+  // YAHAN PAR ERROR THA, MAINE = LAGA DIYA HAI
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const handleToggle = (index: number) =>
     setOpenIndex(openIndex === index ? null : index);
   return (
