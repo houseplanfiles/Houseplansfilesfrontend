@@ -67,13 +67,12 @@ const CustomizeFloorPlanPage = () => {
 
   return (
     <>
+      {/* --- SEO METADATA UPDATED HERE --- */}
       <Helmet>
-        <title>
-          Customize Your Floor Plan | Modern Layouts & Design Options
-        </title>
+        <title>complete house plan files with mep details</title>
         <meta
           name="description"
-          content="Customize your floor plan with modern layouts and flexible design options. Easily create the perfect space to fit your needs."
+          content="Custom house plan files with structural electrical plumbing — detail planning layouts, stylish décor plans & expert solutions to elevate your home spaces. Create interiors you love!"
         />
       </Helmet>
 
