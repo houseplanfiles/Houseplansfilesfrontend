@@ -1,4 +1,5 @@
 // 📁 src/pages/PackagesPage.tsx
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +17,7 @@ import PremiumPackagesSection from "@/components/PremiumPackagesSection";
 import CityPartnerPackagesSection from "@/components/CityPartnerPackagesSection";
 import MarketplacePackagesSection from "@/components/MarketplacePackagesSection";
 import CorporatePackagesSection from "@/components/CorporatePackagesSection";
+
 import { Button } from "@/components/ui/button";
 
 // --- FAQ aur CTA Sections (Aapke original code se) ---
@@ -42,7 +44,7 @@ const faqData = [
 ];
 
 const FaqSection = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] useState<number | null>(null);
   const handleToggle = (index: number) =>
     setOpenIndex(openIndex === index ? null : index);
   return (
@@ -141,12 +143,10 @@ const PackagesPage = () => {
   return (
     <>
       <Helmet>
-        <title>
-          Architectural Design Packages | Standard, Premium & Corporate
-        </title>
+        <title>Multiple home designing packages</title>
         <meta
           name="description"
-          content="Explore our comprehensive design packages."
+          content="Explore affordable design packages — ready-made house plans, custom layouts & add-ons to fit your build needs. Start your dream home project today!"
         />
       </Helmet>
       <Navbar />
