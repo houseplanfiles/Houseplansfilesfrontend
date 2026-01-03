@@ -9,8 +9,8 @@ import {
   resetActionStatus,
 } from "@/lib/features/inquiries/inquirySlice";
 
-// ✅ Added useNavigate for routing
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async"; // Helmet ko import kiya gaya hai
 
 // Components
 import Navbar from "@/components/Navbar";
@@ -39,7 +39,7 @@ import {
   Search,
   CheckCircle2,
   Filter,
-  UserPlus, // ✅ Added Icon
+  UserPlus,
 } from "lucide-react";
 
 // --- Types ---
@@ -207,7 +207,7 @@ const ContactModal: FC<{
 // --- Main Page Component ---
 const PartnersPage: FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const navigate = useNavigate(); // ✅ Initialize Navigation hook
+  const navigate = useNavigate();
 
   const { contractors, contractorListStatus } = useSelector(
     (state: RootState) => state.user
@@ -255,6 +255,17 @@ const PartnersPage: FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* --- Helmet Tag for SEO (UPDATED) --- */}
+      <Helmet>
+        <title>
+          partnership programe for contractors and interior designers
+        </title>
+        <meta
+          name="description"
+          content="Join HousePlanFiles City Partners — grow your design & sales network, earn leads, and partner with India’s top home plan platform."
+        />
+      </Helmet>
+
       <Navbar />
 
       {/* --- Hero Section --- */}
@@ -279,7 +290,6 @@ const PartnersPage: FC = () => {
             to interior design, we have the best partners.
           </p>
 
-          {/* ✅ REGISTER BUTTON ADDED HERE */}
           <div className="flex justify-center">
             <Button
               onClick={() => navigate("/register")}
