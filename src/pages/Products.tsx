@@ -43,6 +43,106 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitCustomizationRequest } from "@/lib/features/customization/customizationSlice";
 import useDebounce from "@/hooks/useDebounce";
 
+// --- 1. SEO DATA MAPPING ---
+// Yahan humne har category ke liye alag se meta title aur description store kiya hai
+const seoDataByCategory = {
+  "Duplex House Plans": {
+    title: "collection of Duplex House Plans",
+    description:
+      "Explore stylish duplex house plans — storys layouts perfect for family living. Find designs that fit your budget and space needs.",
+  },
+  "Single Storey House Plan": {
+    title: "collection of single storey house plan",
+    description:
+      "Browse single storey house plans — one-floor layouts perfect for efficient, stylish homes. Choose designs that fit your space and budget",
+  },
+  "Bungalow / Villa House Plans": {
+    title: "Bungalow & Villa House Plans",
+    description:
+      "Explore premium bungalow & villa house plans — spacious, stylish layouts for luxury living. Find designs that fit your vision and lifestyle.",
+  },
+  "Apartment / Flat Plans": {
+    title: "Apartment & Flat residential plans",
+    description:
+      "Browse apartment & flat plans — efficient, stylish layouts for multi-unit living. Find the right plan for your space and lifestyle.",
+  },
+  Farmhouse: {
+    title: "Farmhouse House Plannings",
+    description:
+      "Explore farmhouse house plans — rustic & modern layouts perfect for country living. Find designs that match your space and style.",
+  },
+  "Cottage Plans": {
+    title: "modern cottage house plan",
+    description:
+      "Explore charming cottage house plans — cozy, efficient layouts perfect for small homes or vacation spaces. Find the ideal design for your needs.",
+  },
+  "Row House / Twin House Plans": {
+    title: "Row & Twin House Plans",
+    description:
+      "Browse row house & twin house plans — smart, space-efficient layouts for connected living. Find designs that fit modern lifestyle and space needs.",
+  },
+  "Village House Plans": {
+    title: "Modern Village House Plans",
+    description:
+      "Explore village house plans — traditional & modern layouts ideal for rural homes. Find designs that fit your land, budget & lifestyle.",
+  },
+  "Contemporary / Modern House Plans": {
+    title: "Modern & Contemporary house Plans",
+    description:
+      "Discover modern & contemporary house plans — stylish, efficient designs for today’s living. Find the perfect layout to match your vision and space.",
+  },
+  "Colonial / Heritage House Plans": {
+    title: "Colonial & Heritage House Plans",
+    description:
+      "Explore colonial & heritage house plans — classic symmetrical designs with timeless charm and architectural elegance. Find plans that suit traditional tastes",
+  },
+  "Classic House Plan": {
+    title: "modern classic house plan",
+    description:
+      "Explore classic house plans — timeless designs with balanced layouts and traditional style. Find the perfect plan to build your dream home.",
+  },
+  "Kerala House Plans": {
+    title: "modern kerela house plan",
+    description:
+      "Browse Kerala house plans — traditional & modern layouts with sloping roofs, verandas & functional designs inspired by Kerala architecture.",
+  },
+  "Kashmiri House Plan": {
+    title: "kashmiri house plans designs",
+    description:
+      "Browse Kashmiri house plans — traditional & climate adapted layouts with timber, stone and intricate design elements inspired by Kashmir’s architectural heritage.",
+  },
+  "Marriage Garden": {
+    title: "marriage garden plans banquet hall",
+    description:
+      "Explore marriage garden layouts — functional site plans and design options for wedding venues, events & celebrations. Find the perfect outdoor space design.",
+  },
+  Hospitals: {
+    title: "Hospitals building plans and designs",
+    description:
+      "Browse hospital building plans — efficient healthcare layouts for clinics, multi specialty centers & more. Find designs that fit your facility needs.",
+  },
+  "Shops and Showrooms": {
+    title: "Shop & Showroom building Plans",
+    description:
+      "Browse shop and showroom plans — smart commercial layouts for retail spaces, boutiques & display areas. Find the perfect design for your business.",
+  },
+  "Highway Resorts and Hotels": {
+    title: "Highway Resort & Hotel building Plans",
+    description:
+      "Explore highway resort & hotel plans — functional layouts for roadside stays, boutique hotels & leisure spaces. Find plans that fit your business vision.",
+  },
+  "Schools and Colleges Plans": {
+    title: "School & College Building Plans",
+    description:
+      "Browse school & college plans — efficient educational building layouts for classrooms, labs & campus facilities. Find designs that meet your institutional needs.",
+  },
+  "Temple & Mosque": {
+    title: "Temple & Mosque building Plans",
+    description:
+      "Explore temple & mosque architectural plans — sacred space layouts with thoughtful design and cultural detail. Find plans for worship sites and spiritual projects.",
+  },
+};
+
 const slugify = (text: any) => {
   if (!text) return "";
   return text
@@ -108,7 +208,6 @@ const VideoModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="aspect-video">
-          {/* Optimization: Added title, loading="lazy" for off-screen iframe optimization */}
           <iframe
             width="100%"
             height="100%"
@@ -155,7 +254,6 @@ const staticCategories = [
   "Temple & Mosque",
 ];
 
-// Modified to accept className and onClose for mobile drawer usage
 const FilterSidebar = ({
   filters,
   setFilters,
@@ -230,7 +328,6 @@ const FilterSidebar = ({
             </SelectContent>
           </Select>
         </div>
-        {/* ... Rest of the filters remain same ... */}
         <div>
           <Label htmlFor="plotSize" className="font-semibold text-gray-600">
             Plot Size
@@ -505,7 +602,6 @@ const ProductCard = ({ product, userOrders, onPlayVideo, index }: any) => {
     }
   };
 
-  // Optimization: Prioritize first 4 images (LCP fix), lazy load others (bandwidth fix)
   const isPriority = index < 4;
 
   return (
@@ -513,7 +609,6 @@ const ProductCard = ({ product, userOrders, onPlayVideo, index }: any) => {
       <div className="relative p-2">
         <Link to={linkTo}>
           <div className="aspect-square w-full bg-gray-100 rounded-md overflow-hidden">
-            {/* CWV Optimization: Added width/height for CLS, fetchPriority for LCP */}
             <img
               src={mainImage}
               alt={productName}
@@ -746,7 +841,6 @@ const CountryCustomizationForm = ({ countryName }: any) => {
               Customize a Plan for {countryName || "Your Location"}
             </h2>
             <form onSubmit={handleFormSubmit} className="space-y-5">
-              {/* Form fields remain same */}
               <div>
                 <Label htmlFor="country">Country</Label>
                 <Input
@@ -857,7 +951,6 @@ const CountryCustomizationForm = ({ countryName }: any) => {
             </form>
           </div>
           <div className="w-full lg:w-1/2 hidden lg:block">
-            {/* Optimization: Lazy loading + dimensions */}
             <img
               src="/threeDfloor.jpg"
               alt="Beautiful modern house"
@@ -978,6 +1071,23 @@ const Products = () => {
     }
   }, [debouncedSearchTerm, filters, countryQuery, setSearchParams]);
 
+  // --- 2. DYNAMIC SEO LOGIC ---
+  const currentSeo = useMemo(() => {
+    const defaultSeo = {
+      title: "floor plan with 3d elevation design",
+      description:
+        "Explore detailed floor plan and 3D house elevation & to bring your dream home design to life. Perfect for builders, architects & homeowners. Download now",
+    };
+
+    // Check if the selected category has custom SEO data
+    if (filters.category && seoDataByCategory[filters.category]) {
+      return seoDataByCategory[filters.category];
+    }
+
+    // Fallback to default if no specific category is matched
+    return defaultSeo;
+  }, [filters.category]);
+
   const totalPages = pages > 0 ? pages : 1;
 
   const handlePageChange = (newPage: number) => {
@@ -1022,13 +1132,12 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* --- 3. HELMET UPDATED WITH DYNAMIC DATA --- */}
       <Helmet>
-        <title>{`${pageTitle.toUpperCase()} | READYMADE HOME DESIGNS`}</title>
-        <meta
-          name="description"
-          content={`${pageDescription}. Browse readymade house plans and modern home designs with detailed layouts.`}
-        />
+        <title>{currentSeo.title}</title>
+        <meta name="description" content={currentSeo.description} />
       </Helmet>
+
       <Navbar />
 
       <AnimatePresence>
@@ -1235,7 +1344,6 @@ const Products = () => {
                     product={product}
                     userOrders={userOrders}
                     onPlayVideo={handlePlayVideo}
-                    // Passing Index for priority loading
                     index={index}
                   />
                 ))}
