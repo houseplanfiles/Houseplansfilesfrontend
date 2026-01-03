@@ -15,11 +15,11 @@ import {
   ZoomIn,
   ChevronLeft,
   ChevronRight,
-  Store, // ✅ Added Store Icon
+  Store,
 } from "lucide-react";
 
-// ✅ Added useNavigate
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async"; // Helmet ko import kiya gaya hai
 
 import { RootState, AppDispatch } from "@/lib/store";
 import { fetchPublicSellerProducts } from "@/lib/features/seller/sellerProductSlice";
@@ -274,7 +274,7 @@ const ProductCard = ({ product, onInquiryClick, onImageClick }) => (
 // --- 4. MAIN PAGE ---
 const MarketplacePage: FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const navigate = useNavigate(); // ✅ Initialize Navigation
+  const navigate = useNavigate();
 
   const { products, status, error } = useSelector(
     (state: RootState) => state.sellerProducts
@@ -359,6 +359,14 @@ const MarketplacePage: FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/50">
+      <Helmet>
+        <title>home and interior designing product marketplace</title>
+        <meta
+          name="description"
+          content="Discover the HousePlanFiles Marketplace — buy & sell premium house construction and interior designing products design. Find the perfect design for your project easily."
+        />
+      </Helmet>
+
       <Navbar />
 
       {/* --- Banner --- */}
@@ -373,7 +381,6 @@ const MarketplacePage: FC = () => {
             Find the best construction materials & sellers in one place.
           </p>
 
-          {/* ✅ REGISTER SHOP BUTTON ADDED HERE */}
           <Button
             onClick={() => navigate("/register")}
             className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-6 px-8 rounded-full shadow-lg hover:shadow-orange-500/20 transition-all transform hover:-translate-y-1 text-lg"
