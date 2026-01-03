@@ -32,6 +32,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async"; // Helmet ko import kiya gaya hai
 
 // --- Customized Gallery Card (Thumbnails Clear rahenge taaki user attract ho) ---
 const GalleryImageCard = ({
@@ -339,6 +340,14 @@ const GalleryPage: React.FC = () => {
 
   return (
     <div className="bg-[#F7FAFA] min-h-screen">
+      <Helmet>
+        <title>Home Plan Gallery of all plot size</title>
+        <meta
+          name="description"
+          content="Browse our house plan gallery — view stunning 2D & 3D designs for inspiration and find your perfect dream home layout today"
+        />
+      </Helmet>
+
       <Navbar />
       <main className="pb-16">
         <div className="relative w-full h-48 md:h-80 overflow-hidden flex items-center justify-center mb-8 md:mb-12 bg-black">
@@ -427,7 +436,7 @@ const GalleryPage: React.FC = () => {
               </div>
 
               {/* Main Image Container - BLURRED & WATERMARKED */}
-              <div 
+              <div
                 className="relative w-full h-full flex items-center justify-center bg-zinc-900 overflow-hidden select-none"
                 onContextMenu={(e) => e.preventDefault()} // Right Click Blocked
               >
@@ -437,19 +446,20 @@ const GalleryPage: React.FC = () => {
                   alt="Protected Content"
                   loading="lazy"
                   className="max-w-full max-h-full object-contain pointer-events-none opacity-60"
-                  style={{ 
+                  style={{
                     filter: "blur(5px)", // 5px blur se image clear nahi dikhegi
-                    transform: "scale(1.02)"
+                    transform: "scale(1.02)",
                   }}
                 />
 
                 {/* 2. Grid Pattern Overlay (to ruin screenshot quality) */}
-                <div 
-                  className="absolute inset-0 z-10 pointer-events-none opacity-20" 
-                  style={{ 
-                    backgroundImage: "linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)",
+                <div
+                  className="absolute inset-0 z-10 pointer-events-none opacity-20"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)",
                     backgroundSize: "20px 20px",
-                    backgroundPosition: "0 0, 10px 10px"
+                    backgroundPosition: "0 0, 10px 10px",
                   }}
                 ></div>
 
@@ -497,7 +507,6 @@ const GalleryPage: React.FC = () => {
 
               {/* Bottom Section */}
               <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/90 to-transparent pb-6 pt-12 px-4">
-                
                 {/* Thumbnails (Also slightly blurred) */}
                 {selectedGroup.length > 1 && (
                   <div className="flex justify-center mb-4">
@@ -527,9 +536,9 @@ const GalleryPage: React.FC = () => {
                 {/* Buy Button */}
                 {selectedGroup[currentImageIndex].productLink?.trim() ? (
                   <div className="flex flex-col items-center gap-3">
-                     <p className="text-white/70 text-xs md:text-sm text-center flex items-center gap-2">
-                       <Eye className="w-4 h-4" /> Want to see the clear image?
-                     </p>
+                    <p className="text-white/70 text-xs md:text-sm text-center flex items-center gap-2">
+                      <Eye className="w-4 h-4" /> Want to see the clear image?
+                    </p>
                     <Link
                       to={selectedGroup[currentImageIndex].productLink}
                       onClick={handleCloseModal}
