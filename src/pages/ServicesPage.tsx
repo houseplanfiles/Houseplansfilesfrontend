@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async"; // Helmet को import करें
+import { Helmet } from "react-helmet-async"; // Helmet ko import karen
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import StandardPackagesSection from "@/components/StandardPackagesSection";
@@ -217,12 +217,12 @@ const CtaSection = () => (
 const ServicesPage = () => {
   return (
     <>
-      {/* --- Helmet Tag for SEO --- */}
+      {/* --- Helmet Tag for SEO (UPDATED) --- */}
       <Helmet>
-        <title>COMPLETE HOME DESIGNING SERVICES</title>
+        <title>house plan files complete service details</title>
         <meta
           name="description"
-          content="Get complete home designing services with 2D floor plans, 3D elevations, interiors, and turnkey solutions. Perfect designs tailored to your plot and budget"
+          content="Complete home design services: ready-made plans, 2D & 3D layouts, custom interiors & turnkey solutions for your dream build."
         />
       </Helmet>
 
@@ -246,8 +246,7 @@ const ServicesPage = () => {
         </motion.section>
 
         <CoreServicesSection />
-        <StandardPackagesSection />
-        <PremiumPackagesSection />
+
         <CorporatePackagesSection />
         <FaqSection />
         <CtaSection />
