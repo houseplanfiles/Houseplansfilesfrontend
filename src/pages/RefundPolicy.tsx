@@ -1,163 +1,200 @@
-// src/pages/CareersPage.jsx
+// src/pages/RefundPolicyPage.jsx
+// Note: It's a good practice to rename the file to something like RefundPolicyPage.jsx
 
 import React from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import {
-  Handshake,
-  Wrench,
-  Users,
-  Cpu,
-  Lightbulb,
-  Building,
-  Youtube,
-  ArrowRight,
-  Mail,
-} from "lucide-react";
 
-// Data for the collaboration opportunities
-const collaborationOpportunities = [
-  {
-    title: "Franchisee",
-    description:
-      "Partner with us and grow your business with our established brand.",
-    icon: <Handshake className="w-10 h-10 text-orange-500" />,
-    slug: "franchisee-inquiry",
-    highlight: true,
-  },
-  {
-    title: "MEP Consultant",
-    description:
-      "Expert consultancy for Mechanical, Electrical, and Plumbing systems.",
-    icon: <Wrench className="w-10 h-10 text-orange-500" />,
-    slug: "mep-consultant-inquiry",
-  },
-  {
-    title: "Social Media / Content Creator",
-    description:
-      "Collaborate with experts for digital marketing and content creation.",
-    icon: <Users className="w-10 h-10 text-orange-500" />,
-    slug: "social-media-inquiry",
-  },
-  {
-    title: "Technology Expert (AI)",
-    description: "Integrate cutting-edge AI and technology into your projects.",
-    icon: <Cpu className="w-10 h-10 text-orange-500" />,
-    slug: "tech-expert-inquiry",
-  },
-  {
-    title: "Innovator (New Ideas)",
-    description: "Partner on new ideas and innovative product development.",
-    icon: <Lightbulb className="w-10 h-10 text-orange-500" />,
-    slug: "innovator-inquiry",
-  },
-  {
-    title: "Industry Expert (Collaboration)",
-    description: "For Hotels, Hospitals, and other larger-scale projects.",
-    icon: <Building className="w-10 h-10 text-orange-500" />,
-    slug: "industry-expert-inquiry",
-  },
-  {
-    title: "3D Visualizer",
-    description: "High-quality 3D walkthroughs and visualization services.",
-    icon: <Youtube className="w-10 h-10 text-orange-500" />,
-    slug: "3d-visualizer-inquiry",
-  },
-];
-
-const CareersPage = () => {
+const RefundPolicyPage = () => {
   return (
     <div className="bg-gray-50">
       <Navbar />
-      <main>
-        {/* Hero Section */}
-        <section className="py-24 bg-orange-50 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="container mx-auto px-4"
-          >
-            <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-4">
-              Partner With Us
-            </h1>
-            <p className="text-xl max-w-3xl mx-auto text-gray-600">
-              We believe in collaboration. Explore opportunities to grow with us
-              and shape the future of architecture.
-            </p>
-          </motion.div>
-        </section>
+      <main className="font-sans">
+        <div className="container mx-auto px-4 py-16 sm:py-24">
+          <div className="max-w-4xl mx-auto bg-white p-8 sm:p-12 rounded-lg shadow-md">
+            {/* Page Header */}
+            <div className="text-center mb-12">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">
+                Refund & Cancellation Policy
+              </h1>
+              <p className="text-lg text-gray-600">HousePlanFiles.com</p>
+            </div>
 
-        {/* Collaboration Opportunities Section */}
-        <section className="py-20 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
-              Collaboration Opportunities
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {collaborationOpportunities.map((job, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                  className={`bg-white rounded-xl p-8 flex flex-col text-center items-center transition-all duration-300 border-2 ${job.highlight ? "border-orange-500 shadow-2xl" : "border-transparent"} hover:border-orange-500 hover:shadow-xl hover:-translate-y-2`}
-                >
-                  <div className="mb-5">{job.icon}</div>
-                  <h3 className="text-xl font-bold text-gray-800 flex-grow">
-                    {job.title}
-                  </h3>
-                  <p className="text-gray-500 mt-2 mb-6 h-20">
-                    {job.description}
+            <div className="space-y-10 text-gray-700 leading-relaxed">
+              <p>
+                At HousePlanFiles.com, we strive to maintain transparency,
+                fairness, and clarity in all our services. This Refund &
+                Cancellation Policy explains the terms applicable to different
+                services offered on our platform. By using our website and
+                services, you agree to the conditions mentioned below.
+              </p>
+
+              {/* Section 1: Readymade House Plans */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  1. Readymade House Plans (Digital Products)
+                </h2>
+                <h3 className="text-xl font-semibold text-gray-700 mt-6 mb-3">
+                  Refund Policy
+                </h3>
+                <p>
+                  All readymade house plans sold on HousePlanFiles.com are
+                  digital products.
+                </p>
+                <p className="mt-2 font-medium text-red-600">
+                  Once a digital product is purchased and delivered/downloaded,
+                  no refund, cancellation, or exchange will be provided under
+                  any circumstances.
+                </p>
+
+                <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-3">
+                  Reasons for No Refund
+                </h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Digital products cannot be returned once accessed or downloaded.</li>
+                  <li>There is a risk of misuse, copying, or unauthorized distribution after delivery.</li>
+                  <li>The customer is advised to carefully review plan details, dimensions, orientation, and sample images before purchasing.</li>
+                </ul>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <h4 className="font-semibold text-green-700">Pros</h4>
+                        <ul className="list-disc list-inside space-y-1 mt-2">
+                            <li>Instant delivery of products.</li>
+                            <li>Competitive pricing due to non-returnable digital nature.</li>
+                            <li>Clear and upfront purchase terms.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-red-700">Cons</h4>
+                        <ul className="list-disc list-inside space-y-1 mt-2">
+                            <li>No refund if the plan does not meet personal preferences after purchase.</li>
+                        </ul>
+                    </div>
+                </div>
+              </section>
+
+              {/* Section 2: Marketplace Products */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  2. Marketplace Products (Third-Party Sellers)
+                </h2>
+                <p>
+                  HousePlanFiles.com operates as a marketplace platform where
+                  independent architects, designers, and professionals sell
+                  their products and services.
+                </p>
+                <h3 className="text-xl font-semibold text-gray-700 mt-6 mb-3">
+                  Refund & Responsibility Policy
+                </h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>HousePlanFiles.com does not take responsibility for refunds, exchanges, or fund disputes between the customer and the seller.</li>
+                  <li>All transactions, deliverables, timelines, and revisions are governed by mutual agreement between the customer and the seller.</li>
+                </ul>
+
+                <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-3">
+                  Complaint & Seller Accountability
+                </h3>
+                <p>
+                  Customers may raise complaints against sellers for genuine
+                  issues such as non-delivery, misrepresentation, or unethical
+                  behavior. Based on internal investigation and complaint
+                  verification:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mt-2">
+                  <li>The seller may receive a warning.</li>
+                  <li>The seller may be temporarily suspended or permanently blacklisted from the platform.</li>
+                </ul>
+              </section>
+              
+              {/* Section 3: City Partner / Contractor Services */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  3. City Partner / Contractor Services
+                </h2>
+                <p>
+                  City Partner Contractors are onboarded to receive business leads and project opportunities through HousePlanFiles.com.
+                </p>
+                <h3 className="text-xl font-semibold text-gray-700 mt-6 mb-3">
+                  Refund Eligibility
+                </h3>
+                <p>
+                  A refund is applicable only if all the following conditions are met:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mt-2">
+                  <li>No work, project, or business lead has been provided to the City Partner.</li>
+                  <li>The refund request is raised within 30 days from the date of payment.</li>
+                </ul>
+
+                <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-3">
+                  Refund Amount & Timeline
+                </h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>80% of the paid amount (excluding GST) will be refunded.</li>
+                  <li>GST is non-refundable as per government regulations.</li>
+                  <li>The refund will be processed within 30 working days from approval.</li>
+                </ul>
+
+                <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-3">
+                  Non-Refund Scenarios
+                </h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>If even a single lead or work opportunity is shared with the City Partner, only 50% of the amount will be refunded.</li>
+                  <li>If 30 days have passed since the payment date.</li>
+                  <li>If the City Partner violates platform terms or code of conduct.</li>
+                </ul>
+              </section>
+
+              {/* Section 4: General Terms */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  4. General Terms
+                </h2>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>All refund decisions made by HousePlanFiles.com will be final and binding.</li>
+                  <li>Refunds, if approved, will be processed via the original payment method.</li>
+                  <li>HousePlanFiles.com reserves the right to update or modify this policy at any time without prior notice.</li>
+                </ul>
+              </section>
+
+              {/* Section 5: Contact & Support */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  5. Contact & Support
+                </h2>
+                <p>
+                  For refund-related queries or complaints, please contact:
+                </p>
+                <div className="mt-2 space-y-1">
+                  <p>
+                    <strong>Email:</strong>{" "}
+                    <a
+                      href="mailto:houseplansdesignsfile@gmail.com"
+                      className="text-orange-600 hover:underline"
+                    >
+                      houseplansdesignsfile@gmail.com
+                    </a>
                   </p>
-                  <Link to={`/inquire/${job.slug}`} className="mt-auto">
-                    <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-md px-6 py-3">
-                      Inquire Now
-                    </Button>
-                  </Link>
-                </motion.div>
-              ))}
+                  <p>
+                    <strong>Website:</strong>{" "}
+                    <a
+                      href="https://www.houseplanfiles.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-600 hover:underline"
+                    >
+                      www.houseplanfiles.com
+                    </a>
+                  </p>
+                </div>
+              </section>
             </div>
           </div>
-        </section>
-
-        {/* Contact Us Section */}
-        <section className="py-20 bg-gray-800 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-            >
-              <Mail className="mx-auto h-12 w-12 text-orange-400 mb-4" />
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Have a Different Idea?
-              </h2>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
-                If you have a unique collaboration proposal or an idea that
-                doesn't fit the categories above, we'd love to hear from you.
-              </p>
-              <Link to="/contact">
-                <Button
-                  size="lg"
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg px-8 py-6 group"
-                >
-                  Contact Us{" "}
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-            </motion.div>
-          </div>
-        </section>
+        </div>
       </main>
       <Footer />
     </div>
   );
 };
 
-export default CareersPage;
+export default RefundPolicyPage;
