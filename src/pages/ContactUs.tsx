@@ -31,7 +31,7 @@ const ContactUs = () => {
     const dataToSend = {
       ...formData,
       access_key: "047f7aa7-1008-4f0e-ab62-55bea05a1449",
-      subject: "New Contact Form Submission - HousePlanFiles",
+      subject: "New Contact Form Submission from Your Website",
       from_name: "HousePlanFiles",
     };
 
@@ -48,7 +48,7 @@ const ContactUs = () => {
       );
 
       if (response.data.success) {
-        toast.success("Message sent successfully! We will contact you soon.");
+        toast.success("Message sent successfully! We will get back to you soon.");
         setFormData({ name: "", email: "", message: "" });
       } else {
         toast.error(response.data.message || "Something went wrong.");
@@ -62,22 +62,23 @@ const ContactUs = () => {
 
   return (
     <>
-      {/* SEO + MERCHANT SAFE METADATA */}
       <Helmet>
-        <title>Contact HousePlanFiles | Digital House Plan Support</title>
+        <title>contact details of house plan files</title>
         <meta
           name="description"
-          content="Contact HousePlanFiles for digital house plan files, custom home designs, PDF and CAD drawings. Reach us via phone, email or WhatsApp for expert support."
+          content="Get in touch with HousePlanFiles for readymade house plans, custom designs, construction services, and consultation."
         />
       </Helmet>
 
       <Navbar />
 
-      <div className="bg-gray-50 text-gray-800 font-sans w-full">
+      <div className="bg-gray-50 text-gray-800 w-full">
+        {/* HERO */}
         <section
           className="relative py-24 md:py-32 text-center text-white bg-cover bg-center"
           style={{
-            backgroundImage: `url(${"https://www.oswalpumps.com/images/contact-us-banner2.jpeg"})`,
+            backgroundImage:
+              "url(https://www.oswalpumps.com/images/contact-us-banner2.jpeg)",
           }}
         >
           <div className="absolute inset-0 bg-black opacity-60"></div>
@@ -86,60 +87,42 @@ const ContactUs = () => {
               Get In Touch
             </h1>
             <p className="mt-6 max-w-3xl mx-auto text-lg text-gray-200">
-              HousePlanFiles is a professional architectural design service
-              providing digital house plan files including PDF and CAD drawings.
-              All products available on our website are digital downloads and no
-              physical items are shipped.
+              We're here to help you build your dream home.
             </p>
           </div>
         </section>
 
+        {/* CONTENT */}
         <section className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
+            <div className="flex flex-col lg:flex-row gap-12">
+
+              {/* LEFT */}
               <div className="lg:w-2/5">
-                <h3 className="text-3xl font-bold mb-4">
-                  Business Contact Details
-                </h3>
+                <h3 className="text-3xl font-bold mb-4">Contact Information</h3>
 
-                <p className="text-gray-600 mb-8">
-                  For any queries related to house plan files, downloads,
-                  customization, or support, please contact us using the details
-                  below. Our team usually responds within 24 hours.
-                </p>
-
-                <div className="space-y-8">
+                <div className="space-y-8 mt-8">
                   <div className="flex gap-5">
                     <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
                       <FontAwesomeIcon icon={faMapMarkerAlt} />
                     </div>
-                    <div>
-                      <h4 className="font-bold">Registered Business Address</h4>
-                      <p className="text-gray-600">
-                        HousePlanFiles<br />
-                        Bareli, Madhya Pradesh – 464668<br />
-                        India
-                      </p>
-                    </div>
+                    <p>
+                      Bareli, Madhya Pradesh<br />464668, India
+                    </p>
                   </div>
 
                   <div className="flex gap-5">
                     <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
                       <FontAwesomeIcon icon={faPhone} />
                     </div>
-                    <a href="tel:+919755248864" className="text-gray-600">
-                      +91 97552 48864
-                    </a>
+                    <a href="tel:+919755248864">+91 97552 48864</a>
                   </div>
 
                   <div className="flex gap-5">
                     <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
                       <FontAwesomeIcon icon={faEnvelope} />
                     </div>
-                    <a
-                      href="mailto:houseplansdesignsfile@gmail.com"
-                      className="text-gray-600"
-                    >
+                    <a href="mailto:houseplansdesignsfile@gmail.com">
                       houseplansdesignsfile@gmail.com
                     </a>
                   </div>
@@ -151,10 +134,9 @@ const ContactUs = () => {
                     <a
                       href="https://t.me/+tPzdohVcUbJiZmNl"
                       target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600"
+                      rel="noreferrer"
                     >
-                      Join our Telegram Channel
+                      Join our Telegram
                     </a>
                   </div>
 
@@ -162,59 +144,48 @@ const ContactUs = () => {
                     <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center">
                       <FontAwesomeIcon icon={faWhatsapp} />
                     </div>
-                    <a
-                      href="https://wa.me/919755248864"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600"
-                    >
-                      Chat with us on WhatsApp
-                    </a>
+                    <a href="#">Follow us on WhatsApp</a>
                   </div>
-
-                  <p className="text-sm text-gray-500 mt-6">
-                    Since we provide digital house plan files, refunds are
-                    applicable only in case of incorrect or corrupted files.
-                    Please review our Refund Policy and Terms of Service for more
-                    details.
-                  </p>
                 </div>
               </div>
 
-              <div className="lg:w-3/5">
+              {/* FORM */}
+              <div className="lg:w-3/5 w-full">
                 <div className="bg-white p-8 rounded-xl shadow-2xl">
                   <form onSubmit={handleSubmit}>
                     <input
                       type="text"
                       name="name"
-                      placeholder="Your Full Name"
+                      placeholder="Full Name"
+                      required
                       value={formData.name}
                       onChange={handleChange}
-                      required
                       className="w-full p-3 mb-4 bg-gray-100 rounded-lg"
                     />
+
                     <input
                       type="email"
                       name="email"
-                      placeholder="you@example.com"
+                      placeholder="Email"
+                      required
                       value={formData.email}
                       onChange={handleChange}
-                      required
                       className="w-full p-3 mb-4 bg-gray-100 rounded-lg"
                     />
+
                     <textarea
                       name="message"
                       rows="5"
-                      placeholder="How can we help you?"
+                      placeholder="Your Message"
+                      required
                       value={formData.message}
                       onChange={handleChange}
-                      required
                       className="w-full p-3 bg-gray-100 rounded-lg"
                     />
+
                     <button
-                      type="submit"
                       disabled={loading}
-                      className="w-full mt-6 bg-orange-500 text-white py-3 rounded-lg"
+                      className="mt-6 w-full bg-orange-500 text-white py-3 rounded-lg"
                     >
                       {loading ? "Sending..." : "Send Message"}
                     </button>
@@ -225,12 +196,13 @@ const ContactUs = () => {
           </div>
         </section>
 
+        {/* ✅ OLD SIMPLE GOOGLE MAP (WORKING EVERYWHERE) */}
         <section>
           <iframe
+            title="Bareli Map"
+            src="https://maps.google.com/maps?q=Bareli%20Madhya%20Pradesh%20464668&t=&z=13&ie=UTF8&iwloc=&output=embed"
             className="w-full h-[450px] border-0"
             loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58930.5694269153!2d78.30452372167968!3d23.053896!2m3!1f0!2f0!3f0"
           ></iframe>
         </section>
       </div>
