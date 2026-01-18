@@ -32,9 +32,8 @@ import {
   Eye,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async"; // Helmet ko import kiya gaya hai
+import { Helmet } from "react-helmet-async";
 
-// --- Customized Gallery Card (Thumbnails Clear rahenge taaki user attract ho) ---
 const GalleryImageCard = ({
   items,
   onCardClick,
@@ -46,6 +45,7 @@ const GalleryImageCard = ({
 }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const firstItem = items[0];
+  const productLink = firstItem.productLink;
 
   const scrollPrev = useCallback(
     (e: React.MouseEvent) => {
@@ -85,7 +85,6 @@ const GalleryImageCard = ({
                   // @ts-ignore
                   fetchPriority={isPriority && imgIndex === 0 ? "high" : "auto"}
                 />
-                {/* Zoom Icon */}
                 <div className="absolute top-4 right-4 bg-black/60 p-2 rounded-full opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
                   <ZoomIn className="h-5 w-5 text-white" />
                 </div>
@@ -122,18 +121,32 @@ const GalleryImageCard = ({
         )}
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2 md:p-4 pointer-events-none">
-        <div className="transition-transform duration-300 transform md:group-hover:-translate-y-2">
-          <h3 className="text-white font-bold text-xs md:text-lg drop-shadow-md line-clamp-1">
-            {firstItem.title}
-          </h3>
-          <p className="text-orange-300 text-[10px] md:text-sm font-semibold truncate">
-            {firstItem.category}
-          </p>
-          {items.length > 1 && (
-            <p className="text-white/80 text-[10px] md:text-xs mt-0.5 md:mt-1 hidden md:block">
-              {items.length} images
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2 md:p-4">
+        <div className="flex justify-between items-end gap-2">
+          <div className="flex-1 min-w-0 transition-transform duration-300 transform md:group-hover:-translate-y-1">
+            <h3 className="text-white font-bold text-xs md:text-lg drop-shadow-md truncate">
+              {firstItem.title}
+            </h3>
+            <p className="text-orange-300 text-[10px] md:text-sm font-semibold truncate">
+              {firstItem.category}
             </p>
+          </div>
+
+          {productLink && (
+            <Link
+              to={productLink}
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
+              aria-label={`Buy plan for ${firstItem.title}`}
+            >
+              <Button
+                size="sm"
+                className="bg-orange-500 hover:bg-orange-600 h-8 text-xs font-semibold px-3 rounded-md"
+              >
+                <ShoppingCart className="h-4 w-4 mr-1.5" />
+                Buy Plan
+              </Button>
+            </Link>
           )}
         </div>
       </div>
@@ -141,7 +154,6 @@ const GalleryImageCard = ({
   );
 };
 
-// --- Main Page Component ---
 const GalleryPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -403,12 +415,10 @@ const GalleryPage: React.FC = () => {
       </main>
       <Footer />
 
-      {/* --- PROTECTED MODAL START (Changes Here) --- */}
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
         <DialogContent className="max-w-[100vw] h-[100vh] md:max-w-6xl md:h-auto md:max-h-[95vh] p-0 bg-black/95 border-none overflow-hidden flex flex-col justify-center">
           {selectedGroup && (
             <>
-              {/* Header */}
               <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
@@ -435,24 +445,21 @@ const GalleryPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Main Image Container - BLURRED & WATERMARKED */}
               <div
                 className="relative w-full h-full flex items-center justify-center bg-zinc-900 overflow-hidden select-none"
-                onContextMenu={(e) => e.preventDefault()} // Right Click Blocked
+                onContextMenu={(e) => e.preventDefault()}
               >
-                {/* 1. Blurred Image */}
                 <img
                   src={selectedGroup[currentImageIndex].imageUrl}
                   alt="Protected Content"
                   loading="lazy"
                   className="max-w-full max-h-full object-contain pointer-events-none opacity-60"
                   style={{
-                    filter: "blur(5px)", // 5px blur se image clear nahi dikhegi
+                    filter: "blur(5px)",
                     transform: "scale(1.02)",
                   }}
                 />
 
-                {/* 2. Grid Pattern Overlay (to ruin screenshot quality) */}
                 <div
                   className="absolute inset-0 z-10 pointer-events-none opacity-20"
                   style={{
@@ -463,7 +470,6 @@ const GalleryPage: React.FC = () => {
                   }}
                 ></div>
 
-                {/* 3. Text Watermark */}
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
                   <Lock className="text-white/20 w-24 h-24 mb-4" />
                   <h1 className="text-white/30 text-4xl md:text-6xl font-black tracking-widest -rotate-12">
@@ -474,7 +480,6 @@ const GalleryPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Navigation Buttons */}
                 {selectedGroup.length > 1 && (
                   <>
                     <Button
@@ -505,9 +510,7 @@ const GalleryPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Bottom Section */}
               <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/90 to-transparent pb-6 pt-12 px-4">
-                {/* Thumbnails (Also slightly blurred) */}
                 {selectedGroup.length > 1 && (
                   <div className="flex justify-center mb-4">
                     <div className="flex gap-2 bg-black/60 p-2 rounded-full backdrop-blur-md border border-white/10 overflow-x-auto max-w-full scrollbar-hide">
@@ -525,7 +528,7 @@ const GalleryPage: React.FC = () => {
                           <img
                             src={item.imageUrl}
                             alt=""
-                            className="w-full h-full object-cover blur-[1px]" // Thumbnails bhi thode blur
+                            className="w-full h-full object-cover blur-[1px]"
                           />
                         </button>
                       ))}
@@ -533,7 +536,6 @@ const GalleryPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Buy Button */}
                 {selectedGroup[currentImageIndex].productLink?.trim() ? (
                   <div className="flex flex-col items-center gap-3">
                     <p className="text-white/70 text-xs md:text-sm text-center flex items-center gap-2">
