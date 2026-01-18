@@ -31,7 +31,7 @@ const ContactUs = () => {
     const dataToSend = {
       ...formData,
       access_key: "047f7aa7-1008-4f0e-ab62-55bea05a1449",
-      subject: "New Contact Form Submission from Your Website",
+      subject: "New Contact Form Submission - HousePlanFiles",
       from_name: "HousePlanFiles",
     };
 
@@ -48,15 +48,12 @@ const ContactUs = () => {
       );
 
       if (response.data.success) {
-        toast.success(
-          "Message sent successfully! We will get back to you soon."
-        );
+        toast.success("Message sent successfully! We will contact you soon.");
         setFormData({ name: "", email: "", message: "" });
       } else {
         toast.error(response.data.message || "Something went wrong.");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
       toast.error("Failed to send message. Please try again later.");
     } finally {
       setLoading(false);
@@ -65,16 +62,17 @@ const ContactUs = () => {
 
   return (
     <>
-      {/* --- SEO METADATA UPDATED HERE --- */}
+      {/* SEO + MERCHANT SAFE METADATA */}
       <Helmet>
-        <title>contact details of house plan files</title>
+        <title>Contact HousePlanFiles | Digital House Plan Support</title>
         <meta
           name="description"
-          content="Get in touch with HousePlanFiles for readymade house plans, custom designs, construction services, and consultation. Contact us today for expert support"
+          content="Contact HousePlanFiles for digital house plan files, custom home designs, PDF and CAD drawings. Reach us via phone, email or WhatsApp for expert support."
         />
       </Helmet>
 
       <Navbar />
+
       <div className="bg-gray-50 text-gray-800 font-sans w-full">
         <section
           className="relative py-24 md:py-32 text-center text-white bg-cover bg-center"
@@ -83,177 +81,143 @@ const ContactUs = () => {
           }}
         >
           <div className="absolute inset-0 bg-black opacity-60"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+          <div className="relative max-w-7xl mx-auto px-4">
+            <h1 className="text-4xl md:text-6xl font-extrabold">
               Get In Touch
             </h1>
-            <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-200">
-              We're here to help you build your dream home. Reach out to us with
-              any questions or to start your project.
+            <p className="mt-6 max-w-3xl mx-auto text-lg text-gray-200">
+              HousePlanFiles is a professional architectural design service
+              providing digital house plan files including PDF and CAD drawings.
+              All products available on our website are digital downloads and no
+              physical items are shipped.
             </p>
           </div>
         </section>
 
         <section className="py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
               <div className="lg:w-2/5">
-                <h3 className="text-3xl font-bold mb-4 text-gray-900">
-                  Contact Information
+                <h3 className="text-3xl font-bold mb-4">
+                  Business Contact Details
                 </h3>
-                <p className="text-gray-600 mb-10">
-                  Fill up the form and our team will get back to you within 24
-                  hours. Or, reach us directly through the details below.
+
+                <p className="text-gray-600 mb-8">
+                  For any queries related to house plan files, downloads,
+                  customization, or support, please contact us using the details
+                  below. Our team usually responds within 24 hours.
                 </p>
 
                 <div className="space-y-8">
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
-                      <FontAwesomeIcon
-                        icon={faMapMarkerAlt}
-                        className="h-6 w-6"
-                      />
+                  <div className="flex gap-5">
+                    <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon icon={faMapMarkerAlt} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Address</h4>
-                      <p className="text-gray-600 mt-1">
-                        Bareli, Madhya Pradesh, 464668 <br /> India
+                      <h4 className="font-bold">Registered Business Address</h4>
+                      <p className="text-gray-600">
+                        HousePlanFiles<br />
+                        Bareli, Madhya Pradesh – 464668<br />
+                        India
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
-                      <FontAwesomeIcon icon={faPhone} className="h-6 w-6" />
+                  <div className="flex gap-5">
+                    <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon icon={faPhone} />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg">Phone</h4>
-                      <a
-                        href="tel:+919755248864"
-                        className="text-gray-600 mt-1 hover:text-orange-600 transition-colors"
-                      >
-                        +91 97552 48864
-                      </a>
-                    </div>
+                    <a href="tel:+919755248864" className="text-gray-600">
+                      +91 97552 48864
+                    </a>
                   </div>
 
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
-                      <FontAwesomeIcon icon={faEnvelope} className="h-6 w-6" />
+                  <div className="flex gap-5">
+                    <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon icon={faEnvelope} />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg">Email</h4>
-                      <a
-                        href="mailto:houseplansdesignsfile@gmail.com"
-                        className="text-gray-600 mt-1 hover:text-orange-600 transition-colors"
-                      >
-                        houseplansdesignsfile@gmail.com
-                      </a>
-                    </div>
+                    <a
+                      href="mailto:houseplansdesignsfile@gmail.com"
+                      className="text-gray-600"
+                    >
+                      houseplansdesignsfile@gmail.com
+                    </a>
                   </div>
 
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                      <FontAwesomeIcon icon={faTelegram} className="h-6 w-6" />
+                  <div className="flex gap-5">
+                    <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon icon={faTelegram} />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg">Telegram Channel</h4>
-                      <a
-                        href="https://t.me/+tPzdohVcUbJiZmNl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-600 mt-1 hover:text-blue-600 transition-colors"
-                      >
-                        Join our Telegram
-                      </a>
-                    </div>
+                    <a
+                      href="https://t.me/+tPzdohVcUbJiZmNl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600"
+                    >
+                      Join our Telegram Channel
+                    </a>
                   </div>
 
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center">
-                      <FontAwesomeIcon icon={faWhatsapp} className="h-6 w-6" />
+                  <div className="flex gap-5">
+                    <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon icon={faWhatsapp} />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg">WhatsApp Channel</h4>
-                      <a
-                        href="https://whatsapp.com/channel/YOUR_CHANNEL_LINK_HERE"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-600 mt-1 hover:text-green-600 transition-colors"
-                      >
-                        Follow us on WhatsApp
-                      </a>
-                    </div>
+                    <a
+                      href="https://wa.me/919755248864"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600"
+                    >
+                      Chat with us on WhatsApp
+                    </a>
                   </div>
+
+                  <p className="text-sm text-gray-500 mt-6">
+                    Since we provide digital house plan files, refunds are
+                    applicable only in case of incorrect or corrupted files.
+                    Please review our Refund Policy and Terms of Service for more
+                    details.
+                  </p>
                 </div>
               </div>
 
-              <div className="lg:w-3/5 w-full">
-                <div className="bg-white p-8 sm:p-10 rounded-xl shadow-2xl">
+              <div className="lg:w-3/5">
+                <div className="bg-white p-8 rounded-xl shadow-2xl">
                   <form onSubmit={handleSubmit}>
-                    <div className="mt-6">
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-semibold mb-2 text-gray-700"
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Your Full Name"
-                        required
-                        className="w-full p-3 bg-gray-100 border-2 border-transparent rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                      />
-                    </div>
-                    <div className="mt-6">
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-semibold mb-2 text-gray-700"
-                      >
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="you@example.com"
-                        required
-                        className="w-full p-3 bg-gray-100 border-2 border-transparent rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                      />
-                    </div>
-                    <div className="mt-6">
-                      <label
-                        htmlFor="message"
-                        className="block text-sm font-semibold mb-2 text-gray-700"
-                      >
-                        Your Message
-                      </label>
-                      <textarea
-                        name="message"
-                        id="message"
-                        rows={5}
-                        value={formData.message}
-                        onChange={handleChange}
-                        placeholder="How can we help you?"
-                        required
-                        className="w-full p-3 bg-gray-100 border-2 border-transparent rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                      ></textarea>
-                    </div>
-                    <div className="mt-8">
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-orange-500 text-white font-bold py-4 px-6 rounded-lg hover:bg-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {loading ? "Sending..." : "Send Message"}
-                      </button>
-                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your Full Name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                      className="w-full p-3 mb-4 bg-gray-100 rounded-lg"
+                    />
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="you@example.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full p-3 mb-4 bg-gray-100 rounded-lg"
+                    />
+                    <textarea
+                      name="message"
+                      rows="5"
+                      placeholder="How can we help you?"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      className="w-full p-3 bg-gray-100 rounded-lg"
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full mt-6 bg-orange-500 text-white py-3 rounded-lg"
+                    >
+                      {loading ? "Sending..." : "Send Message"}
+                    </button>
                   </form>
                 </div>
               </div>
@@ -262,16 +226,15 @@ const ContactUs = () => {
         </section>
 
         <section>
-          <div className="w-full h-96 md:h-[500px]">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58930.5694269153!2d78.30452372167968!3d23.053896000000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x397f3b5072046f41%3A0x47f2a1b65853503a!2sBareli%2C%2C%20Madhya%20Pradesh%20464668!5e0!3m2!1sen!2sin!4v1716982970725!5m2!1sen!2sin"
-              className="w-full h-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
-          </div>
+          <iframe
+            className="w-full h-[450px] border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58930.5694269153!2d78.30452372167968!3d23.053896!2m3!1f0!2f0!3f0"
+          ></iframe>
         </section>
       </div>
+
       <Footer />
     </>
   );
