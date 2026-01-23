@@ -134,11 +134,18 @@ const PackagesPage = () => {
   }, [status, dispatch]);
 
   // Data ko yahin filter karein
-  const standardPackages = packages.filter(
+  const safePackages = packages || [];
+  const standardPackages = safePackages.filter(
     (pkg) => pkg.packageType === "standard"
   );
-  const premiumPackages = packages.filter(
+  const premiumPackages = safePackages.filter(
     (pkg) => pkg.packageType === "premium"
+  );
+  const marketplacePackages = safePackages.filter(
+    (pkg) => pkg.packageType === "marketplace"
+  );
+  const cityPartnerPackages = safePackages.filter(
+    (pkg) => pkg.packageType === "city_partner"
   );
 
   return (
@@ -195,8 +202,8 @@ const PackagesPage = () => {
           <>
             <StandardPackagesSection packages={standardPackages} />
             <PremiumPackagesSection packages={premiumPackages} />
-            <CityPartnerPackagesSection />
-            <MarketplacePackagesSection />
+            <CityPartnerPackagesSection packages={cityPartnerPackages} />
+            <MarketplacePackagesSection packages={marketplacePackages} />
             <CorporatePackagesSection />
           </>
         )}
