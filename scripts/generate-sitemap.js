@@ -10,9 +10,9 @@ function slugify(text) {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-') 
-    .replace(/[^\w\-]+/g, '') 
-    .replace(/\-\-+/g, '-'); 
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
 }
 
 
@@ -20,14 +20,14 @@ async function fetchAllPaginatedData(endpoint) {
   let allItems = [];
   let currentPage = 1;
   let totalPages = 1;
-  const limitPerPage = 100; 
+  const limitPerPage = 100;
 
   console.log(`\nFetching all data from endpoint: ${endpoint}`);
 
   do {
-    const url = `${backendUrl}${endpoint}?page=${currentPage}&limit=${limitPerPage}`;
+    const url = `${backendUrl}${endpoint}?pageNumber=${currentPage}&limit=${limitPerPage}`;
     console.log(` -> Fetching: ${url}`);
-    
+
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch data from ${endpoint} on page ${currentPage}. Status: ${response.status}`);
@@ -42,10 +42,10 @@ async function fetchAllPaginatedData(endpoint) {
       totalPages = data.pages || 1;
       console.log(` -> Total pages to fetch: ${totalPages}`);
     }
-    
+
     console.log(` -> Fetched ${items.length} items from page ${currentPage}/${totalPages}. Total items collected: ${allItems.length}`);
     currentPage++;
-    
+
   } while (currentPage <= totalPages);
 
   console.log(`✅ Finished fetching for ${endpoint}. Total items: ${allItems.length}`);
@@ -64,7 +64,7 @@ async function generateSitemap() {
       fetchAllPaginatedData('/api/products'),
       fetchAllPaginatedData('/api/professional-plans'),
     ]);
-    
+
     const staticPages = [
       { path: "/", priority: 1.0, changefreq: "daily" },
       { path: "/products", priority: 0.9, changefreq: "weekly" },
@@ -74,7 +74,7 @@ async function generateSitemap() {
       { path: "/terms", priority: 0.7 },
       { path: "/privacy-policy", priority: 0.7 },
     ];
-    
+
     const today = new Date().toISOString().split("T")[0];
 
     const staticUrls = staticPages.map((page) => `
