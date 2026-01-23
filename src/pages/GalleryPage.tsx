@@ -32,24 +32,22 @@ import {
   Eye,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 
+// --- Customized Gallery Card (Thumbnails Clear rahenge taaki user attract ho) ---
 const GalleryImageCard = ({
   items,
-  onCardClick,
   index,
 }: {
   items: GalleryItem[];
-  onCardClick: () => void;
   index: number;
 }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const firstItem = items[0];
-  const productLink = firstItem.productLink;
 
   const scrollPrev = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault(); // Prevent link navigation
       emblaApi && emblaApi.scrollPrev();
     },
     [emblaApi]
@@ -58,18 +56,17 @@ const GalleryImageCard = ({
   const scrollNext = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault(); // Prevent link navigation
       emblaApi && emblaApi.scrollNext();
     },
     [emblaApi]
   );
 
   const isPriority = index < 4;
+  const productLink = firstItem.productLink || "#";
 
   return (
-    <Card
-      className="rounded-lg md:rounded-xl overflow-hidden group relative border-2 border-transparent hover:border-orange-500/50 transition-all duration-300 shadow-sm hover:shadow-xl cursor-pointer"
-      onClick={onCardClick}
-    >
+    <Card className="rounded-lg md:rounded-xl overflow-hidden group relative border-2 border-transparent hover:border-orange-500/50 transition-all duration-300 shadow-sm hover:shadow-xl cursor-default">
       <div className="overflow-hidden relative" ref={emblaRef}>
         <div className="flex">
           {items.map((item, imgIndex) => (
@@ -85,9 +82,6 @@ const GalleryImageCard = ({
                   // @ts-ignore
                   fetchPriority={isPriority && imgIndex === 0 ? "high" : "auto"}
                 />
-                <div className="absolute top-4 right-4 bg-black/60 p-2 rounded-full opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
-                  <ZoomIn className="h-5 w-5 text-white" />
-                </div>
               </div>
             </div>
           ))}
@@ -121,39 +115,40 @@ const GalleryImageCard = ({
         )}
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2 md:p-4">
-        <div className="flex justify-between items-end gap-2">
-          <div className="flex-1 min-w-0 transition-transform duration-300 transform md:group-hover:-translate-y-1">
-            <h3 className="text-white font-bold text-xs md:text-lg drop-shadow-md truncate">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2 md:p-4 pointer-events-none">
+        <div className="transition-transform duration-300 transform md:group-hover:-translate-y-2 pointer-events-auto">
+          <Link to={productLink} className="block group/link">
+            <h3 className="text-white font-bold text-xs md:text-lg drop-shadow-md line-clamp-1 group-hover/link:text-orange-300 transition-colors">
               {firstItem.title}
             </h3>
             <p className="text-orange-300 text-[10px] md:text-sm font-semibold truncate">
               {firstItem.category}
             </p>
-          </div>
+          </Link>
 
-          {productLink && (
-            <Link
-              to={productLink}
-              onClick={(e) => e.stopPropagation()}
-              className="shrink-0 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
-              aria-label={`Buy plan for ${firstItem.title}`}
+          <div className="mt-2 flex items-center justify-between">
+            {items.length > 1 && (
+              <p className="text-white/80 text-[10px] md:text-xs hidden md:block">
+                {items.length} images
+              </p>
+            )}
+            <Button
+              asChild
+              size="sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white text-xs h-7 px-3 md:h-8 md:px-4 ml-auto"
             >
-              <Button
-                size="sm"
-                className="bg-orange-500 hover:bg-orange-600 h-8 text-xs font-semibold px-3 rounded-md"
-              >
-                <ShoppingCart className="h-4 w-4 mr-1.5" />
-                Buy Plan
-              </Button>
-            </Link>
-          )}
+              <Link to={productLink}>
+                Download
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
   );
 };
 
+// --- Main Page Component ---
 const GalleryPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -163,6 +158,8 @@ const GalleryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [jumpToPage, setJumpToPage] = useState("");
+  // Modal state is no longer used for item display, keeping logic minimized or could be removed.
+  // We will leave the state definitions to avoid breaking other parts if referenced, but unused.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GalleryItem[] | null>(
     null
@@ -229,18 +226,14 @@ const GalleryPage: React.FC = () => {
     setJumpToPage("");
   };
 
-  const handleCardClick = (group: GalleryItem[]) => {
-    setSelectedGroup(group);
-    setCurrentImageIndex(0);
-    setIsModalOpen(true);
-  };
-
+  // Handle Close Modal - though modal triggers are removed, keeping for safety
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedGroup(null);
     setCurrentImageIndex(0);
   };
 
+  // Navigation handlers for modal - kept for safety
   const handlePrevImage = () => {
     if (selectedGroup && currentImageIndex > 0) {
       setCurrentImageIndex(currentImageIndex - 1);
@@ -295,7 +288,6 @@ const GalleryPage: React.FC = () => {
             <GalleryImageCard
               key={`${group[0].title}-${index}`}
               items={group}
-              onCardClick={() => handleCardClick(group)}
               index={index}
             />
           ))}
@@ -352,14 +344,6 @@ const GalleryPage: React.FC = () => {
 
   return (
     <div className="bg-[#F7FAFA] min-h-screen">
-      <Helmet>
-        <title>Home Plan Gallery of all plot size</title>
-        <meta
-          name="description"
-          content="Browse our house plan gallery — view stunning 2D & 3D designs for inspiration and find your perfect dream home layout today"
-        />
-      </Helmet>
-
       <Navbar />
       <main className="pb-16">
         <div className="relative w-full h-48 md:h-80 overflow-hidden flex items-center justify-center mb-8 md:mb-12 bg-black">
@@ -415,10 +399,12 @@ const GalleryPage: React.FC = () => {
       </main>
       <Footer />
 
+      {/* --- PROTECTED MODAL START (Changes Here) --- */}
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
         <DialogContent className="max-w-[100vw] h-[100vh] md:max-w-6xl md:h-auto md:max-h-[95vh] p-0 bg-black/95 border-none overflow-hidden flex flex-col justify-center">
           {selectedGroup && (
             <>
+              {/* Header */}
               <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
@@ -445,31 +431,34 @@ const GalleryPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Main Image Container - BLURRED & WATERMARKED */}
               <div
                 className="relative w-full h-full flex items-center justify-center bg-zinc-900 overflow-hidden select-none"
-                onContextMenu={(e) => e.preventDefault()}
+                onContextMenu={(e) => e.preventDefault()} // Right Click Blocked
               >
+                {/* 1. Blurred Image */}
                 <img
                   src={selectedGroup[currentImageIndex].imageUrl}
                   alt="Protected Content"
                   loading="lazy"
                   className="max-w-full max-h-full object-contain pointer-events-none opacity-60"
                   style={{
-                    filter: "blur(5px)",
-                    transform: "scale(1.02)",
+                    filter: "blur(5px)", // 5px blur se image clear nahi dikhegi
+                    transform: "scale(1.02)"
                   }}
                 />
 
+                {/* 2. Grid Pattern Overlay (to ruin screenshot quality) */}
                 <div
                   className="absolute inset-0 z-10 pointer-events-none opacity-20"
                   style={{
-                    backgroundImage:
-                      "linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)",
+                    backgroundImage: "linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)",
                     backgroundSize: "20px 20px",
-                    backgroundPosition: "0 0, 10px 10px",
+                    backgroundPosition: "0 0, 10px 10px"
                   }}
                 ></div>
 
+                {/* 3. Text Watermark */}
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
                   <Lock className="text-white/20 w-24 h-24 mb-4" />
                   <h1 className="text-white/30 text-4xl md:text-6xl font-black tracking-widest -rotate-12">
@@ -480,6 +469,7 @@ const GalleryPage: React.FC = () => {
                   </p>
                 </div>
 
+                {/* Navigation Buttons */}
                 {selectedGroup.length > 1 && (
                   <>
                     <Button
@@ -510,7 +500,10 @@ const GalleryPage: React.FC = () => {
                 )}
               </div>
 
+              {/* Bottom Section */}
               <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/90 to-transparent pb-6 pt-12 px-4">
+
+                {/* Thumbnails (Also slightly blurred) */}
                 {selectedGroup.length > 1 && (
                   <div className="flex justify-center mb-4">
                     <div className="flex gap-2 bg-black/60 p-2 rounded-full backdrop-blur-md border border-white/10 overflow-x-auto max-w-full scrollbar-hide">
@@ -518,17 +511,16 @@ const GalleryPage: React.FC = () => {
                         <button
                           key={item._id}
                           onClick={() => setCurrentImageIndex(index)}
-                          className={`shrink-0 w-10 h-10 md:w-16 md:h-16 rounded-lg overflow-hidden border-2 transition-all relative ${
-                            index === currentImageIndex
+                          className={`shrink-0 w-10 h-10 md:w-16 md:h-16 rounded-lg overflow-hidden border-2 transition-all relative ${index === currentImageIndex
                               ? "border-orange-500 scale-110"
                               : "border-white/20 opacity-50"
-                          }`}
+                            }`}
                         >
                           <div className="absolute inset-0 bg-black/20 z-10" />
                           <img
                             src={item.imageUrl}
                             alt=""
-                            className="w-full h-full object-cover blur-[1px]"
+                            className="w-full h-full object-cover blur-[1px]" // Thumbnails bhi thode blur
                           />
                         </button>
                       ))}
@@ -536,6 +528,7 @@ const GalleryPage: React.FC = () => {
                   </div>
                 )}
 
+                {/* Buy Button */}
                 {selectedGroup[currentImageIndex].productLink?.trim() ? (
                   <div className="flex flex-col items-center gap-3">
                     <p className="text-white/70 text-xs md:text-sm text-center flex items-center gap-2">
