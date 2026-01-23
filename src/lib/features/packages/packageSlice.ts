@@ -18,17 +18,17 @@ interface Package {
   unit: string;
   areaType?: string;
   isPopular: boolean;
-  packageType: "standard" | "premium";
+  packageType: "standard" | "premium" | "marketplace" | "city_partner";
   features: string[];
   includes?: string[];
   note?: string;
-  [key: string]: any; 
+  [key: string]: any;
 }
 
 interface PackageState {
   packages: Package[];
   status: "idle" | "loading" | "succeeded" | "failed";
-  actionStatus: "idle" | "loading" | "succeeded" | "failed"; 
+  actionStatus: "idle" | "loading" | "succeeded" | "failed";
   error: any;
 }
 
@@ -55,7 +55,7 @@ export const createPackage = createAsyncThunk<
         },
       };
       const { data } = await axios.post(API_URL, packageData, config);
-      return data.data; 
+      return data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create package"
@@ -172,7 +172,7 @@ const packageSlice = createSlice({
         createPackage.fulfilled,
         (state, action: PayloadAction<Package>) => {
           state.actionStatus = "succeeded";
-          state.packages.push(action.payload); 
+          state.packages.push(action.payload);
         }
       )
       .addCase(createPackage.rejected, actionRejected);
