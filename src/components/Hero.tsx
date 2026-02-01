@@ -133,6 +133,8 @@ const Hero = () => {
           width={1920}
           height={1080}
           loading={currentSlide === 0 ? "eager" : "lazy"}
+          // @ts-expect-error - fetchpriority is a valid attribute but not yet in React types
+          fetchpriority={currentSlide === 0 ? "high" : "low"}
           decoding="async"
           className="w-full h-full object-cover object-center transition-opacity duration-700"
           style={{ opacity: 1 }}
