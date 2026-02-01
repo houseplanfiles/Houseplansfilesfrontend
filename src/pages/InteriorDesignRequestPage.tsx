@@ -86,7 +86,7 @@ const InteriorDesignRequestPage: React.FC = () => {
           <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
               Design Your{" "}
-              <span className="text-orange-600">Interior Space</span>
+              <span className="text-orange-600">Complete Hosue Plan</span>
             </h1>
             <p className="text-lg text-gray-600 max-w-xl mx-auto">
               Get detailed interior layouts, 3D views, and walkthroughs tailored
