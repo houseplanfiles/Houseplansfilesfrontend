@@ -85,8 +85,7 @@ const CustomizeFloorPlanPage = () => {
           {/* Header Section */}
           <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-              Complete house{" "}
-              <span className="text-orange-600">plan file</span>
+              <span className="text-orange-600">Floor plan</span>
             </h1>
             <p className="text-lg text-gray-600 max-w-xl mx-auto">
               Share your plot details and requirements below. Our expert
