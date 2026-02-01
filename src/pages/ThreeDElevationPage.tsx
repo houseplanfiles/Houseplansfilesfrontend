@@ -90,8 +90,8 @@ const ThreeDElevationPage: React.FC = () => {
           {/* Updated Header Section */}
           <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-              Get Your 3D Elevation{" "}
-              <span className="text-orange-600">+ Floor Plan</span>
+              Get Your Floor Plans{" "}
+              <span className="text-orange-600">+ 3D Elevation</span>
             </h1>
             <p className="text-lg text-gray-600 max-w-xl mx-auto">
               Visualize your dream home with our expert architectural designs.
