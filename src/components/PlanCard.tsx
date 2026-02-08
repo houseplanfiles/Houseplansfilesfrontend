@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Star, Heart, Share2 } from "lucide-react";
+import DisplayPrice from "./DisplayPrice";
 
 const PlanCard = ({ plan }) => {
   return (
@@ -35,7 +36,7 @@ const PlanCard = ({ plan }) => {
         <p className="text-sm text-dark-light mb-4">{plan.specs}</p>
         <div className="flex justify-between items-center mb-4">
           <p className="text-2xl font-bold text-primary">
-            ${plan.price.toLocaleString()}
+            <DisplayPrice inrPrice={plan.price} />
           </p>
           <p className="text-xs text-gray-500">{plan.reviews} reviews</p>
         </div>

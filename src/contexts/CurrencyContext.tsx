@@ -35,16 +35,16 @@ export const availableCurrencies = [
 
 // NOTE: These are example rates. Use a real API for production.
 const exchangeRates: Record<CurrencyCode, number> = {
-  USD: 1.0,
-  INR: 83.5,
-  EUR: 0.92,
-  GBP: 0.79,
-  AUD: 1.5,
-  CAD: 1.37,
-  JPY: 157.0,
-  AED: 3.67,
-  CNY: 7.25,
-  SGD: 1.35,
+  INR: 1.0,
+  USD: 0.011976, // 1 / 83.5
+  EUR: 0.011018, // 0.92 / 83.5
+  GBP: 0.009461, // 0.79 / 83.5
+  AUD: 0.017964, // 1.5 / 83.5
+  CAD: 0.016407, // 1.37 / 83.5
+  JPY: 1.88024,  // 157.0 / 83.5
+  AED: 0.043952, // 3.67 / 83.5
+  CNY: 0.086826, // 7.25 / 83.5
+  SGD: 0.016168, // 1.35 / 83.5
 };
 
 interface CurrencyContextType {
