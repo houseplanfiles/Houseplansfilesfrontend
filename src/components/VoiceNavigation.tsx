@@ -49,11 +49,23 @@ const VoiceNavigation = () => {
     const [isThinking, setIsThinking] = useState(false);
     const [recognition, setRecognition] = useState<any>(null);
     const [pendingFlow, setPendingFlow] = useState<string | null>(null);
+    const [hasGreeted, setHasGreeted] = useState(false);
+    const [isWidgetOpen, setIsWidgetOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch<AppDispatch>();
     const { userInfo } = useSelector((state: RootState) => state.user);
     const isFirstMount = useRef(true);
+
+    // AI Sensy Widget Detection
+    useEffect(() => {
+        const checkWidget = () => {
+            const chatWindow = document.querySelector('[aria-label="Close"], .close, .aisensy-close, .wa-widget-content-open');
+            setIsWidgetOpen(!!chatWindow);
+        };
+        const interval = setInterval(checkWidget, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         if (isFirstMount.current) { isFirstMount.current = false; return; }
@@ -102,8 +114,19 @@ const VoiceNavigation = () => {
         return false;
     };
 
+    const speak = (text: string) => {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel(); // Stop any current speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-IN";
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+    };
+
     const executeRegisterFlow = () => {
         toast.info("AI: Filling Registration Form...");
+        speak("I am filling the registration form for you.");
         setInputValue("name", "John Doe");
         setInputValue("email", `voice_ai_${Math.floor(Math.random() * 1000)}@houseplan.com`);
         setInputValue("phone", "9876543210");
@@ -114,6 +137,7 @@ const VoiceNavigation = () => {
             const btn = document.querySelector('button[type="submit"]') as HTMLButtonElement;
             if (btn) btn.click();
             toast.success("AI: Registration Complete!");
+            speak("Registration complete. Welcome on board!");
         }, 1200);
     };
 
@@ -130,8 +154,8 @@ const VoiceNavigation = () => {
             
             Return ONLY a JSON object in this format:
             {
-                "intent": "NAVIGATE" | "ACTION" | "FILL" | "FLOW",
-                "target": "route_path" | "element_name" | "field_name",
+                "intent": "NAVIGATE" | "ACTION" | "FILL" | "FLOW" | "SEARCH",
+                "target": "route_path" | "element_name" | "field_name" | "search_term",
                 "value": "data_to_fill_if_any",
                 "confidence": 0-1
             }
@@ -139,9 +163,11 @@ const VoiceNavigation = () => {
             Rules:
             1. If it's a register request like "register a user" or "ek user register kar do", use intent "FLOW" and target "register".
             2. If it's navigation, target should be the route path.
-            3. Common paths: /products, /register, /login, /dashboard, /cart, /admin, /admin/products, /footer.
+            3. Common paths: /products, /register, /login, /dashboard, /cart, /admin, /footer.
             4. If it's "scroll to footer" or just "footer", intent "ACTION" and target "footer".
-            5. Confidence must be high for a match.
+            5. If the user is asking for specific plans by size, dimensions, or name (e.g., "25x50 plans", "modern home designs", "40 by 50 readymade house plan"), use intent "SEARCH" and target should be the search term (e.g., "40x50", "25x50").
+            6. "Readymade house plans" refers to the /products page.
+            7. Confidence must be high for a match.
 
             JSON Output:
             `;
@@ -157,13 +183,21 @@ const VoiceNavigation = () => {
                 console.log("AI Parsed:", aiData);
 
                 if (aiData.confidence > 0.6) {
+                    if (aiData.intent === "SEARCH") {
+                        speak(`Searching for ${aiData.target} plans.`);
+                        navigate(`/products?search=${encodeURIComponent(aiData.target)}`);
+                        setIsThinking(false); setIsProcessing(false); return;
+                    }
+
                     if (aiData.intent === "FLOW" && aiData.target === "register") {
+                        speak("Sure, starting the registration flow.");
                         if (location.pathname !== "/register") { setPendingFlow("register"); navigate("/register"); }
                         else executeRegisterFlow();
                         setIsThinking(false); setIsProcessing(false); return;
                     }
 
                     if (aiData.intent === "NAVIGATE") {
+                        speak(`Navigating to ${aiData.target.replace("/", "") || "home"}`);
                         navigate(aiData.target);
                         toast.success(`Navigating to ${aiData.target}`);
                         setIsThinking(false); setIsProcessing(false); return;
@@ -171,6 +205,7 @@ const VoiceNavigation = () => {
 
                     if (aiData.intent === "ACTION") {
                         if (aiData.target === "footer") {
+                            speak("Scrolling to the bottom of the page.");
                             document.querySelector("footer")?.scrollIntoView({ behavior: "smooth" });
                             setIsThinking(false); setIsProcessing(false); return;
                         }
@@ -192,12 +227,14 @@ const VoiceNavigation = () => {
 
         // Quick check for Footer
         if (transcript.includes("footer") || transcript.includes("bottom")) {
+            speak("Scrolling to footer.");
             document.querySelector("footer")?.scrollIntoView({ behavior: "smooth" });
             return;
         }
 
         // Quick check for Register Flow
         if (transcript.includes("register a user") || transcript.includes("register user")) {
+            speak("Starting registration process.");
             if (location.pathname !== "/register") { setPendingFlow("register"); navigate("/register"); }
             else executeRegisterFlow();
             return;
@@ -206,6 +243,7 @@ const VoiceNavigation = () => {
         // Static routes
         for (const cmd of sortedCommands) {
             if (clean === cmd || transcript.includes(cmd)) {
+                speak(`Opening ${cmd}`);
                 navigate(commandMap[cmd]);
                 toast.success(`Navigating to ${cmd}`);
                 return;
@@ -214,6 +252,7 @@ const VoiceNavigation = () => {
 
         // Last resort: Smart Click
         if (!findAndClickElement(clean)) {
+            speak("I am sorry, I couldn't understand that command.");
             toast.error(`Recognized: "${transcript}". No action found.`);
         }
     };
@@ -222,15 +261,43 @@ const VoiceNavigation = () => {
         if (!recognition) return toast.error("Voice support unavailable.");
         if (isListening) recognition.stop();
         else {
-            try { recognition.start(); setIsListening(true); toast.info("Listening..."); }
-            catch (err) { console.error(err); setIsListening(false); }
+            if (!hasGreeted && window.speechSynthesis) {
+                setHasGreeted(true);
+                const utterance = new SpeechSynthesisUtterance("How can I help you?");
+                utterance.lang = "en-IN";
+                utterance.onstart = () => setIsProcessing(true);
+                utterance.onend = () => {
+                    setIsProcessing(false);
+                    try {
+                        recognition.start();
+                        setIsListening(true);
+                        toast.info("Listening...");
+                    } catch (err) {
+                        console.error(err);
+                        setIsListening(false);
+                    }
+                };
+                window.speechSynthesis.speak(utterance);
+            } else {
+                try {
+                    recognition.start();
+                    setIsListening(true);
+                    toast.info("Listening...");
+                } catch (err) {
+                    console.error(err);
+                    setIsListening(false);
+                }
+            }
         }
-    }, [isListening, recognition]);
+    }, [isListening, recognition, hasGreeted]);
 
     if (!SpeechRecognitionAPI) return null;
 
     return (
-        <div className="fixed bottom-24 right-6 z-[60] flex flex-col items-end gap-3">
+        <div
+            className="fixed right-6 z-[60] flex flex-col items-end gap-3 transition-all duration-500 ease-in-out"
+            style={{ bottom: isWidgetOpen ? "480px" : "110px" }}
+        >
             <AnimatePresence>
                 {(isListening || isThinking) && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-xl border border-orange-100 flex items-center gap-3">
