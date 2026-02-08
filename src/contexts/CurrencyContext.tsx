@@ -1,4 +1,6 @@
-import React, {
+"use client";
+
+import {
   createContext,
   useContext,
   useState,
@@ -6,49 +8,82 @@ import React, {
   ReactNode,
 } from "react";
 
+export type CurrencyCode =
+  | "USD"
+  | "EUR"
+  | "GBP"
+  | "INR"
+  | "AUD"
+  | "CAD"
+  | "JPY"
+  | "AED"
+  | "CNY"
+  | "SGD";
+
+export const availableCurrencies = [
+  { code: "USD", name: "US Dollar", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "GBP", name: "British Pound", symbol: "£" },
+  { code: "INR", name: "Indian Rupee", symbol: "₹" },
+  { code: "AUD", name: "Australian Dollar", symbol: "A$" },
+  { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
+  { code: "JPY", name: "Japanese Yen", symbol: "¥" },
+  { code: "AED", name: "UAE Dirham", symbol: "د.إ" },
+  { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+  { code: "SGD", name: "Singapore Dollar", symbol: "S$" },
+] as const;
+
+// NOTE: These are example rates. Use a real API for production.
+const exchangeRates: Record<CurrencyCode, number> = {
+  USD: 1.0,
+  INR: 83.5,
+  EUR: 0.92,
+  GBP: 0.79,
+  AUD: 1.5,
+  CAD: 1.37,
+  JPY: 157.0,
+  AED: 3.67,
+  CNY: 7.25,
+  SGD: 1.35,
+};
+
 interface CurrencyContextType {
-  currency: "INR" | "USD";
-  rate: number;
+  currency: CurrencyCode;
   symbol: string;
-  toggleCurrency: () => void;
+  rate: number;
+  setCurrency: (currency: CurrencyCode) => void;
+  availableCurrencies: typeof availableCurrencies; // This was missing
 }
-
-interface CurrencyProviderProps {
-  children: ReactNode;
-}
-
-const INR_TO_USD_RATE = 0.012;
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(
   undefined
 );
 
-export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({
-  children,
-}) => {
-  const [currency, setCurrency] = useState<"INR" | "USD">("INR");
-  const [rate, setRate] = useState<number>(1);
-  const [symbol, setSymbol] = useState<string>("₹");
+export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
+  const [currency, setCurrencyState] = useState<CurrencyCode>("USD");
 
   useEffect(() => {
-    if (currency === "USD") {
-      setRate(INR_TO_USD_RATE);
-      setSymbol("$");
-    } else {
-      setRate(1);
-      setSymbol("₹");
+    const savedCurrency = localStorage.getItem("currency") as CurrencyCode;
+    if (availableCurrencies.some((c) => c.code === savedCurrency)) {
+      setCurrencyState(savedCurrency);
     }
-  }, [currency]);
+  }, []);
 
-  const toggleCurrency = (): void => {
-    setCurrency((prevCurrency) => (prevCurrency === "INR" ? "USD" : "INR"));
+  const setCurrency = (newCurrency: CurrencyCode) => {
+    setCurrencyState(newCurrency);
+    localStorage.setItem("currency", newCurrency);
   };
+
+  const currentCurrencyDetails =
+    availableCurrencies.find((c) => c.code === currency) ||
+    availableCurrencies[0];
 
   const value: CurrencyContextType = {
     currency,
-    rate,
-    symbol,
-    toggleCurrency,
+    symbol: currentCurrencyDetails.symbol,
+    rate: exchangeRates[currency],
+    setCurrency,
+    availableCurrencies, // FIX: ADDED THIS LINE
   };
 
   return (
@@ -58,9 +93,9 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({
   );
 };
 
-export const useCurrency = (): CurrencyContextType => {
+export const useCurrency = () => {
   const context = useContext(CurrencyContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useCurrency must be used within a CurrencyProvider");
   }
   return context;

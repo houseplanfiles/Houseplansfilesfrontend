@@ -15,16 +15,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
-// --- डिफ़ॉल्ट डेटा जो फॉर्म में पहले से भरा रहेगा ---
 const defaultFormData = {
-  title: "Floor Plan",
-  price: "", // यह खाली रहेगा ताकि एडमिन भर सके
+  title: "",
+  price: "",
   unit: "Per sq.ft.",
-  areaType: "Built-up Area",
+  areaType: "",
   packageType: "standard",
   isPopular: false,
-  features:
-    "Revision Unlimited upto satisfaction, Requirements fixed, General vastu follows, 24 Hours Delivery",
+  features: "",
   includes: "",
   note: "",
 };
@@ -39,12 +37,10 @@ const PackageEditPage = () => {
     (state: RootState) => state.packages
   );
 
-  // --- फॉर्म की शुरुआती स्टेट अब हमारे डिफ़ॉल्ट डेटा से होगी ---
   const [formData, setFormData] = useState(defaultFormData);
   const isEditMode = Boolean(id);
 
   useEffect(() => {
-    // सिर्फ एडिट मोड में पैकेज की सूची लोड करें
     if (isEditMode && packages.length === 0) {
       dispatch(fetchAllPackages());
     }
@@ -67,12 +63,11 @@ const PackageEditPage = () => {
 
   useEffect(() => {
     if (isEditMode && packages.length > 0) {
-      // एडिट मोड में, मौजूदा पैकेज का डेटा भरें
       const existingPackage = packages.find((p) => p._id === id);
       if (existingPackage) {
         setFormData({
           title: existingPackage.title,
-          price: existingPackage.price,
+          price: String(existingPackage.price),
           unit: existingPackage.unit,
           areaType: existingPackage.areaType || "",
           packageType: existingPackage.packageType,
@@ -83,7 +78,6 @@ const PackageEditPage = () => {
         });
       }
     } else {
-      // ऐड मोड में, हमेशा डिफ़ॉल्ट डेटा दिखाएं
       setFormData(defaultFormData);
     }
   }, [id, packages, isEditMode]);
@@ -142,6 +136,7 @@ const PackageEditPage = () => {
             value={formData.title}
             onChange={handleChange}
             required
+            placeholder="e.g. Floor Plan or Gold Partner"
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -157,7 +152,7 @@ const PackageEditPage = () => {
             />
           </div>
           <div>
-            <Label htmlFor="unit">Unit (e.g., Per sq.ft.)</Label>
+            <Label htmlFor="unit">Unit (e.g., Per sq.ft. or Lifetime)</Label>
             <Input
               id="unit"
               name="unit"
@@ -168,16 +163,29 @@ const PackageEditPage = () => {
           </div>
         </div>
         <div>
+          <Label htmlFor="areaType">Area Type (Optional)</Label>
+          <Input
+            id="areaType"
+            name="areaType"
+            value={formData.areaType}
+            onChange={handleChange}
+            placeholder="e.g. Residential, District, etc."
+          />
+        </div>
+        <div>
           <Label htmlFor="packageType">Package Type</Label>
           <select
             name="packageType"
             id="packageType"
             value={formData.packageType}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md bg-background"
           >
             <option value="standard">Standard</option>
             <option value="premium">Premium</option>
+            <option value="marketplace">Marketplace</option>
+            <option value="city_partner">City Partner</option>
+            <option value="construction">Construction</option>
           </select>
         </div>
         <div>
@@ -191,18 +199,17 @@ const PackageEditPage = () => {
           />
         </div>
         <div>
-          <Label htmlFor="includes">
-            Includes (comma separated, for Standard only)
-          </Label>
+          <Label htmlFor="includes">Includes (comma separated)</Label>
           <Textarea
             id="includes"
             name="includes"
             value={formData.includes}
             onChange={handleChange}
+            placeholder="Extra items included in the package"
           />
         </div>
         <div>
-          <Label htmlFor="note">Note</Label>
+          <Label htmlFor="note">Note (Optional)</Label>
           <Input
             id="note"
             name="note"

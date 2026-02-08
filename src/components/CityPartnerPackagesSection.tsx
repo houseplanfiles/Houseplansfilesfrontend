@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+
 interface Package {
   _id: string;
   title: string;
@@ -298,4 +299,3 @@ const CityPartnerPackagesSection: React.FC<CityPartnerPackagesProps> = ({
 };
 
 export default CityPartnerPackagesSection;
-

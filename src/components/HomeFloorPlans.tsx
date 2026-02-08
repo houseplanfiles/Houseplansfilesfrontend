@@ -16,17 +16,13 @@ import YouTube from "react-youtube";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/components/ui/use-toast";
-import house3 from "@/assets/house-3.jpg"; // Fallback Image
+import house3 from "@/assets/house-3.jpg";
 import DisplayPrice from "@/components/DisplayPrice";
-// ✅ Import Currency Context
 import { useCurrency } from "@/contexts/CurrencyContext";
-
-// ✅ Import Actions
-import { fetchProducts } from "@/lib/features/products/productSlice";
-import { fetchAllApprovedPlans } from "@/lib/features/professional/professionalPlanSlice";
+import { fetchProducts, fetchHomeFloorPlans } from "@/lib/features/products/productSlice";
+import { fetchAllApprovedPlans, fetchHomeProfessionalFloorPlans } from "@/lib/features/professional/professionalPlanSlice";
 import { fetchMyOrders } from "@/lib/features/orders/orderSlice";
 
-// --- HELPER FUNCTIONS ---
 const slugify = (text) => {
   if (!text) return "";
   return text
@@ -46,7 +42,6 @@ const getYouTubeId = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-// --- VIDEO MODAL ---
 const VideoModal = ({ videoId, onClose }) => {
   if (!videoId) return null;
   const opts = {
@@ -75,42 +70,38 @@ const VideoModal = ({ videoId, onClose }) => {
   );
 };
 
-// --- MAIN COMPONENT: HOME FLOOR PLANS ---
+import { AppDispatch, RootState } from "@/lib/store";
+
 const HomeFloorPlans = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const scrollContainerRef = useRef(null);
   const [playingVideoId, setPlayingVideoId] = useState(null);
-
-  // --- MOBILE PAGINATION STATE ---
   const [mobilePage, setMobilePage] = useState(1);
   const mobileItemsPerPage = 4;
-
-  // Currency Hook
   const { symbol, rate } = useCurrency();
 
-  // Redux Selectors
-  const { products: adminProducts, listStatus: adminStatus } = useSelector(
-    (state) => state.products
+  const { homeFloorPlans: adminProducts, listStatus: adminStatus } = useSelector(
+    (state: any) => state.products
   );
-  const { plans: professionalPlans, listStatus: profStatus } = useSelector(
-    (state) => state.professionalPlans
+  const { homeFloorPlans: professionalPlans, listStatus: profStatus } = useSelector(
+    (state: any) => state.professionalPlans
   );
-  const { userInfo } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.orders);
+  const { userInfo } = useSelector((state: any) => state.user);
+  const { orders } = useSelector((state: any) => state.orders);
 
-  // --- FETCH DATA (STRICTLY FLOOR PLANS) ---
+  // ✅ FETCH ONLY FLOOR PLANS (NOT ELEVATIONS)
   useEffect(() => {
     const params = {
-      limit: 12, // Fetching limited items for homepage
+      limit: 12,
       sortBy: "newest",
-      planCategory: "floor-plans", // ✅ STRICTLY FLOOR PLANS
+      planCategory: "floor-plans", // ✅ Only floor plans
     };
 
-    dispatch(fetchProducts(params));
-    dispatch(fetchAllApprovedPlans(params));
+    dispatch(fetchHomeFloorPlans(params));
+    dispatch(fetchHomeProfessionalFloorPlans(params));
 
     if (userInfo) dispatch(fetchMyOrders());
   }, [dispatch, userInfo]);
@@ -125,9 +116,7 @@ const HomeFloorPlans = () => {
     );
   }, [orders, userInfo]);
 
-  // --- MERGE & PROCESS DATA ---
   const processedData = useMemo(() => {
-    // 1. Merge Lists
     const combinedList = [
       ...(Array.isArray(adminProducts) ? adminProducts : []),
       ...(Array.isArray(professionalPlans) ? professionalPlans : []),
@@ -135,26 +124,37 @@ const HomeFloorPlans = () => {
 
     if (combinedList.length === 0) return [];
 
-    // 2. Filter & Map Data
+    // ✅ DOUBLE CHECK: Remove any elevation/3D products
     return combinedList
       .filter((product) => {
-        // ✅ EXTRA SECURITY: Ensure we DO NOT show elevations here
-        const cat = String(
-          product.category || product.Categories
-        ).toLowerCase();
-        return !cat.includes("elevation") && !cat.includes("3d");
+        const cat = String(product.category || "").toLowerCase();
+        const categoriesStr = String(product.Categories || "").toLowerCase();
+        const planCat = String(product.planCategory || "").toLowerCase();
+        const pType = String(product.planType || "").toLowerCase();
+
+        // Exclude elevations/3D if any field mentions it
+        const isElevation =
+          cat.includes("elevation") ||
+          cat.includes("3d") ||
+          categoriesStr.includes("elevation") ||
+          categoriesStr.includes("3d") ||
+          planCat.includes("elevation") ||
+          planCat.includes("3d") ||
+          pType.includes("elevation") ||
+          pType.includes("3d");
+
+        return !isElevation;
       })
       .slice(0, 12)
       .map((product) => {
         const productName =
           product.name || product.planName || product.Name || "Untitled Plan";
 
-        // Price Logic
         const regularPrice =
           product.price && product.price > 0
             ? product.price
             : product["Regular price"] &&
-                parseFloat(String(product["Regular price"])) > 0
+              parseFloat(String(product["Regular price"])) > 0
               ? parseFloat(String(product["Regular price"]))
               : 0;
 
@@ -162,7 +162,7 @@ const HomeFloorPlans = () => {
           product.salePrice && product.salePrice > 0
             ? product.salePrice
             : product["Sale price"] &&
-                parseFloat(String(product["Sale price"])) > 0
+              parseFloat(String(product["Sale price"])) > 0
               ? parseFloat(String(product["Sale price"]))
               : null;
 
@@ -174,7 +174,6 @@ const HomeFloorPlans = () => {
 
         const displayPrice = isSale ? salePrice : regularPrice;
 
-        // Image Logic
         const getImageSource = () => {
           const primaryImage =
             product.mainImage || product.image || product.Images;
@@ -184,7 +183,6 @@ const HomeFloorPlans = () => {
           return house3;
         };
 
-        // Category Display
         const categoryDisplay =
           (Array.isArray(product.category) && product.category[0]) ||
           product.Categories?.split(",")[0] ||
@@ -196,25 +194,19 @@ const HomeFloorPlans = () => {
           displayName: productName,
           slug: `${slugify(productName)}-${product._id}`,
           mainImage: getImageSource(),
-
-          // --- ATTRIBUTES (Floor Plans Specific) ---
           plotAreaDisplay:
             product.plotArea ||
             (product["Attribute 2 value(s)"]
               ? parseInt(
-                  String(product["Attribute 2 value(s)"]).replace(/[^0-9]/g, "")
-                )
+                String(product["Attribute 2 value(s)"]).replace(/[^0-9]/g, "")
+              )
               : "N/A"),
-
           roomsDisplay:
             product.rooms || product["Attribute 3 value(s)"] || "N/A",
-
           plotSizeDisplay:
             product.plotSize || product["Attribute 1 value(s)"] || "N/A",
-
           directionDisplay:
             product.direction || product["Attribute 4 value(s)"] || "Any",
-
           categoryDisplay,
           isSale,
           displayPrice,
@@ -226,7 +218,6 @@ const HomeFloorPlans = () => {
       });
   }, [adminProducts, professionalPlans, purchasedProductIds, isInWishlist]);
 
-  // --- MOBILE PAGINATION LOGIC ---
   const totalMobilePages = Math.ceil(processedData.length / mobileItemsPerPage);
   const currentMobileItems = processedData.slice(
     (mobilePage - 1) * mobileItemsPerPage,
@@ -295,12 +286,10 @@ const HomeFloorPlans = () => {
     }
   };
 
-  // --- CARD COMPONENT (Matching your Style) ---
   const ProductCard = ({ product, isMobile = false }) => (
     <div
       className={`bg-card rounded-lg shadow-md overflow-hidden border border-gray-200 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isMobile ? "w-full" : "flex-shrink-0 w-[320px] snap-start"}`}
     >
-      {/* Top Image Section */}
       <div className={`relative border-b ${isMobile ? "p-2" : "p-3 sm:p-4"}`}>
         <Link to={`/product/${product.slug}`}>
           <img
@@ -323,8 +312,6 @@ const HomeFloorPlans = () => {
             Purchased
           </div>
         )}
-
-        {/* Action Buttons */}
         <div
           className={`absolute top-2 right-2 flex space-x-2 ${isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}
         >
@@ -350,7 +337,6 @@ const HomeFloorPlans = () => {
         </div>
       </div>
 
-      {/* Attributes Section (Area, BHK, Size, Facing) */}
       <div className={`border-b ${isMobile ? "p-1.5" : "p-2 sm:p-4"}`}>
         <div
           className={`grid grid-cols-2 md:grid-cols-4 text-center ${isMobile ? "gap-1" : "gap-2"}`}
@@ -382,7 +368,6 @@ const HomeFloorPlans = () => {
         </div>
       </div>
 
-      {/* Info & Buttons */}
       <div className={`${isMobile ? "p-2" : "p-2 sm:p-4"}`}>
         <div className="mb-2 md:mb-3">
           <p
@@ -484,7 +469,6 @@ const HomeFloorPlans = () => {
       />
 
       <div className="max-w-7xl mx-auto px-1 md:px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="flex justify-center items-end mb-4 md:mb-8 relative">
           <div className="text-center">
             <h2 className="text-lg md:text-3xl font-bold text-foreground">
@@ -495,7 +479,6 @@ const HomeFloorPlans = () => {
             </p>
             <div className="mt-2 md:mt-3 h-1 w-16 md:w-24 bg-primary mx-auto rounded-full"></div>
           </div>
-          {/* View All Button (Desktop) */}
           <Link
             to="/browse-plans"
             className="hidden md:inline-flex absolute right-0 top-1/2 -translate-y-1/2"
@@ -504,7 +487,6 @@ const HomeFloorPlans = () => {
           </Link>
         </div>
 
-        {/* --- DESKTOP VIEW: Slider --- */}
         <div className="hidden md:block relative group/carousel">
           <Button
             variant="outline"
@@ -540,7 +522,6 @@ const HomeFloorPlans = () => {
           </div>
         </div>
 
-        {/* --- MOBILE VIEW: Grid --- */}
         <div className="md:hidden">
           <div className="grid grid-cols-2 gap-2">
             <AnimatePresence mode="wait">
@@ -558,7 +539,6 @@ const HomeFloorPlans = () => {
             </AnimatePresence>
           </div>
 
-          {/* Mobile Pagination */}
           {totalMobilePages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-4">
               <Button

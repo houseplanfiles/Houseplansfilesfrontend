@@ -7,7 +7,6 @@ import {
 } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
 
-// प्रोडक्ट इंटरफ़ेस को दोबारा इस्तेमाल करें
 import { Product } from "../products/productSlice";
 
 interface MediaState {

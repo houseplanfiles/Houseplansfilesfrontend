@@ -1,9 +1,8 @@
 // src/pages/CareersPage.jsx
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async"; // Helmet ko import karen
+import { Helmet } from "react-helmet-async"; 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -195,7 +194,6 @@ const CareersPage = () => {
             </div>
           </div>
         </section>
-
         {/* Collaboration Opportunities Section */}
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-4">

@@ -14,12 +14,14 @@ import {
   fetchNotifications,
   markNotificationAsRead,
 } from "@/lib/features/notifications/notificationSlice";
+
 interface NotificationType {
   _id: string;
   message: string;
   link: string;
   createdAt: string;
 }
+
 const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -50,6 +52,7 @@ const NotificationBell: React.FC = () => {
       dispatch(fetchNotifications());
     }
   }, [isOpen, dispatch, userInfo]);
+
   const handleNotificationClick = (notification: NotificationType) => {
     if (!userInfo) {
       return;
@@ -107,4 +110,5 @@ const NotificationBell: React.FC = () => {
     </Popover>
   );
 };
+
 export default NotificationBell;

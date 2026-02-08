@@ -9,7 +9,6 @@ import {
   Product,
 } from "@/lib/features/products/productSlice";
 import { RootState, AppDispatch } from "@/lib/store";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -102,11 +101,8 @@ const AllProductsPage: React.FC = () => {
     dispatch(fetchProducts(params));
   }, [dispatch, currentPage, debouncedSearchTerm, selectedCategory]);
 
-  // <<< YAHAN BADLAAV KIYA GAYA HAI >>>
   useEffect(() => {
-    // Update successful
     if (actionStatus === "succeeded") {
-      // Yeh check isliye taaki delete ke success par ye na chale
       if (isEditModalOpen) {
         toast.success("Product updated successfully!");
         handleCloseModal();
@@ -114,13 +110,11 @@ const AllProductsPage: React.FC = () => {
       dispatch(resetProductState());
     }
 
-    // Action failed
     if (actionStatus === "failed" && error) {
       toast.error(String(error));
       dispatch(resetProductState());
     }
   }, [actionStatus, error, dispatch, isEditModalOpen]);
-  // <<< BADLAAV KHATAM >>>
 
   const totalPages = pages || 1;
 
@@ -142,9 +136,6 @@ const AllProductsPage: React.FC = () => {
           if (products.length === 1 && currentPage > 1) {
             setCurrentPage(currentPage - 1);
           }
-          // Note: Re-fetch for delete is handled by the main useEffect
-          // when currentPage changes or implicitly by the logic above.
-          // Or we can force it, but letting state drive it is cleaner.
         }
       });
     }

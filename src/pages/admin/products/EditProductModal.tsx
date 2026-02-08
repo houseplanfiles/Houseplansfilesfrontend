@@ -319,26 +319,26 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       const countriesList = Array.isArray(product.country)
         ? product.country
         : typeof product.country === "string"
-        ? product.country
-            .split(",")
-            .map((c) => c.trim())
-            .filter(Boolean)
-        : [];
+          ? product.country
+              .split(",")
+              .map((c) => c.trim())
+              .filter(Boolean)
+          : [];
       setSelectedCountries(countriesList);
 
       // Handle Categories (NEW Logic)
       const categoriesList = Array.isArray(product.category)
         ? product.category
         : typeof product.category === "string"
-        ? product.category
-            .split(",")
-            .map((c) => c.trim())
-            .filter(Boolean)
-        : typeof product.Categories === "string"
-        ? product.Categories.split(",")
-            .map((c) => c.trim())
-            .filter(Boolean)
-        : [];
+          ? product.category
+              .split(",")
+              .map((c) => c.trim())
+              .filter(Boolean)
+          : typeof product.Categories === "string"
+            ? product.Categories.split(",")
+                .map((c) => c.trim())
+                .filter(Boolean)
+            : [];
       setSelectedCategories(categoriesList);
 
       setIsSale(product.isSale || product["Is featured?"] === 1 || false);
@@ -430,7 +430,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
     if (selectedCountries.length > 0)
       formData.append("country", selectedCountries.join(","));
-    
+
     // NEW: Append selected categories
     if (selectedCategories.length > 0)
       formData.append("category", selectedCategories.join(","));

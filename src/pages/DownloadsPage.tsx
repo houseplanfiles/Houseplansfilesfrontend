@@ -38,19 +38,15 @@ const slugify = (text: any) => {
     .replace(/[^\w\-]+/g, "")
     .replace(/\-\-+/g, "-");
 };
-
 const ProductCard = ({ product, userOrders }: any) => {
   const navigate = useNavigate();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { userInfo } = useSelector((state: RootState) => state.user);
   const { symbol, rate } = useCurrency();
-
   const productName = product.name || product.Name || "Untitled Download";
   const linkTo = `/product/${slugify(productName)}-${product._id}`;
   const mainImage =
     product.mainImage || product.Images?.split(",")[0].trim() || house3;
-
-  // --- सभी फ़ील्ड्स को यहाँ जोड़ा गया है ---
   const plotSize = product.plotSize || "N/A";
   const plotArea = product.plotArea || "N/A";
   const rooms = product.rooms || "N/A";
@@ -68,9 +64,7 @@ const ProductCard = ({ product, userOrders }: any) => {
     parseFloat(String(salePrice)) > 0 &&
     parseFloat(String(salePrice)) < parseFloat(String(regularPrice));
   const displayPrice = isSale ? salePrice : regularPrice;
-
   const isWishlisted = isInWishlist(product._id);
-
   const hasPurchased = useMemo(() => {
     if (!userInfo || !userOrders || userOrders.length === 0) return false;
     return userOrders.some(
@@ -81,7 +75,6 @@ const ProductCard = ({ product, userOrders }: any) => {
         )
     );
   }, [userOrders, userInfo, product._id]);
-
   const handleWishlistToggle = () => {
     if (!userInfo) {
       toast.error("Please log in to add items to your wishlist.");
@@ -101,7 +94,6 @@ const ProductCard = ({ product, userOrders }: any) => {
       addToWishlist(productForWishlist);
     }
   };
-
   const handleDownload = async () => {
     if (!userInfo) {
       toast.error("Please log in to download.");
@@ -180,7 +172,6 @@ const ProductCard = ({ product, userOrders }: any) => {
         </div>
       </div>
 
-      {/* --- यहाँ नया स्पेसिफिकेशन ग्रिड जोड़ा गया है --- */}
       <div className="p-4 grid grid-cols-3 gap-2 border-t text-center text-sm">
         <div>
           <p className="text-xs text-gray-500">Plot Area</p>
@@ -261,7 +252,6 @@ const ProductCard = ({ product, userOrders }: any) => {
     </div>
   );
 };
-
 const DownloadsPage = () => {
   const dispatch: AppDispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -272,11 +262,9 @@ const DownloadsPage = () => {
   const { products, pages, count, listStatus, error } = useSelector(
     (state: RootState) => state.products
   );
-
   const { orders: userOrders } = useSelector(
     (state: RootState) => state.orders
   );
-
   const [currentPage, setCurrentPage] = useState(pageQuery);
   const [jumpToPage, setJumpToPage] = useState("");
   const CARDS_PER_PAGE = 12;
@@ -287,13 +275,10 @@ const DownloadsPage = () => {
       limit: CARDS_PER_PAGE,
       planCategory: "downloads",
     };
-
     dispatch(fetchProducts(apiParams));
-
     if (userInfo) {
       dispatch(fetchMyOrders());
     }
-
     const searchParamsToSet = new URLSearchParams();
     if (currentPage > 1) searchParamsToSet.set("page", String(currentPage));
     setSearchParams(searchParamsToSet, { replace: true });
@@ -307,7 +292,6 @@ const DownloadsPage = () => {
       window.scrollTo(0, 0);
     }
   };
-
   const handleJumpToPage = (e: React.FormEvent) => {
     e.preventDefault();
     const pageNumber = parseInt(jumpToPage, 10);
@@ -318,18 +302,16 @@ const DownloadsPage = () => {
     }
     setJumpToPage("");
   };
-
   const isLoading = listStatus === "loading";
   const isError = listStatus === "failed";
   const errorMessage = String(error);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Helmet>
-        <title>Downloads | READYMADE HOME DESIGNS</title>
+        <title>download home designing templetes and documents</title>
         <meta
           name="description"
-          content="Browse and download exclusive digital products, including CAD files, 3D models, and more."
+          content="Instantly download house plans documents — and templets ready for your help. Get accurate, printable files for your dream home design."
         />
       </Helmet>
       <Navbar />
@@ -364,7 +346,6 @@ const DownloadsPage = () => {
               </p>
             </div>
           )}
-
           {!isLoading && !isError && products.length > 0 && (
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {products.map((product) => (
@@ -422,5 +403,4 @@ const DownloadsPage = () => {
     </div>
   );
 };
-
 export default DownloadsPage;

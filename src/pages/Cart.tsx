@@ -43,7 +43,7 @@ const Cart = () => {
     const finalTotal = subtotal + totalTax + shipping;
 
     return {
-      subtotal: subtotal, // No rounding here to pass exact value
+      subtotal: subtotal, 
       totalTax: totalTax,
       shipping,
       finalTotal: finalTotal,

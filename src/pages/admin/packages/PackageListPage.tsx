@@ -17,17 +17,13 @@ const PackageListPage = () => {
   );
 
   useEffect(() => {
-    // कंपोनेंट लोड होने पर सभी पैकेज प्राप्त करें
     dispatch(fetchAllPackages());
-
-    // जब कंपोनेंट अनमाउंट हो तो actionStatus को रीसेट करें
     return () => {
       dispatch(resetActionStatus());
     };
   }, [dispatch]);
 
   useEffect(() => {
-    // अगर कोई डिलीट या अपडेट ऑपरेशन सफल होता है, तो सूची को फिर से लोड करें
     if (actionStatus === "succeeded") {
       dispatch(fetchAllPackages());
     }
@@ -78,7 +74,9 @@ const PackageListPage = () => {
                 <td className="p-4">
                   ₹{pkg.price} {pkg.unit}
                 </td>
-                <td className="p-4 capitalize">{pkg.packageType}</td>
+                <td className="p-4 capitalize">
+                  {pkg.packageType.replace("_", " ")}
+                </td>
                 <td className="p-4">{pkg.isPopular ? "Yes" : "No"}</td>
                 <td className="p-4 flex gap-2 justify-end">
                   <Link to={`/admin/packages/edit/${pkg._id}`}>

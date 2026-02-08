@@ -18,15 +18,11 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/components/ui/use-toast";
 import house3 from "@/assets/house-3.jpg";
 import DisplayPrice from "@/components/DisplayPrice";
-// ✅ Import Currency Context
 import { useCurrency } from "@/contexts/CurrencyContext";
-
-// ✅ Import Actions
-import { fetchProducts } from "@/lib/features/products/productSlice";
-import { fetchAllApprovedPlans } from "@/lib/features/professional/professionalPlanSlice";
+import { fetchProducts, fetchHomeElevations } from "@/lib/features/products/productSlice";
+import { fetchAllApprovedPlans, fetchHomeProfessionalElevations } from "@/lib/features/professional/professionalPlanSlice";
 import { fetchMyOrders } from "@/lib/features/orders/orderSlice";
 
-// --- HELPER FUNCTIONS ---
 const slugify = (text) => {
   if (!text) return "";
   return text
@@ -46,7 +42,6 @@ const getYouTubeId = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-// --- VIDEO MODAL ---
 const VideoModal = ({ videoId, onClose }) => {
   if (!videoId) return null;
   const opts = {
@@ -75,42 +70,38 @@ const VideoModal = ({ videoId, onClose }) => {
   );
 };
 
-// --- MAIN COMPONENT ---
+import { AppDispatch, RootState } from "@/lib/store";
+
 const HomeElevations = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const scrollContainerRef = useRef(null);
   const [playingVideoId, setPlayingVideoId] = useState(null);
-
-  // --- MOBILE PAGINATION STATE ---
   const [mobilePage, setMobilePage] = useState(1);
-  const mobileItemsPerPage = 4; // Mobile par 4 items dikhenge (2 rows x 2 cols)
-
-  // Currency Hook
+  const mobileItemsPerPage = 4;
   const { symbol, rate } = useCurrency();
 
-  // Redux Selectors
-  const { products: adminProducts, listStatus: adminStatus } = useSelector(
-    (state) => state.products
+  const { homeElevations: adminProducts, listStatus: adminStatus } = useSelector(
+    (state: any) => state.products
   );
-  const { plans: professionalPlans, listStatus: profStatus } = useSelector(
-    (state) => state.professionalPlans
+  const { homeElevations: professionalPlans, listStatus: profStatus } = useSelector(
+    (state: any) => state.professionalPlans
   );
-  const { userInfo } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.orders);
+  const { userInfo } = useSelector((state: any) => state.user);
+  const { orders } = useSelector((state: any) => state.orders);
 
-  // --- FETCH DATA (Logic for Elevations) ---
+  // ✅ FETCH ONLY ELEVATIONS (3D PLANS)
   useEffect(() => {
     const params = {
       limit: 12,
       sortBy: "newest",
-      planCategory: "elevations", // ✅ Fetching 3D Elevations
+      planCategory: "elevations", // ✅ Only elevations
     };
 
-    dispatch(fetchProducts(params));
-    dispatch(fetchAllApprovedPlans(params));
+    dispatch(fetchHomeElevations(params));
+    dispatch(fetchHomeProfessionalElevations(params));
 
     if (userInfo) dispatch(fetchMyOrders());
   }, [dispatch, userInfo]);
@@ -125,28 +116,57 @@ const HomeElevations = () => {
     );
   }, [orders, userInfo]);
 
-  // --- MERGE & PROCESS DATA ---
   const processedData = useMemo(() => {
-    // 1. Merge Lists
     const combinedList = [
       ...(Array.isArray(adminProducts) ? adminProducts : []),
       ...(Array.isArray(professionalPlans) ? professionalPlans : []),
     ];
 
+    console.log(
+      "🔍 HomeElevations - Total products fetched:",
+      combinedList.length
+    );
+
     if (combinedList.length === 0) return [];
 
-    // 2. Map Data
-    return combinedList.slice(0, 12).map((product) => {
-      // Increased slice to 12 for better pagination demo
+    // ✅ Filter for elevation/3D products
+    const filtered = combinedList.filter((product) => {
+      const cat = String(product.category || "").toLowerCase();
+      const categoriesStr = String(product.Categories || "").toLowerCase();
+      const planCat = String(product.planCategory || "").toLowerCase();
+      const pType = String(product.planType || "").toLowerCase();
+
+      const isElevation =
+        cat.includes("elevation") ||
+        cat.includes("3d") ||
+        categoriesStr.includes("elevation") ||
+        categoriesStr.includes("3d") ||
+        planCat.includes("elevation") ||
+        planCat.includes("3d") ||
+        pType.includes("elevation") ||
+        pType.includes("3d");
+
+      // Debug log
+      if (product._id) {
+        console.log(
+          `Product: ${product.name || product.planName}, IsElevation: ${isElevation}`
+        );
+      }
+
+      return isElevation;
+    });
+
+    console.log("✅ Filtered elevation products:", filtered.length);
+
+    return filtered.slice(0, 12).map((product) => {
       const productName =
         product.name || product.planName || product.Name || "Untitled Plan";
 
-      // Price Logic
       const regularPrice =
         product.price && product.price > 0
           ? product.price
           : product["Regular price"] &&
-              parseFloat(String(product["Regular price"])) > 0
+            parseFloat(String(product["Regular price"])) > 0
             ? parseFloat(String(product["Regular price"]))
             : 0;
 
@@ -154,7 +174,7 @@ const HomeElevations = () => {
         product.salePrice && product.salePrice > 0
           ? product.salePrice
           : product["Sale price"] &&
-              parseFloat(String(product["Sale price"])) > 0
+            parseFloat(String(product["Sale price"])) > 0
             ? parseFloat(String(product["Sale price"]))
             : null;
 
@@ -166,7 +186,6 @@ const HomeElevations = () => {
 
       const displayPrice = isSale ? salePrice : regularPrice;
 
-      // Image Logic
       const getImageSource = () => {
         const primaryImage =
           product.mainImage || product.image || product.Images;
@@ -176,39 +195,25 @@ const HomeElevations = () => {
         return house3;
       };
 
-      // City Logic
-      const city = product.city
-        ? Array.isArray(product.city)
-          ? product.city.join(", ")
-          : product.city
-        : null;
-
       return {
         ...product,
         id: product._id,
         displayName: productName,
         slug: `${slugify(productName)}-${product._id}`,
         mainImage: getImageSource(),
-
-        // --- ATTRIBUTES ---
         plotAreaDisplay:
           product.plotArea ||
           (product["Attribute 2 value(s)"]
             ? parseInt(
-                String(product["Attribute 2 value(s)"]).replace(/[^0-9]/g, "")
-              )
+              String(product["Attribute 2 value(s)"]).replace(/[^0-9]/g, "")
+            )
             : "N/A"),
-
         roomsDisplay: product.rooms || product["Attribute 3 value(s)"] || "N/A",
         bathrooms: product.bathrooms || "N/A",
         kitchen: product.kitchen || "N/A",
         plotSizeDisplay:
           product.plotSize || product["Attribute 1 value(s)"] || "N/A",
-
         categoryDisplay: "Floor Plan + 3D",
-        productNo: product.productNo || null,
-        city: city,
-
         isSale,
         displayPrice,
         regularPrice,
@@ -219,7 +224,6 @@ const HomeElevations = () => {
     });
   }, [adminProducts, professionalPlans, purchasedProductIds, isInWishlist]);
 
-  // --- MOBILE PAGINATION LOGIC ---
   const totalMobilePages = Math.ceil(processedData.length / mobileItemsPerPage);
   const currentMobileItems = processedData.slice(
     (mobilePage - 1) * mobileItemsPerPage,
@@ -228,7 +232,6 @@ const HomeElevations = () => {
 
   const handleMobilePageChange = (page) => {
     setMobilePage(page);
-    // Optional: Scroll slightly up if needed
   };
 
   const handleWishlistToggle = (product) => {
@@ -255,7 +258,7 @@ const HomeElevations = () => {
       removeFromWishlist(product.id);
       toast({ title: "Removed from Wishlist" });
     } else {
-      addToWishlist(wishlistItem);
+      addToWishlist(product.id);
       toast({ title: "Added to Wishlist!" });
     }
   };
@@ -294,12 +297,10 @@ const HomeElevations = () => {
     }
   };
 
-  // Reusable Card Component with Mobile optimizations
   const ProductCard = ({ product, isMobile = false }) => (
     <div
       className={`bg-card rounded-lg shadow-md overflow-hidden border border-gray-200 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isMobile ? "w-full" : "flex-shrink-0 w-[320px] snap-start"}`}
     >
-      {/* --- IMAGE --- */}
       <div className={`relative border-b ${isMobile ? "p-2" : "p-3 sm:p-4"}`}>
         <Link to={`/product/${product.slug}`}>
           <img
@@ -357,7 +358,6 @@ const HomeElevations = () => {
         </div>
       </div>
 
-      {/* --- GRID ATTRIBUTES (Compact on Mobile) --- */}
       <div className={`border-b ${isMobile ? "p-1.5" : "p-2 sm:p-4"}`}>
         <div
           className={`grid grid-cols-2 text-center ${isMobile ? "gap-1" : "gap-2 sm:gap-4"}`}
@@ -417,7 +417,6 @@ const HomeElevations = () => {
         </div>
       </div>
 
-      {/* --- INFO & BUTTONS --- */}
       <div className={`${isMobile ? "p-2" : "p-2 sm:p-4"}`}>
         <p
           className={`text-gray-500 uppercase truncate ${isMobile ? "text-[9px]" : "text-xs sm:text-sm"}`}
@@ -518,7 +517,6 @@ const HomeElevations = () => {
         onClose={() => setPlayingVideoId(null)}
       />
       <div className="max-w-7xl mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
         <div className="flex justify-center items-end mb-4 md:mb-8 relative">
           <div className="text-center">
             <h2 className="text-lg md:text-3xl font-bold text-foreground">
@@ -528,7 +526,6 @@ const HomeElevations = () => {
               Explore our newest residential layouts
             </p>
           </div>
-          {/* Desktop View All Button */}
           <Link
             to="/3d-plans"
             className="hidden md:inline-flex absolute right-0 top-1/2 -translate-y-1/2"
@@ -537,10 +534,6 @@ const HomeElevations = () => {
           </Link>
         </div>
 
-        {/* =========================================
-            DESKTOP VIEW: Horizontal Slider
-            (Hidden on Mobile)
-           ========================================= */}
         <div className="hidden md:block relative group/carousel">
           <Button
             variant="outline"
@@ -576,12 +569,7 @@ const HomeElevations = () => {
           </div>
         </div>
 
-        {/* =========================================
-            MOBILE VIEW: Grid 2 Columns + Pagination
-            (Hidden on Desktop)
-           ========================================= */}
         <div className="md:hidden">
-          {/* Grid Layout */}
           <div className="grid grid-cols-2 gap-2">
             <AnimatePresence mode="wait">
               {currentMobileItems.map((product) => (
@@ -598,7 +586,6 @@ const HomeElevations = () => {
             </AnimatePresence>
           </div>
 
-          {/* Pagination Controls */}
           {totalMobilePages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-4">
               <Button

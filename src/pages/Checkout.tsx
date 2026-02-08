@@ -13,6 +13,8 @@ import {
   payOrderWithPaypal,
   resetCurrentOrder,
 } from "@/lib/features/orders/orderSlice";
+// REMOVED: import { removeCartItem } from "@/lib/features/cart/cartSlice"; -> Yeh nahi chahiye kyunki hum context use karenge
+
 import useExternalScripts from "@/hooks/usePaymentGateway";
 
 import Navbar from "@/components/Navbar";
@@ -20,10 +22,9 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Trash2 } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import DisplayPrice from "@/components/DisplayPrice";
-import { Checkbox } from "@/components/ui/checkbox"; // Agar shadcn/ui use kar rahe hain to aese import karein, varna normal <input type="checkbox"> use karein. Main abhi normal input use kar raha hu taki dependency na badhe.
 
 declare global {
   interface Window {
@@ -39,7 +40,9 @@ const CheckoutPage = () => {
     "https://checkout.razorpay.com/v1/checkout.js",
   ]);
 
-  const { state: cartState, clearCart } = useCart();
+  // CHANGED: Added 'removeItem' from useCart context hook
+  const { state: cartState, clearCart, removeItem } = useCart();
+
   const { userInfo } = useSelector((state: RootState) => state.user);
   const {
     currentOrder,
@@ -50,9 +53,7 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("Razorpay");
   const [paypalClientId, setPaypalClientId] = useState("");
   const [isPaypalSdkReady, setIsPaypalSdkReady] = useState(false);
-  // --- START: NEW STATE ADDED ---
   const [termsAccepted, setTermsAccepted] = useState(false);
-  // --- END: NEW STATE ADDED ---
 
   const orderSummary = useMemo(() => {
     if (!cartState.items || cartState.items.length === 0) {
@@ -100,7 +101,7 @@ const CheckoutPage = () => {
     }
 
     if (cartState.items.length === 0 && !cartState.loading) {
-      toast.info("Your cart is empty. Redirecting...");
+      // toast.info("Your cart is empty. Redirecting..."); // Redirect loop se bachne ke liye comment kar sakte hain agar chahein
       navigate("/cart");
     }
 
@@ -254,6 +255,13 @@ const CheckoutPage = () => {
     });
   };
 
+  // CHANGED: Logic updated to use Context 'removeItem' instead of Redux dispatch
+  const handleRemoveItem = (productId: string) => {
+    removeItem(productId);
+    // toast.success is already handled in CartContext, but adding extra visual feedback doesn't hurt if context doesn't have it.
+    // Based on your CartContext code, it has toast.info, so we rely on that or let Context handle state.
+  };
+
   return (
     <>
       <Navbar />
@@ -369,7 +377,7 @@ const CheckoutPage = () => {
               {cartState.items.map((item) => (
                 <div
                   key={item.productId}
-                  className="flex justify-between items-center text-sm py-2"
+                  className="flex justify-between items-start text-sm py-2"
                 >
                   <div className="flex items-center gap-2 flex-1">
                     <img
@@ -382,6 +390,14 @@ const CheckoutPage = () => {
                       <span className="text-gray-500">
                         Qty: {item.quantity}
                       </span>
+                      {/* DELETE BUTTON ADDED HERE */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveItem(item.productId)}
+                        className="text-red-500 hover:text-red-600 text-xs flex items-center mt-1"
+                      >
+                        <Trash2 className="w-3 h-3 mr-1" /> Remove
+                      </button>
                     </div>
                   </div>
                   <div className="font-semibold">
@@ -423,7 +439,6 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* --- START: NEW CHECKBOX AND LINK ADDED --- */}
             <div className="flex items-start space-x-2 mt-6">
               <input
                 type="checkbox"
@@ -436,7 +451,7 @@ const CheckoutPage = () => {
                 I have read and agree to the website's{" "}
                 <Link
                   to="/terms"
-                  target="_blank" // Naye tab me kholne ke liye
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline font-medium"
                 >
@@ -445,7 +460,6 @@ const CheckoutPage = () => {
                 .
               </label>
             </div>
-            {/* --- END: NEW CHECKBOX AND LINK ADDED --- */}
 
             <div className="mt-6">
               {paymentMethod === "PayPal" ? (
@@ -457,9 +471,7 @@ const CheckoutPage = () => {
                       <Button
                         type="submit"
                         form="shipping-form"
-                        // --- START: MODIFIED DISABLED LOGIC ---
                         disabled={orderStatus === "loading" || !termsAccepted}
-                        // --- END: MODIFIED DISABLED LOGIC ---
                         className="w-full mb-2"
                       >
                         {orderStatus === "loading" && (
@@ -494,13 +506,11 @@ const CheckoutPage = () => {
                   type="submit"
                   form="shipping-form"
                   className="w-full btn-primary py-3 text-lg"
-                  // --- START: MODIFIED DISABLED LOGIC ---
                   disabled={
                     orderStatus === "loading" ||
                     (paymentMethod === "Razorpay" && !isRazorpayLoaded) ||
                     !termsAccepted
                   }
-                  // --- END: MODIFIED DISABLED LOGIC ---
                 >
                   {orderStatus === "loading" && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

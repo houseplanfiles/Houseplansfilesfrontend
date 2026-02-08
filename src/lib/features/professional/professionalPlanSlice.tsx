@@ -77,6 +77,8 @@ interface PaginatedPlanResponse {
 
 interface ProfessionalPlanState {
   plans: Plan[];
+  homeFloorPlans: Plan[];
+  homeElevations: Plan[];
   plan: Plan | null;
   page: number;
   pages: number;
@@ -87,6 +89,8 @@ interface ProfessionalPlanState {
 
 const initialState: ProfessionalPlanState = {
   plans: [],
+  homeFloorPlans: [],
+  homeElevations: [],
   plan: null,
   page: 1,
   pages: 1,
@@ -106,6 +110,38 @@ export const fetchAllApprovedPlans = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data?.message || "Failed to fetch approved plans"
+    );
+  }
+});
+
+// Separate thunk for Home Floor Plans
+export const fetchHomeProfessionalFloorPlans = createAsyncThunk<
+  PaginatedPlanResponse,
+  { [key: string]: any },
+  { rejectValue: string }
+>("professionalPlans/fetchHomeProfessionalFloorPlans", async (params, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(API_URL, { params });
+    return data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || "Failed to fetch professional floor plans"
+    );
+  }
+});
+
+// Separate thunk for Home Elevations
+export const fetchHomeProfessionalElevations = createAsyncThunk<
+  PaginatedPlanResponse,
+  { [key: string]: any },
+  { rejectValue: string }
+>("professionalPlans/fetchHomeProfessionalElevations", async (params, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(API_URL, { params });
+    return data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || "Failed to fetch professional elevations"
     );
   }
 });
@@ -327,6 +363,19 @@ const professionalPlanSlice = createSlice({
     );
     builder.addCase(fetchAllApprovedPlans.rejected, listRejected);
 
+    builder.addCase(
+      fetchHomeProfessionalFloorPlans.fulfilled,
+      (state, action: PayloadAction<PaginatedPlanResponse>) => {
+        state.homeFloorPlans = action.payload.plans;
+      }
+    );
+    builder.addCase(
+      fetchHomeProfessionalElevations.fulfilled,
+      (state, action: PayloadAction<PaginatedPlanResponse>) => {
+        state.homeElevations = action.payload.plans;
+      }
+    );
+
     builder.addCase(fetchMyPlans.pending, listPending);
     builder.addCase(
       fetchMyPlans.fulfilled,
@@ -353,11 +402,10 @@ const professionalPlanSlice = createSlice({
     ) => {
       state.listStatus = "succeeded";
       state.plan = action.payload;
+      // Also update in plans array if present
       const index = state.plans.findIndex((p) => p._id === action.payload._id);
       if (index !== -1) {
         state.plans[index] = action.payload;
-      } else {
-        state.plans.unshift(action.payload);
       }
     };
     builder

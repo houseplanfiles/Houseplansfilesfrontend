@@ -24,15 +24,11 @@ import Footer from "@/components/Footer";
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const dispatch: AppDispatch = useDispatch();
-
   const { actionStatus, error } = useSelector((state: RootState) => state.user);
   const isLoading = actionStatus === "loading";
-
   useEffect(() => {
-    // Reset status on component mount
     dispatch(resetActionStatus());
   }, [dispatch]);
-
   useEffect(() => {
     if (actionStatus === "succeeded") {
       toast.success(
@@ -55,7 +51,6 @@ const ForgotPasswordPage = () => {
     }
     dispatch(forgotPassword({ email }));
   };
-
   return (
     <>
       <Navbar />

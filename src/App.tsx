@@ -101,7 +101,7 @@ import PackagesPage from "./pages/PackagesPage";
 import MarketPlace from "./pages/MarketPlace";
 import CityPartnersPage from "./pages/CityPartnersPage";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
-
+import VoiceNavigation from "@/components/VoiceNavigation";
 
 const queryClient = new QueryClient();
 
@@ -119,6 +119,7 @@ const App = () => (
                     <Sonner />
                     <ScrollToTop />
                     <WhatsAppWidget />
+                    <VoiceNavigation />
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/products" element={<Products />} />
@@ -143,7 +144,10 @@ const App = () => (
                       <Route path="/careers" element={<CareersPage />} />
                       <Route path="/contact" element={<ContactUs />} />
                       <Route path="/marketplace" element={<MarketPlace />} />
-                      <Route path="/city-partners" element={<CityPartnersPage />} />
+                      <Route
+                        path="/city-partners"
+                        element={<CityPartnersPage />}
+                      />
                       <Route path="/register" element={<Register />} />
                       <Route path="/login" element={<Login />} />
                       <Route
