@@ -57,19 +57,22 @@
             name:
               data.name ||
               data.fullname ||
+              data.fullName ||
               data.user_name ||
               "Anonymous Lead",
             email: data.email || data.user_email || "",
-            phone: data.phone || data.mobile || data.tel || "",
-            source: window.location.hostname,
+            phone:
+              data.phone || data.mobile || data.whatsappNumber || data.tel || "",
+            source: window.location.hostname + window.location.pathname,
             data: data,
           };
 
-          if (payload.email || payload.phone) {
+          if (payload.email || payload.phone || data.message || data.description) {
             fetch(API_URL, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
+              keepalive: true,
             })
               .then((r) => r.json())
               .then((res) => {
