@@ -1,51 +1,33 @@
 import { useEffect } from "react";
 
-const STORAGE_KEY = "aisensy_closed_at";
-const DELAY = 3 * 60 * 1000; // 3 minutes
-
 const WhatsAppWidget = () => {
   useEffect(() => {
-    const closedAt = localStorage.getItem(STORAGE_KEY);
+    // Check if script is already added
+    if (document.getElementById("kraya-ai-widget")) return;
 
-    // ❌ Agar 3 min complete nahi hua → kuch bhi mat karo
-    if (closedAt && Date.now() - Number(closedAt) < DELAY) {
-      return;
-    }
-
-    // script already added
-    if (document.getElementById("aisensy-wa-widget")) return;
+    window.chatWidgetConfig = {
+      whatsappNumber: "919755248864",
+      welcomeMessage: "Hey 👋,\nHow can we help you?",
+      buttonText: "Chat on Whatsapp",
+      profileName: "Kraya AI",
+      profileImageUrl: "https://api.kraya-ai.com/images/kraya-logo.png",
+      appUrl: "https://api.kraya-ai.com"
+    };
 
     const script = document.createElement("script");
-    script.src = "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
+    script.src = "https://api.kraya-ai.com/widget/chat.js?v=1771404832599";
     script.async = true;
-    script.id = "aisensy-wa-widget";
-    script.setAttribute("widget-id", "aaa7tm");
+    script.id = "kraya-ai-widget";
 
-    document.body.appendChild(script);
-
-    // open only after script load
-    const openTimer = setTimeout(() => {
-      window.AiSensy?.open();
-    }, 2000);
-
-    // 👀 Detect close click
-    const observer = setInterval(() => {
-      const closeBtn = document.querySelector(
-        '[aria-label="Close"], .close, .aisensy-close'
-      );
-
-      if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-          localStorage.setItem(STORAGE_KEY, Date.now().toString());
-        });
-
-        clearInterval(observer);
-      }
-    }, 1000);
+    document.head.appendChild(script);
 
     return () => {
-      clearTimeout(openTimer);
-      clearInterval(observer);
+      // Optional: Clean up script if component unmounts
+      const existingScript = document.getElementById("kraya-ai-widget");
+      if (existingScript) existingScript.remove();
+      // Also clean up any widget elements if they are added to the DOM
+      const widget = document.querySelector('.kraya-chatbot-widget');
+      if (widget) widget.remove();
     };
   }, []);
 
@@ -56,8 +38,13 @@ export default WhatsAppWidget;
 
 declare global {
   interface Window {
-    AiSensy?: {
-      open: () => void;
+    chatWidgetConfig?: {
+      whatsappNumber: string;
+      welcomeMessage: string;
+      buttonText: string;
+      profileName: string;
+      profileImageUrl: string;
+      appUrl: string;
     };
   }
 }
