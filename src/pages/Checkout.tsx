@@ -179,23 +179,6 @@ const CheckoutPage = () => {
     }
   };
 
-  const handlePhonePePayment = async (order: any) => {
-    try {
-      const authConfig = getAuthConfig();
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/orders/${order._id}/create-phonepe-payment`,
-        {},
-        authConfig
-      );
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else {
-        toast.error("Could not get PhonePe payment URL.");
-      }
-    } catch (err) {
-      toast.error("Failed to start PhonePe payment.");
-    }
-  };
 
   const onPaypalApprove = (data: any, actions: any) => {
     return actions.order.capture().then((details: any) => {
@@ -247,8 +230,6 @@ const CheckoutPage = () => {
         const createdOrder = res.payload;
         localStorage.setItem("latestOrderId", createdOrder.orderId);
         if (paymentMethod === "Razorpay") handleRazorpayPayment(createdOrder);
-        else if (paymentMethod === "PhonePe")
-          handlePhonePePayment(createdOrder);
       } else {
         toast.error(String(orderError) || "Could not create order.");
       }
@@ -337,12 +318,6 @@ const CheckoutPage = () => {
                     name: "PayPal",
                     imgSrc:
                       "https://www.citypng.com/public/uploads/preview/transparent-hd-paypal-logo-701751694777788ilpzr3lary.png",
-                    imgClass: "h-10",
-                  },
-                  {
-                    name: "PhonePe",
-                    imgSrc:
-                      "https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png",
                     imgClass: "h-10",
                   },
                 ].map((method) => (
@@ -465,7 +440,7 @@ const CheckoutPage = () => {
               {paymentMethod === "PayPal" ? (
                 isPaypalSdkReady ? (
                   <PayPalScriptProvider
-                    options={{ "client-id": paypalClientId, currency: "USD" }}
+                    options={{ clientId: paypalClientId, currency: "USD" }}
                   >
                     {!currentOrder ? (
                       <Button
