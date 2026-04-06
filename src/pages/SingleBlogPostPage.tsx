@@ -93,18 +93,25 @@ const SingleBlogPostPage: React.FC = () => {
   // Backend URL for share functionality
   const backendApiUrl =
     import.meta.env.VITE_BACKEND_URL || "https://architect-backend.vercel.app";
-  
-  // Create Absolute Image URL for Sharing
+
+  // Use production backend URL for social media bots — localhost is unreachable by crawlers.
+  const shareBackendUrl =
+    import.meta.env.VITE_SHARE_BACKEND_URL ||
+    (backendApiUrl.includes("localhost")
+      ? "https://houseplansfiles-backend.vercel.app"
+      : backendApiUrl);
+
+  // Create Absolute Image URL for Sharing (must be full https URL)
   const absoluteImageUrl = post.mainImage?.startsWith("http")
     ? post.mainImage
-    : `${backendApiUrl}${post.mainImage}`;
+    : `${shareBackendUrl}${post.mainImage}`;
 
   // Canonical URL (actual blog post URL)
   const canonicalUrl = `${window.location.origin}${location.pathname}`;
-  
-  // Share URL with cache buster (for social media crawlers)
-  const cacheBuster = `?v=${new Date().getTime()}`;
-  const shareUrl = `${backendApiUrl}/share/blog/${slug}${cacheBuster}`;
+
+  // Static share URL based on slug — timestamp cache busters break social media OG caching.
+  const cacheKey = post._id ? `?v=${post._id.toString().slice(-6)}` : "";
+  const shareUrl = `${shareBackendUrl}/share/blog/${slug}${cacheKey}`;
 
   // Encoding for Social Links - Use SHARE URL, not canonical
   const encodedShareUrl = encodeURIComponent(shareUrl);
@@ -177,6 +184,8 @@ const SingleBlogPostPage: React.FC = () => {
           content={post.metaDescription || post.description}
         />
         <meta property="og:image" content={absoluteImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="article" />
         <meta property="article:published_time" content={post.createdAt} />

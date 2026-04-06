@@ -359,8 +359,18 @@ const ProductDetailContent = ({ product }: { product: any }) => {
   const backendApiUrl =
     import.meta.env.VITE_BACKEND_URL || "https://architect-backend.vercel.app";
 
-  const cacheBuster = `?v=${new Date().getTime()}`;
-  const shareUrl = `${backendApiUrl}/share/${isProfessionalPlan ? "professional-plan" : "product"}/${slug}${cacheBuster}`;
+  // Use production backend URL for share links so social media bots can access them.
+  // Localhost can NEVER be reached by Facebook/WhatsApp/LinkedIn crawlers.
+  const shareBackendUrl =
+    import.meta.env.VITE_SHARE_BACKEND_URL ||
+    (backendApiUrl.includes("localhost")
+      ? "https://houseplansfiles-backend.vercel.app"
+      : backendApiUrl);
+
+  // Static cache key based on product ID so bots can reliably crawl the same URL.
+  // Timestamp-based cache busters break social media OG caching.
+  const cacheKey = displayData?._id ? `?v=${displayData._id.toString().slice(-6)}` : "";
+  const shareUrl = `${shareBackendUrl}/share/${isProfessionalPlan ? "professional-plan" : "product"}/${slug}${cacheKey}`;
   const canonicalUrl = `${window.location.origin}${location.pathname}`;
 
   const allProductsAndPlans = useMemo(() => {
@@ -524,7 +534,7 @@ const ProductDetailContent = ({ product }: { product: any }) => {
           productId: productIdFromSlug!,
           reviewData: { rating, comment },
         });
-    dispatch(reviewAction)
+    dispatch(reviewAction as any)
       .unwrap()
       .then(() => {
         toast({
@@ -650,7 +660,17 @@ const ProductDetailContent = ({ product }: { product: any }) => {
             displayData.seo?.description || productDescription.substring(0, 160)
           }
         />
-        <meta property="og:image" content={productImages[0]} />
+        {/* og:image MUST be an absolute URL — relative paths don't work for social media bots */}
+        <meta
+          property="og:image"
+          content={
+            productImages[0]?.startsWith("http")
+              ? productImages[0]
+              : `${shareBackendUrl}${productImages[0]}`
+          }
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="product" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -664,7 +684,14 @@ const ProductDetailContent = ({ product }: { product: any }) => {
             displayData.seo?.description || productDescription.substring(0, 160)
           }
         />
-        <meta name="twitter:image" content={productImages[0]} />
+        <meta
+          name="twitter:image"
+          content={
+            productImages[0]?.startsWith("http")
+              ? productImages[0]
+              : `${shareBackendUrl}${productImages[0]}`
+          }
+        />
       </Helmet>
 
       <Navbar />
