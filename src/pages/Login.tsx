@@ -45,9 +45,9 @@ const LoginPage = () => {
           navigate("/admin");
           break;
         case "professional":
+        case "contractor":
           navigate("/professional");
           break;
-        // --- CHANGE 1: Seller ko yahan allow karein (jab pehle se logged in ho) ---
         case "seller":
           navigate("/seller"); // Seller ko /seller dashboard par bhejo
           break;
@@ -68,14 +68,15 @@ const LoginPage = () => {
     // Handle login response
     if (actionStatus === "succeeded" && userInfo) {
       // --- CHANGE 2: "seller" ko allowed roles ki list mein add karein ---
-      if (["user", "admin", "professional", "seller"].includes(userInfo.role)) {
+      if (["user", "admin", "professional", "seller", "contractor"].includes(userInfo.role)) {
         switch (userInfo.role) {
           case "admin":
             toast.success("Admin login successful! Redirecting...");
             setTimeout(() => navigate("/admin"), 1000);
             break;
           case "professional":
-            toast.success("Professional login successful! Redirecting...");
+          case "contractor":
+            toast.success(`${userInfo.role.charAt(0).toUpperCase() + userInfo.role.slice(1)} login successful! Redirecting...`);
             setTimeout(() => navigate("/professional"), 1000);
             break;
           // --- CHANGE 3: Seller ke login par redirection add karein ---

@@ -9,9 +9,19 @@ import { RootState } from "@/lib/store";
 
 const getToken = (state: RootState) => state.user.userInfo?.token;
 
-const userInfoFromStorage = localStorage.getItem("userInfo")
-  ? JSON.parse(localStorage.getItem("userInfo") as string)
-  : null;
+const userInfoFromStorage = (() => {
+  const stored = localStorage.getItem("userInfo");
+  if (!stored) return null;
+  try {
+    const user = JSON.parse(stored);
+    if (user && user.role) {
+      user.role = user.role.toLowerCase();
+    }
+    return user;
+  } catch (e) {
+    return null;
+  }
+})();
 
 interface UserInfo {
   _id: string;
@@ -331,8 +341,10 @@ const userSlice = createSlice({
       .addCase(registerUser.pending, actionPending)
       .addCase(registerUser.fulfilled, (state, action) => {
         state.actionStatus = "succeeded";
-        state.userInfo = action.payload;
-        localStorage.setItem("userInfo", JSON.stringify(action.payload));
+        const user = { ...action.payload };
+        if (user.role) user.role = user.role.toLowerCase();
+        state.userInfo = user;
+        localStorage.setItem("userInfo", JSON.stringify(user));
       })
       .addCase(registerUser.rejected, actionRejected)
       .addCase(loginUser.pending, actionPending)
@@ -340,16 +352,20 @@ const userSlice = createSlice({
         loginUser.fulfilled,
         (state, action: PayloadAction<UserInfo>) => {
           state.actionStatus = "succeeded";
-          state.userInfo = action.payload;
-          localStorage.setItem("userInfo", JSON.stringify(action.payload));
+          const user = { ...action.payload };
+          if (user.role) user.role = user.role.toLowerCase();
+          state.userInfo = user;
+          localStorage.setItem("userInfo", JSON.stringify(user));
         }
       )
       .addCase(loginUser.rejected, actionRejected)
       .addCase(updateProfile.pending, actionPending)
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.actionStatus = "succeeded";
-        state.userInfo = action.payload;
-        localStorage.setItem("userInfo", JSON.stringify(action.payload));
+        const user = { ...action.payload };
+        if (user.role) user.role = user.role.toLowerCase();
+        state.userInfo = user;
+        localStorage.setItem("userInfo", JSON.stringify(user));
       })
       .addCase(updateProfile.rejected, actionRejected)
       .addCase(forgotPassword.pending, actionPending)
