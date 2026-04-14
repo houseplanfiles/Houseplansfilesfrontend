@@ -69,10 +69,10 @@ const InteriorDesignRequestPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Interior Design Services | Residential & Commercial</title>
+        <title>Interior Design Services | HousePlanFiles</title>
         <meta
           name="description"
-          content="Transform your space with our expert interior design services. Whether residential or commercial, we bring your vision to life with detailed plans and walkthroughs."
+          content="Get professional interior design services for your residential or commercial space. Detailed layouts, 3D views, and tailored walkthroughs."
         />
       </Helmet>
 
@@ -86,7 +86,7 @@ const InteriorDesignRequestPage: React.FC = () => {
           <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
               Design Your{" "}
-              <span className="text-orange-600">Complete Hosue Plan</span>
+              <span className="text-orange-600">Complete House Plan</span>
             </h1>
             <p className="text-lg text-gray-600 max-w-xl mx-auto">
               Get detailed interior layouts, 3D views, and walkthroughs tailored

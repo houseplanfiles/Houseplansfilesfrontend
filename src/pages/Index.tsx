@@ -1,8 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import Services from "@/components/Services";
-import FeaturedProducts from "@/components/FeaturedProducts";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
@@ -10,19 +8,13 @@ import CategoriesSection from "@/components/CategoriesSection";
 import RegionalPlansSection from "@/components/RegionalPlansSection";
 import ReadymadePlansSection from "../components/ReadymadePlansSection";
 import CustomDesignSection from "../components/CustomDesignSection";
-import StandardPackagesSection from "../components/StandardPackagesSection";
-import PremiumPackagesSection from "../components/PremiumPackagesSection";
 import CorporatePackagesSection from "../components/CorporatePackagesSection";
 import BrandPartnersSection from "@/components/BrandPartnersSection";
 import SellersSection from "@/components/SellersSection";
-import ContractorsSection from "@/components/ContractorsSection";
 import ConstructionPartnersSection from "@/components/ConstructionPartnersSection";
 import TopBar from "@/components/TopBar";
 import HomeFloorPlans from "@/components/HomeFloorPlans";
 import FloorDElevations from "@/components/FloorsPlansThreeD";
-
-// ✅ Import chatbot component
-import WhatsAppChatbot from "@/components/WhatsAppChatbot";
 
 const Index = () => {
   return (
@@ -44,15 +36,16 @@ const Index = () => {
       <CategoriesSection />
       <HomeFloorPlans />
 
-      {/* ✅ FIX 1: Uncommented FloorDElevations */}
+      {/* ✅ FloorDElevations Section */}
       <FloorDElevations />
 
+      {/* ✅ Construction Partners (Headings only) */}
       <ConstructionPartnersSection />
-      <ContractorsSection />
+
+      {/* ✅ Marketplace (Sellers Section) */}
       <SellersSection />
-      {/* <StandardPackagesSection />
-      <PremiumPackagesSection />
-      <CorporatePackagesSection /> */}
+
+      <CorporatePackagesSection />
       <RegionalPlansSection />
       <BrandPartnersSection />
       <Testimonials />

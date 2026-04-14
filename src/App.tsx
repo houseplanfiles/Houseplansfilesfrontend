@@ -1,5 +1,5 @@
 import { Provider } from "react-redux";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -191,7 +191,7 @@ const App = () => (
                       <Route path="/3D-plans" element={<ThreeDPlansPage />} />
                       <Route
                         path="/interior-designs"
-                        element={<InteriorDesignsPage />}
+                        element={<Navigate to="/customize/interior-designs" replace />}
                       />
                       <Route
                         path="/house-designs-products"
