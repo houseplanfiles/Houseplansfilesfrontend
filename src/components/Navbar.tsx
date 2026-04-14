@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const isUserAllowed =
     userInfo &&
-    ["user", "admin", "professional", "seller"].includes(userInfo.role);
+    ["user", "admin", "professional", "seller", "contractor"].includes(userInfo.role);
 
   const showCartAndWishlist = !userInfo || userInfo?.role === "user";
 
@@ -46,6 +46,7 @@ const Navbar = () => {
       case "seller":
         return "/seller";
       case "professional":
+      case "contractor":
         return "/professional";
       case "admin":
         return "/admin";
