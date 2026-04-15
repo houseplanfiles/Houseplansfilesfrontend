@@ -230,7 +230,9 @@ const PartnersPage: FC = () => {
 
     return typedContractors.filter((c) => {
       const isApproved = c.status === "Approved";
-      const isPremium = c.contractorType === "Premium";
+      // Showing both Normal and Premium contractors
+      const isValidType = c.contractorType === "Premium" || c.contractorType === "Normal";
+      
       const matchesCity =
         !cityFilter || c.city?.toLowerCase().includes(cityFilter.toLowerCase());
 
@@ -244,7 +246,7 @@ const PartnersPage: FC = () => {
         (professionFilter === "Interior" &&
           lowerCaseProfession.includes("interior"));
 
-      return isApproved && isPremium && matchesCity && matchesProfession;
+      return isApproved && isValidType && matchesCity && matchesProfession;
     });
   }, [contractors, cityFilter, professionFilter]);
 
@@ -392,15 +394,22 @@ const PartnersPage: FC = () => {
                       <img
                         src={
                           contractor.shopImageUrl ||
-                          "https://via.placeholder.com/400x200?text=Contractor"
+                          "/contractor.jpeg"
                         }
                         alt={contractor.companyName}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-                      <Badge className="absolute top-3 right-3 bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2">
-                        <CheckCircle2 className="w-3 h-3" /> Verified
-                      </Badge>
+                      <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                        <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
+                          <CheckCircle2 className="w-3 h-3" /> Verified
+                        </Badge>
+                        {contractor.contractorType === "Premium" && (
+                          <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-none shadow-md">
+                            <Star className="w-3 h-3 mr-1 fill-current" /> Premium
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     {/* Profile Section */}

@@ -63,7 +63,7 @@ const BACKEND_URL =
 
 const getImageUrl = (path?: string) =>
   !path
-    ? "https://via.placeholder.com/400x200?text=Partner"
+    ? "/contractor.jpeg"
     : path.startsWith("http")
       ? path
       : `${BACKEND_URL}/${path.replace(/^\//, "")}`;
@@ -185,9 +185,16 @@ const PartnerCard: FC<{
     <div className="h-32 bg-gray-100 relative">
       <img src={getImageUrl(partner.shopImageUrl)} alt={partner.companyName} className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-      <Badge className="absolute top-3 right-3 bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2">
-        <CheckCircle2 className="w-3 h-3" /> Verified
-      </Badge>
+      <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+        <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
+          <CheckCircle2 className="w-3 h-3" /> Verified
+        </Badge>
+        {partner.contractorType === "Premium" && (
+          <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-none shadow-md">
+            <Star className="w-3 h-3 mr-1 fill-current" /> Premium
+          </Badge>
+        )}
+      </div>
     </div>
 
     <div className="px-5 pb-5 flex flex-col flex-grow relative">
@@ -257,7 +264,7 @@ const ConstructionPartnersSection: FC = () => {
     
     return (contractors as CityPartnerType[]).filter((p) => {
       const isApproved = p.status === "Approved";
-      const isPremium = p.contractorType === "Premium";
+      const isValidType = p.contractorType === "Premium" || p.contractorType === "Normal";
       
       const matchesCity = !cityFilter || p.city?.toLowerCase().includes(cityFilter.toLowerCase());
       
@@ -271,7 +278,7 @@ const ConstructionPartnersSection: FC = () => {
         (professionFilter === "Interior" &&
           lowerCaseProfession.includes("interior"));
 
-      return isApproved && isPremium && matchesCity && matchesProfession;
+      return isApproved && isValidType && matchesCity && matchesProfession;
     });
   }, [contractors, cityFilter, professionFilter]);
 

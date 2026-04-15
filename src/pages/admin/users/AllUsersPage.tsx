@@ -52,9 +52,10 @@ const professionalSubRoles = [
   "Civil Structural Engineer",
   "Civil Design Engineer",
   "Interior Designer",
-  "Contractor",
   "Vastu Consultant",
   "Site Engineer",
+  "Map Consultant",
+  "3D Visualizer",
 ];
 
 const getRoleClass = (role: string) => {
@@ -164,7 +165,7 @@ const AllUsersPage = () => {
       setRole(selectedUser.role || "");
       setStatus(selectedUser.status || "");
       setContractorType(selectedUser.contractorType || "Normal");
-      if (selectedUser.role === "professional") {
+      if (selectedUser.role === "professional" || selectedUser.role === "Contractor") {
         setProfession(selectedUser.profession || "");
       } else {
         setProfession("");
@@ -180,7 +181,7 @@ const AllUsersPage = () => {
 
       // 1. Fetch ALL data by setting a very high limit
       // Note: We use .unwrap() to get the result payload directly
-      const resultAction = await dispatch(
+      const resultAction = (await dispatch(
         fetchUsers({
           page: 1,
           limit: 100000, // Fetch up to 100,000 users to ensure we get everything
@@ -189,11 +190,10 @@ const AllUsersPage = () => {
           status: filterStatus === "all" ? "" : filterStatus,
           city: filterCity,
         })
-      ).unwrap();
+      ).unwrap()) as any;
 
       // 2. Extract the full user list from the payload
-      // Adjust 'resultAction.users' based on your actual API response structure
-      let allUsersData = [];
+      let allUsersData: any[] = [];
       if (resultAction && Array.isArray(resultAction.users)) {
         allUsersData = resultAction.users;
       } else if (resultAction && Array.isArray(resultAction.data)) {
@@ -336,7 +336,7 @@ const AllUsersPage = () => {
       userData.isApproved = false;
     }
 
-    if (role === "professional") {
+    if (role === "professional" || role === "Contractor") {
       userData.profession = profession;
     }
 
@@ -533,7 +533,7 @@ const AllUsersPage = () => {
                         <span
                           className={`capitalize px-2 py-1 text-xs font-semibold rounded-full ${getRoleClass(user.role)}`}
                         >
-                          {user.role}
+                          {user.role === "Contractor" && user.profession ? user.profession : user.role}
                         </span>
                       </td>
 
@@ -764,23 +764,37 @@ const AllUsersPage = () => {
                 </Select>
               </div>
 
-              {role === "professional" && (
+              {(role === "professional" || role === "Contractor") && (
                 <div>
-                  <Label>Profession</Label>
+                  <Label>{role === "Contractor" ? "Profession / Trade" : "Profession"}</Label>
                   <Select
                     value={profession}
                     onValueChange={setProfession}
                     disabled={isSubmitting}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a profession" />
+                      <SelectValue placeholder={`Select a ${role === "Contractor" ? "type" : "profession"}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {professionalSubRoles.map((subRole) => (
-                        <SelectItem key={subRole} value={subRole}>
-                          {subRole}
-                        </SelectItem>
-                      ))}
+                      {role === "Contractor" ? (
+                        [
+                          "General Contractor",
+                          "Civil Contractor",
+                          "Interior Contractor",
+                          "Electrical Contractor",
+                          "Plumbing Contractor",
+                        ].map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        professionalSubRoles.map((subRole) => (
+                          <SelectItem key={subRole} value={subRole}>
+                            {subRole}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -788,7 +802,7 @@ const AllUsersPage = () => {
 
               {role === "Contractor" && (
                 <div>
-                  <Label>Contractor Type</Label>
+                  <Label>Service Category (Level)</Label>
                   <Select
                     value={contractorType}
                     onValueChange={setContractorType}
