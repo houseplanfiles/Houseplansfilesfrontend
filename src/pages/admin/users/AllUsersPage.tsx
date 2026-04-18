@@ -813,6 +813,7 @@ const AllUsersPage = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Normal">Normal</SelectItem>
+                      <SelectItem value="Verified">Verified</SelectItem>
                       <SelectItem value="Premium">Premium</SelectItem>
                     </SelectContent>
                   </Select>

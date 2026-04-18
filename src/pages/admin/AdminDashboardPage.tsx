@@ -119,7 +119,7 @@ const AdminDashboardPage = () => {
                   <TableRow key={order._id}>
                     <TableCell>
                       <div className="font-medium">
-                        {order.user?.name || "N/A"}
+                        {order.user?.name || order.shippingAddress?.name || "N/A"}
                       </div>
                     </TableCell>
                     <TableCell>

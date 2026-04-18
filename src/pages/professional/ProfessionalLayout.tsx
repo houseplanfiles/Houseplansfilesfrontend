@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ProfessionalSidebar from "./ProfessionalSidebar";
 import Navbar from "@/components/Navbar";
 import { Menu } from "lucide-react";
 
+import { RootState } from "@/lib/store";
+
 const ProfessionalLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const { userInfo } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     setIsSidebarOpen(false);
@@ -69,7 +73,9 @@ const ProfessionalLayout = () => {
               <Menu className="h-6 w-6" />
             </button>
             <h2 className="text-lg font-semibold text-gray-800 ml-4">
-              Professional Panel
+              {userInfo?.role === "contractor"
+                ? "Contractor Panel"
+                : "Professional Panel"}
             </h2>
           </header>
 

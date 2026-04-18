@@ -24,6 +24,12 @@ interface ProfessionalOrder {
     name: string;
     email: string;
   };
+  shippingAddress?: {
+    name: string;
+    email: string;
+    phone: string;
+    location?: string;
+  };
   orderItems: {
     name: string;
     price: number;

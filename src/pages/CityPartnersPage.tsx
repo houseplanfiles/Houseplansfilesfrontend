@@ -55,7 +55,7 @@ type ContractorType = {
   phone?: string;
   profession?: string;
   status?: string;
-  contractorType?: "Normal" | "Premium";
+  contractorType?: "Normal" | "Verified" | "Premium";
 };
 
 // --- Contact Modal Component ---
@@ -230,9 +230,12 @@ const PartnersPage: FC = () => {
 
     return typedContractors.filter((c) => {
       const isApproved = c.status === "Approved";
-      // Showing both Normal and Premium contractors
-      const isValidType = c.contractorType === "Premium" || c.contractorType === "Normal";
-      
+      // Showing Normal, Verified, and Premium contractors
+      const isValidType =
+        c.contractorType === "Premium" ||
+        c.contractorType === "Verified" ||
+        c.contractorType === "Normal";
+
       const matchesCity =
         !cityFilter || c.city?.toLowerCase().includes(cityFilter.toLowerCase());
 
@@ -336,32 +339,29 @@ const PartnersPage: FC = () => {
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <button
                   onClick={() => setProfessionFilter("All")}
-                  className={`h-12 rounded-lg text-sm font-medium transition-all border ${
-                    professionFilter === "All"
+                  className={`h-12 rounded-lg text-sm font-medium transition-all border ${professionFilter === "All"
                       ? "bg-gray-900 text-white border-gray-900 shadow-md"
                       : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setProfessionFilter("Building")}
-                  className={`h-12 rounded-lg text-sm font-medium transition-all border flex items-center justify-center gap-2 ${
-                    professionFilter === "Building"
+                  className={`h-12 rounded-lg text-sm font-medium transition-all border flex items-center justify-center gap-2 ${professionFilter === "Building"
                       ? "bg-gray-900 text-white border-gray-900 shadow-md"
                       : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <HardHat className="w-4 h-4" />
                   <span className="hidden sm:inline">Building</span>
                 </button>
                 <button
                   onClick={() => setProfessionFilter("Interior")}
-                  className={`h-12 rounded-lg text-sm font-medium transition-all border flex items-center justify-center gap-2 ${
-                    professionFilter === "Interior"
+                  className={`h-12 rounded-lg text-sm font-medium transition-all border flex items-center justify-center gap-2 ${professionFilter === "Interior"
                       ? "bg-gray-900 text-white border-gray-900 shadow-md"
                       : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <Paintbrush className="w-4 h-4" />
                   <span className="hidden sm:inline">Interior</span>
@@ -401,12 +401,14 @@ const PartnersPage: FC = () => {
                       />
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
                       <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
-                        <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
-                          <CheckCircle2 className="w-3 h-3" /> Verified
-                        </Badge>
                         {contractor.contractorType === "Premium" && (
                           <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-none shadow-md">
                             <Star className="w-3 h-3 mr-1 fill-current" /> Premium
+                          </Badge>
+                        )}
+                        {contractor.contractorType === "Verified" && (
+                          <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
+                            <CheckCircle2 className="w-3 h-3" /> Verified
                           </Badge>
                         )}
                       </div>
@@ -462,13 +464,34 @@ const PartnersPage: FC = () => {
                       </div>
 
                       {/* Action Button */}
-                      <div className="pt-5 mt-auto">
+                      <div className="pt-5 mt-auto flex flex-col gap-2">
+                        {contractor.contractorType === "Premium" && (
+                          <Button
+                            onClick={() =>
+                              navigate(`/contractors/${contractor._id}`)
+                            }
+                            variant="outline"
+                            className="w-full border-orange-600 text-orange-600 hover:bg-orange-50 h-11"
+                          >
+                            View Profile
+                          </Button>
+                        )}
                         <Button
                           onClick={() => handleContactClick(contractor)}
-                          className="w-full bg-gray-900 hover:bg-orange-600 text-white transition-colors h-11 shadow-sm group-hover:shadow-md"
+                          className={`w-full ${
+                            contractor.contractorType === "Normal"
+                              ? "bg-gray-800 hover:bg-gray-900"
+                              : "bg-orange-600 hover:bg-orange-700"
+                          } text-white transition-colors h-11 shadow-sm`}
                         >
-                          <Phone className="w-4 h-4 mr-2" />
-                          Contact Now
+                          {contractor.contractorType === "Normal" ? (
+                            <>Enquiry Now</>
+                          ) : (
+                            <>
+                              <Phone className="w-4 h-4 mr-2" />
+                              Contact Now
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>
