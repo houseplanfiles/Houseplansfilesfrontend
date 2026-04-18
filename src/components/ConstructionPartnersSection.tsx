@@ -55,7 +55,7 @@ type CityPartnerType = {
   phone?: string;
   profession?: string;
   status?: string;
-  contractorType?: "Normal" | "Premium";
+  contractorType?: "Normal" | "Verified" | "Premium";
 };
 
 const BACKEND_URL =
@@ -186,12 +186,14 @@ const PartnerCard: FC<{
       <img src={getImageUrl(partner.shopImageUrl)} alt={partner.companyName} className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
       <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
-        <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
-          <CheckCircle2 className="w-3 h-3" /> Verified
-        </Badge>
         {partner.contractorType === "Premium" && (
           <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-none shadow-md">
             <Star className="w-3 h-3 mr-1 fill-current" /> Premium
+          </Badge>
+        )}
+        {partner.contractorType === "Verified" && (
+          <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
+            <CheckCircle2 className="w-3 h-3" /> Verified
           </Badge>
         )}
       </div>
@@ -232,9 +234,26 @@ const PartnerCard: FC<{
         </div>
       </div>
 
-      <div className="pt-5 mt-auto">
-        <Button onClick={() => onContact(partner)} className="w-full bg-gray-900 hover:bg-orange-600 text-white transition-colors h-11">
-          <Phone className="w-4 h-4 mr-2" /> Contact Now
+      <div className="pt-5 mt-auto flex flex-col gap-2">
+        {partner.contractorType === "Premium" && (
+          <Button 
+            onClick={() => window.location.href = `/contractors/${partner._id}`}
+            variant="outline" 
+            className="w-full border-orange-600 text-orange-600 hover:bg-orange-50 h-11"
+          >
+            View Profile
+          </Button>
+        )}
+        <Button 
+          onClick={() => onContact(partner)} 
+          className={`w-full ${partner.contractorType === "Normal" ? "bg-gray-800" : "bg-orange-600"} hover:opacity-90 text-white transition-colors h-11`}
+        >
+          {partner.contractorType === "Normal" ? "Enquiry Now" : (
+            <>
+              <Phone className="w-4 h-4 mr-2" />
+              Contact Now
+            </>
+          )}
         </Button>
       </div>
     </div>
@@ -264,7 +283,7 @@ const ConstructionPartnersSection: FC = () => {
     
     return (contractors as CityPartnerType[]).filter((p) => {
       const isApproved = p.status === "Approved";
-      const isValidType = p.contractorType === "Premium" || p.contractorType === "Normal";
+      const isValidType = ["Normal", "Verified", "Premium"].includes(p.contractorType || "");
       
       const matchesCity = !cityFilter || p.city?.toLowerCase().includes(cityFilter.toLowerCase());
       

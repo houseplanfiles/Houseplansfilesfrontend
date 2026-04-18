@@ -100,8 +100,10 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import PackagesPage from "./pages/PackagesPage";
 import MarketPlace from "./pages/MarketPlace";
 import CityPartnersPage from "./pages/CityPartnersPage";
+import ContractorProfilePage from "./pages/ContractorProfilePage";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import VoiceNavigation from "@/components/VoiceNavigation";
+import PortfolioPageProf from "./pages/professional/PortfolioPage";
 
 const queryClient = new QueryClient();
 
@@ -147,6 +149,10 @@ const App = () => (
                       <Route
                         path="/city-partners"
                         element={<CityPartnersPage />}
+                      />
+                      <Route
+                        path="/contractors/:id"
+                        element={<ContractorProfilePage />}
                       />
                       <Route path="/register" element={<Register />} />
                       <Route path="/login" element={<Login />} />
@@ -271,6 +277,10 @@ const App = () => (
                           <Route
                             path="add-product"
                             element={<AddProductPageProf />}
+                          />
+                          <Route
+                            path="portfolio"
+                            element={<PortfolioPageProf />}
                           />
                           <Route path="profile" element={<ProfilePageProf />} />
                         </Route>

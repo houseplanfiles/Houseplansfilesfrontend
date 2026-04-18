@@ -8,23 +8,27 @@ import {
   User,
   LogOut,
   ClipboardList,
+  Briefcase,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/lib/features/users/userSlice";
+
+import { RootState, AppDispatch } from "@/lib/store";
 
 const navLinks = [
   { name: "Dashboard", path: "/professional", icon: LayoutGrid },
   { name: "My Products", path: "my-products", icon: Package },
   { name: "Add New Product", path: "add-product", icon: PlusSquare },
   { name: "My Orders", path: "my-orders", icon: ClipboardList },
+  { name: "My Portfolio", path: "portfolio", icon: Briefcase }, // NEW
   { name: "My Profile", path: "profile", icon: User },
 ];
 
 const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const { userInfo } = useSelector((state: RootState) => state.user);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -56,7 +60,9 @@ const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
-        <h2 className="text-xl font-bold text-white">Professional</h2>
+        <h2 className="text-xl font-bold text-white">
+          {userInfo?.role === "contractor" ? "Contractor" : "Professional"}
+        </h2>
         
         <button
           onClick={() => setIsOpen(false)}
@@ -69,20 +75,27 @@ const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Navigation Links */}
       <nav className="flex flex-col space-y-2 flex-1 min-h-0 overflow-y-auto">
-        {navLinks.map((link) => (
-          <NavLink
-            key={link.name}
-            to={link.path}
-            end={link.path === "/professional"}
-            className={({ isActive }) =>
-              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
-            }
-            onClick={() => setIsOpen(false)}
-          >
-            <link.icon className="mr-3 h-5 w-5 shrink-0" />
-            <span>{link.name}</span>
-          </NavLink>
-        ))}
+        {navLinks.map((link) => {
+          let linkName = link.name;
+          if (userInfo?.role === "contractor") {
+            if (link.name === "My Products") linkName = "My Services";
+            if (link.name === "Add New Product") linkName = "Add New Service";
+          }
+          return (
+            <NavLink
+              key={link.name}
+              to={link.path}
+              end={link.path === "/professional"}
+              className={({ isActive }) =>
+                `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+              }
+              onClick={() => setIsOpen(false)}
+            >
+              <link.icon className="mr-3 h-5 w-5 shrink-0" />
+              <span>{linkName}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Logout Button */}
