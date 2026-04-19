@@ -53,17 +53,29 @@ const PortfolioPage = () => {
   };
 
   const handleAddWorkSample = () => {
-    setWorkSamples([...workSamples, { imageUrl: "", location: "" }]);
+    setWorkSamples([...workSamples, { 
+      title: "", 
+      description: "", 
+      location: "", 
+      images: [], 
+      features: "", // Comma separated for simplicity if needed
+      imageFiles: [] // Temporary storage for newly selected files
+    }]);
   };
 
-  const handleWorkSampleChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
+  const handleWorkSampleChange = (index: number, field: string, value: any) => {
     const updated = [...workSamples];
     updated[index][field] = value;
     setWorkSamples(updated);
+  };
+
+  const handleAddWorkSampleImage = (index: number, files: FileList | null) => {
+    if (!files) return;
+    const updated = [...workSamples];
+    const newFiles = Array.from(files);
+    updated[index].imageFiles = [...(updated[index].imageFiles || []), ...newFiles];
+    setWorkSamples(updated);
+    toast.info(`${newFiles.length} image(s) added to Sample #${index + 1}`);
   };
 
   const handleRemoveWorkSample = (index: number) => {
@@ -90,7 +102,20 @@ const PortfolioPage = () => {
     if (portfolioPdf) formData.append("portfolio", portfolioPdf);
 
     formData.append("packages", JSON.stringify(packages));
-    formData.append("workSamples", JSON.stringify(workSamples));
+    
+    // Prepare work samples: mark which ones have new images
+    const samplesToSubmit = workSamples.map((sample, idx) => {
+      const { imageFiles, ...rest } = sample;
+      if (imageFiles && imageFiles.length > 0) {
+        imageFiles.forEach((file: File) => {
+          formData.append(`workSample_images_${idx}`, file);
+        });
+        return { ...rest, hasNewImages: true, newImagesCount: imageFiles.length };
+      }
+      return rest;
+    });
+
+    formData.append("workSamples", JSON.stringify(samplesToSubmit));
 
     try {
       await dispatch(updateProfile(formData)).unwrap();
@@ -263,42 +288,95 @@ const PortfolioPage = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6">
             {workSamples.map((sample, index) => (
-              <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-gray-500">Sample #{index + 1}</span>
+              <div key={index} className="p-6 border rounded-xl bg-gray-50 space-y-6 relative group border-gray-200">
+                <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                  <span className="text-base font-extrabold text-orange-600">Project Sample #{index + 1}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveWorkSample(index)}
-                    className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="space-y-2">
-                  <Label>Image URL (or upload field coming soon)</Label>
-                  <Input
-                    placeholder="https://images.unsplash.com/..."
-                    value={sample.imageUrl}
-                    onChange={(e) =>
-                      handleWorkSampleChange(index, "imageUrl", e.target.value)
-                    }
-                    className="bg-white"
-                  />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="font-bold">Project Title</Label>
+                    <Input
+                      placeholder="e.g. Modern Villa Design"
+                      value={sample.title || ""}
+                      onChange={(e) => handleWorkSampleChange(index, "title", e.target.value)}
+                      className="bg-white border-gray-200 h-11 px-4 font-bold"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1 font-bold">
+                      <MapPin className="w-4 h-4 text-orange-500" /> Location
+                    </Label>
+                    <Input
+                      placeholder="e.g. Rohini, Delhi"
+                      value={sample.location}
+                      onChange={(e) => handleWorkSampleChange(index, "location", e.target.value)}
+                      className="bg-white border-gray-200 h-11 px-4 font-bold"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label className="font-bold">Project Description</Label>
+                    <Textarea
+                      placeholder="Tell clients about this project..."
+                      value={sample.description || ""}
+                      onChange={(e) => handleWorkSampleChange(index, "description", e.target.value)}
+                      className="bg-white border-gray-200 min-h-[100px] p-4 font-bold"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label className="font-bold">Features (Comma separated)</Label>
+                    <Input
+                      placeholder="e.g. 5 Bedrooms, Eco-friendly, Smart Home"
+                      value={Array.isArray(sample.features) ? sample.features.join(", ") : (sample.features || "")}
+                      onChange={(e) => handleWorkSampleChange(index, "features", e.target.value)}
+                      className="bg-white border-gray-200 h-11 px-4 font-bold"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-orange-500" /> Location
+
+                <div className="space-y-4">
+                  <Label className="font-bold flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-orange-500" /> Upload Project Images (Multiple)
                   </Label>
-                  <Input
-                    placeholder="e.g. Rohini, Delhi"
-                    value={sample.location}
-                    onChange={(e) =>
-                      handleWorkSampleChange(index, "location", e.target.value)
-                    }
-                    className="bg-white"
-                  />
+                  <div className="flex flex-wrap gap-4">
+                    <div className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-orange-400 hover:bg-orange-50 transition-all cursor-pointer relative bg-white">
+                      <Plus className="w-6 h-6 text-gray-400" />
+                      <input 
+                        type="file" 
+                        multiple 
+                        accept="image/*"
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        onChange={(e) => handleAddWorkSampleImage(index, e.target.files)}
+                      />
+                    </div>
+                    {/* Previews or existing images */}
+                    {sample.imageFiles?.map((file: File, fIdx: number) => (
+                      <div key={fIdx} className="w-24 h-24 rounded-xl overflow-hidden border border-gray-200 bg-white relative group">
+                        <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="Preview" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Trash2 className="w-5 h-5 text-white cursor-pointer" onClick={() => {
+                            const updated = [...workSamples];
+                            updated[index].imageFiles.splice(fIdx, 1);
+                            setWorkSamples(updated);
+                          }} />
+                        </div>
+                      </div>
+                    ))}
+                    {!sample.imageFiles?.length && sample.imageUrl && (
+                      <div className="w-24 h-24 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+                        <img src={sample.imageUrl} className="w-full h-full object-cover" alt="Current" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

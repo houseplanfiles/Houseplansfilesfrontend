@@ -101,6 +101,7 @@ import PackagesPage from "./pages/PackagesPage";
 import MarketPlace from "./pages/MarketPlace";
 import CityPartnersPage from "./pages/CityPartnersPage";
 import ContractorProfilePage from "./pages/ContractorProfilePage";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import VoiceNavigation from "@/components/VoiceNavigation";
 import PortfolioPageProf from "./pages/professional/PortfolioPage";
@@ -153,6 +154,10 @@ const App = () => (
                       <Route
                         path="/contractors/:id"
                         element={<ContractorProfilePage />}
+                      />
+                      <Route
+                        path="/contractors/:id/project/:projectIdx"
+                        element={<ProjectDetailPage />}
                       />
                       <Route path="/register" element={<Register />} />
                       <Route path="/login" element={<Login />} />

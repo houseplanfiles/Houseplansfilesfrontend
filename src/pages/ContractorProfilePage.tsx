@@ -18,6 +18,7 @@ import {
 import {
   MapPin,
   Building,
+  Building2,
   Phone,
   Briefcase,
   Star,
@@ -83,7 +84,7 @@ const ContractorProfilePage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fcfcfc]">
         <div className="text-center p-12 bg-white rounded-3xl shadow-xl border border-gray-100 italic">
-          <h2 className="text-3xl font-black mb-4">Contractor not found</h2>
+          <h2 className="text-3xl font-extrabold mb-4">Contractor not found</h2>
           <Button onClick={() => navigate("/city-partners")} variant="secondary">Back to Partners</Button>
         </div>
       </div>
@@ -95,227 +96,215 @@ const ContractorProfilePage = () => {
       <Navbar />
 
       <main className="pb-32">
-        {/* --- LUXURY HERO SECTION --- */}
-        <div className="relative h-[350px] md:h-[450px] w-full bg-slate-900 overflow-hidden">
-          <img
-            src={getFileUrl(contractor.coverPhotoUrl) || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80"}
-            alt="Cover"
-            className="w-full h-full object-cover opacity-50 scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#fcfcfc] via-transparent to-black/60" />
-        </div>
-
-        {/* --- PROFILE HEADER OVERLAY --- */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 -mt-32 relative z-30">
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-8 pb-12 border-b border-gray-100">
-            <div className="relative group">
-              <Avatar className="w-40 h-40 md:w-56 md:h-56 border-8 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] bg-white">
-                <AvatarImage src={getFileUrl(contractor.photoUrl)} alt={contractor.name} className="object-cover" />
-                <AvatarFallback className="text-6xl font-black bg-orange-600 text-white">
-                  {contractor.name?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute bottom-4 right-4 bg-green-500 w-10 h-10 rounded-full border-[6px] border-white shadow-lg" />
-            </div>
-
-            <div className="flex-1 text-center md:text-left space-y-4">
-              <div className="flex flex-col md:flex-row items-center md:items-end gap-4">
-                <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter">
-                  {contractor.name}
-                </h1>
-                <Badge className="bg-orange-600 text-white px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-orange-600/20 border-none mb-2">
-                  <Star className="w-4 h-4 mr-2 fill-current" /> Premium Partner
-                </Badge>
-              </div>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-gray-500 font-bold">
-                <div className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-gray-100">
-                  <Building className="w-5 h-5 text-orange-600" /> {contractor.companyName || "Professional"}
-                </div>
-                <div className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-gray-100">
-                  <MapPin className="w-5 h-5 text-orange-600" /> {contractor.city}
-                </div>
-                <div className="flex items-center gap-2 bg-orange-50 px-5 py-2.5 rounded-2xl border border-orange-100 text-orange-700">
-                  <Star className="w-5 h-5 fill-current" /> {contractor.experience || "Expert"} Experience
-                </div>
-              </div>
-            </div>
+        {/* --- HERO SECTION --- */}
+        <div className="relative bg-gray-900 py-12 sm:pt-16 sm:pb-24 overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src={getFileUrl(contractor.coverPhotoUrl) || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80"}
+              alt="Cover"
+              className="w-full h-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
           </div>
+          <div className="relative max-w-7xl mx-auto px-6 lg:px-12">
+            <div className="text-center mb-12">
+              <Badge className="bg-orange-500 mb-6 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider">
+                <Star className="w-3.5 h-3.5 mr-1.5 fill-current" /> Premium Partner
+              </Badge>
+              <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+                {contractor.name}
+              </h1>
+              <p className="text-orange-500 font-extrabold flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
+                <MapPin className="w-3.5 h-3.5" /> {contractor.city} • {contractor.experience || "Expert"} Experience
+              </p>
+            </div>
 
-          {/* --- MAIN CONTENT GRID --- */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-16">
-            {/* Sidebar Column */}
-            <div className="space-y-8">
-              <Card className="p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border-none bg-white">
-                <h3 className="text-2xl font-black text-gray-900 mb-8 tracking-tight">Business info</h3>
-                <div className="space-y-8">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
-                      <Briefcase className="w-7 h-7" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Profession</p>
-                      <p className="text-xl font-bold text-gray-800">{contractor.profession}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
-                      <MapPin className="w-7 h-7" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Service Area</p>
-                      <p className="text-xl font-bold text-gray-800">{contractor.city} & Surrounding</p>
-                    </div>
-                  </div>
-                  <div className="pt-8 border-t border-gray-50 space-y-4">
-                    <Button onClick={() => handleInquiryAction()} className="w-full bg-orange-600 hover:bg-orange-700 h-16 rounded-2xl text-xl font-black shadow-2xl shadow-orange-600/30 transition-transform active:scale-95">
-                      <Phone className="w-6 h-6 mr-3" /> Contact Now
-                    </Button>
-                    {contractor.portfolioUrl && (
-                      <a href={getFileUrl(contractor.portfolioUrl)} target="_blank" rel="noreferrer" className="block w-full">
-                        <Button variant="outline" className="w-full h-16 rounded-2xl border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-black text-xl transition-all">
-                          <Download className="w-6 h-6 mr-3" /> Get Portfolio
-                        </Button>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="bg-gray-900 p-8 rounded-[2.5rem] text-white shadow-2xl">
-                <h3 className="text-xl font-black mb-6 flex items-center gap-3">
-                  <Star className="text-amber-400 fill-amber-400" />
-                  Why Expert?
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+              {/* Business Info Column */}
+              <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/10 text-white shadow-2xl">
+                <h3 className="text-xl font-extrabold mb-8 flex items-center gap-3">
+                  <Building className="w-6 h-6 text-orange-500" /> Business Info
                 </h3>
                 <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-600/20 flex items-center justify-center text-orange-400 border border-orange-500/20">
+                      <Briefcase className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Profession</p>
+                      <p className="text-lg font-extrabold text-white uppercase">{contractor.profession}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-600/20 flex items-center justify-center text-orange-400 border border-orange-500/20">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Service Area</p>
+                      <p className="text-lg font-extrabold text-white uppercase">{contractor.city}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Why Expert Column */}
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/10 text-white shadow-2xl">
+                <h3 className="text-xl font-extrabold mb-8 flex items-center gap-3">
+                  <Star className="w-6 h-6 text-orange-500 fill-orange-500" /> Why Expert?
+                </h3>
+                <div className="space-y-5">
                   {["Top-Tier Verified", "Assured Materials", "Timely Delivery"].map((tx, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
-                      </div>
-                      <span className="text-sm font-bold text-gray-300">{tx}</span>
+                    <div key={i} className="flex gap-4 items-center">
+                      <CheckCircle2 className="w-6 h-6 text-green-400" />
+                      <span className="text-base font-extrabold text-gray-100">{tx}</span>
                     </div>
                   ))}
                 </div>
-              </Card>
-            </div>
+              </div>
 
-            {/* Main Content Column */}
-            <div className="lg:col-span-2 space-y-16">
-              <section>
-                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-4">
-                    <div className="w-3 h-12 bg-orange-600 rounded-full shadow-lg shadow-orange-600/20" />
-                    Service Packages
-                  </h2>
-                </div>
-                {contractor.packages && contractor.packages.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {contractor.packages.map((pkg: any, idx: number) => (
-                      <Card key={idx} className="relative overflow-hidden group border-none shadow-[0_15px_40px_rgba(0,0,0,0.04)] bg-white rounded-[2.5rem] flex flex-col hover:-translate-y-2 transition-all duration-500 hover:shadow-orange-600/5">
-                        <div className="h-2.5 bg-orange-600" />
-                        <div className="p-8 flex flex-col h-full">
-                          <div className="mb-6">
-                            <span className="px-3 py-1 bg-orange-50 text-orange-600 text-[9px] font-black rounded-full uppercase tracking-widest border border-orange-100 inline-block mb-3">
-                              Exclusive Plan
-                            </span>
-                            <h4 className="text-2xl font-black text-gray-900 leading-tight">{pkg.name}</h4>
-                          </div>
-                          <div className="mb-8 text-center py-6 bg-[#fcfcfc] rounded-[2rem] border border-gray-50 shadow-inner">
-                            <span className="text-4xl font-black text-orange-600">
-                              {pkg.price.includes("₹") ? pkg.price : `₹${pkg.price}`}
-                            </span>
-                          </div>
-                          <div className="space-y-4 mb-8 flex-grow">
-                            {pkg.description.split(/[\n,;]/).map((f: string, i: number) => f.trim() && (
-                              <div key={i} className="flex gap-3">
-                                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                                <span className="font-bold text-sm text-gray-600">{f}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <Button 
-                            onClick={() => handleInquiryAction(pkg)}
-                            className="h-14 rounded-2xl bg-gray-900 text-white font-black text-lg hover:bg-orange-600 shadow-2xl shadow-gray-900/10"
-                          >
-                            Enquire Now
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center p-24 bg-white rounded-[3rem] border-4 border-dashed border-gray-100">
-                    <p className="text-gray-400 font-bold text-2xl">No plans uploaded yet.</p>
-                  </div>
+              {/* Action Buttons Column */}
+              <div className="flex flex-col gap-6">
+                <Button onClick={() => handleInquiryAction()} className="w-full bg-orange-600 hover:bg-orange-700 h-20 rounded-2xl text-xl font-extrabold shadow-2xl shadow-orange-600/40 text-white transition-all active:scale-95">
+                  <Phone className="w-7 h-7 mr-4" /> Contact Now
+                </Button>
+                {contractor.portfolioUrl && (
+                  <a href={getFileUrl(contractor.portfolioUrl)} target="_blank" rel="noreferrer" className="block w-full">
+                    <Button variant="outline" className="w-full h-20 rounded-2xl border-2 border-white/20 text-gray-900 bg-white/90 hover:bg-white backdrop-blur-md font-extrabold text-xl transition-all">
+                      <Download className="w-7 h-7 mr-4" /> Get Portfolio
+                    </Button>
+                  </a>
                 )}
-              </section>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* --- WORK GALLERY (FULL WIDTH) --- */}
-          <div className="mt-32">
-            <h2 className="text-4xl font-black text-gray-900 mb-12 flex items-center gap-4">
-              <div className="w-3 h-12 bg-orange-600 rounded-full shadow-lg" />
-              Recent Works
-            </h2>
-            {contractor.workSamples && contractor.workSamples.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                {contractor.workSamples.map((sw: any, i: number) => (
-                  <div key={i} className="group relative rounded-[3rem] overflow-hidden aspect-video shadow-2xl bg-white border border-gray-50">
-                    <img src={getFileUrl(sw.imageUrl)} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" alt="Work" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
-                      <div className="flex items-center gap-4 text-white transform translate-y-8 group-hover:translate-y-0 transition-all duration-500">
-                        <div className="p-3 bg-orange-600 rounded-2xl shadow-xl">
-                          <MapPin className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Project Site</p>
-                          <p className="text-2xl font-black leading-tight tracking-tight">{sw.location}</p>
+        {/* --- CONTENT SECTION BELOW BANNER --- */}
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 mt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+            {/* LEFT: Service Packages (3 stacked) */}
+            <aside className="lg:col-span-3 space-y-8">
+              <div className="flex items-center gap-3 mb-2 px-2">
+                <div className="w-2 h-8 bg-orange-600 rounded-full" />
+                <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Service Plans</h2>
+              </div>
+              {contractor.packages && contractor.packages.length > 0 ? (
+                <div className="space-y-6">
+                  {contractor.packages.slice(0, 3).map((pkg: any, idx: number) => (
+                    <Card key={idx} className="bg-white border-2 border-gray-50 shadow-sm rounded-2xl overflow-hidden hover:border-orange-200 hover:shadow-xl transition-all p-6 group">
+                      <div className="flex justify-between items-start mb-4">
+                        <h4 className="text-xl font-extrabold text-gray-900 group-hover:text-orange-600 transition-colors uppercase leading-tight">{pkg.name}</h4>
+                        <div className="bg-orange-50 px-3 py-1 rounded-lg border border-orange-100">
+                          <span className="text-orange-600 font-extrabold text-base">
+                            {pkg.price.includes("₹") ? pkg.price : `₹${pkg.price}`}
+                          </span>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                      <p className="text-xs text-gray-500 font-bold mb-6 line-clamp-3 leading-relaxed">{pkg.description}</p>
+                      <Button
+                        onClick={() => handleInquiryAction(pkg)}
+                        className="w-full bg-gray-900 text-white font-extrabold h-12 rounded-2xl hover:bg-orange-600 shadow-md"
+                      >
+                        Enquire Now
+                      </Button>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-10 bg-gray-50 rounded-3xl text-center border-2 border-dashed border-gray-200 italic font-bold text-gray-400">No packages available</div>
+              )}
+            </aside>
+            {/* RIGHT: Recent Projects Grid */}
+            <div className="lg:col-span-9 space-y-10">
+              <div className="flex items-center gap-3 mb-2 px-2">
+                <div className="w-2 h-8 bg-orange-600 rounded-full" />
+                <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Recent Projects</h2>
               </div>
-            ) : (
-              <div className="text-center p-24 bg-white rounded-[3rem] border border-gray-100 font-bold text-gray-400 italic">No gallery images available.</div>
-            )}
+              {contractor.workSamples && contractor.workSamples.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                  {contractor.workSamples.map((sw: any, i: number) => (
+                    <div
+                      key={i}
+                      onClick={() => navigate(`/contractors/${id}/project/${i}`)}
+                      className="group relative bg-white rounded-3xl overflow-hidden aspect-[4/3] shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer"
+                    >
+                      {/* Image */}
+                      <img
+                        src={getFileUrl(sw.imageUrl)}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        alt={sw.title || "Project"}
+                      />
+
+                      {/* Permanent Bottom Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
+
+                      {/* Center Decorative Icon */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-2xl">
+                          <Building2 className="w-7 h-7 text-blue-400 opacity-80" />
+                        </div>
+                      </div>
+
+                      {/* Details on Image */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6 text-center space-y-2">
+                        <h3 className="text-xl md:text-2xl font-extrabold text-orange-500 tracking-tight uppercase line-clamp-1 leading-tight">
+                          {sw.title || "Elite Project"}
+                        </h3>
+                        <div className="flex items-center justify-center gap-2 text-white font-extrabold text-sm group-hover:gap-3 transition-all opacity-90">
+                          Explore <span className="text-lg">→</span>
+                        </div>
+                      </div>
+
+                      {/* Location Badge (Top Right) */}
+                      <div className="absolute top-6 right-6">
+                        <Badge className="bg-white/10 backdrop-blur-md text-white border-white/20 font-bold px-4 py-1.5 rounded-full uppercase text-[10px] tracking-widest">
+                          {sw.location}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-20 bg-white rounded-[3rem] text-center border-2 border-dashed border-gray-100 italic font-bold text-gray-400">No works showcased yet.</div>
+              )}
+            </div>
           </div>
         </div>
       </main>
 
       {/* --- INQUIRY FORM MODAL --- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden rounded-[3rem] border-none shadow-[0_30px_100px_rgba(0,0,0,0.2)]">
-          <div className="bg-orange-600 p-10 text-white relative">
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl border-none shadow-2xl">
+          <div className="bg-gray-900 p-8 text-white relative">
             <DialogHeader>
-              <DialogTitle className="text-4xl font-black tracking-tighter">
-                {selectedPackage ? "Plan Enquiry" : "Enquiry Form"}
+              <DialogTitle className="text-2xl font-extrabold tracking-tight">
+                {selectedPackage ? "Inquiry for " + selectedPackage.name : "Send Inquiry"}
               </DialogTitle>
             </DialogHeader>
-            <p className="text-orange-100 font-bold mt-2 opacity-80">
-              {selectedPackage ? `Interested in: ${selectedPackage.name}` : `Contact ${contractor.name} for details`}
+            <p className="text-gray-400 font-bold mt-2 text-sm">
+              {selectedPackage ? `Get details for this plan` : `Contact ${contractor.name} for your project`}
             </p>
-            <div className="absolute top-8 right-8 cursor-pointer" onClick={() => setIsDialogOpen(false)}>
-              <X className="w-8 h-8 opacity-50 hover:opacity-100 transition-opacity" />
+            <div className="absolute top-6 right-6 cursor-pointer" onClick={() => setIsDialogOpen(false)}>
+              <X className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
             </div>
           </div>
-          
-          <form onSubmit={onInquirySubmit} className="p-10 space-y-8 bg-white">
-            <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-2">Your Name</p>
-              <Input placeholder="John Doe" className="h-16 px-6 rounded-2xl bg-gray-50 border-none text-lg font-bold outline-none ring-offset-0 focus-visible:ring-2 focus-visible:ring-orange-600 transition-all" required />
+
+          <form onSubmit={onInquirySubmit} className="p-8 space-y-6 bg-white">
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Your Name</p>
+              <Input placeholder="John Doe" className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" required />
             </div>
-            <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-2">Phone Number</p>
-              <Input placeholder="+91 999 999 9999" className="h-16 px-6 rounded-2xl bg-gray-50 border-none text-lg font-bold outline-none focus-visible:ring-2 focus-visible:ring-orange-600 transition-all" required />
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Phone Number</p>
+              <Input placeholder="+91 999 999 9999" className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" required />
             </div>
-            <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-2">Your Message</p>
-              <Textarea placeholder="How can we help you?" className="min-h-[150px] p-6 rounded-2xl bg-gray-50 border-none text-lg font-bold outline-none focus-visible:ring-2 focus-visible:ring-orange-600 transition-all" required />
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Your Message</p>
+              <Textarea placeholder="How can we help you?" className="min-h-[120px] p-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" required />
             </div>
-            <Button type="submit" className="w-full h-18 py-6 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white text-2xl font-black shadow-2xl shadow-orange-600/30 transition-transform active:scale-95 flex gap-4">
-              Send Enquiry <Send className="w-6 h-6" />
+            <Button type="submit" className="w-full h-14 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-lg font-extrabold shadow-md flex gap-2">
+              Send Inquiry <Send className="w-5 h-5" />
             </Button>
           </form>
         </DialogContent>
