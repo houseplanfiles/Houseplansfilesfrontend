@@ -105,6 +105,8 @@ import ProjectDetailPage from "./pages/ProjectDetailPage";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import VoiceNavigation from "@/components/VoiceNavigation";
 import PortfolioPageProf from "./pages/professional/PortfolioPage";
+import SellerStorePage from "./pages/SellerStorePage";
+import SellerProductDetailPage from "./pages/SellerProductDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +126,14 @@ const App = () => (
                     <WhatsAppWidget />
                     <VoiceNavigation />
                     <Routes>
+                      <Route
+                        path="/seller-shop/:sellerId"
+                        element={<SellerStorePage />}
+                      />
+                      <Route
+                        path="/marketplace/product/:productId"
+                        element={<SellerProductDetailPage />}
+                      />
                       <Route path="/" element={<Index />} />
                       <Route path="/products" element={<Products />} />
                       <Route

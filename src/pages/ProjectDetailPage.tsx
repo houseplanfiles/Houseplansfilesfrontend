@@ -15,6 +15,7 @@ import {
   Share2
 } from "lucide-react";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
 
 const ProjectDetailPage = () => {
   const { id, projectIdx } = useParams();
@@ -69,6 +70,24 @@ const ProjectDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fcfcfc]">
+      <Helmet>
+        <title>{project.title || "Project Detail"} | {contractor.name}</title>
+        <meta name="description" content={project.description || "View details of this amazing construction project."} />
+        
+        {/* Open Graph Tags for WhatsApp/Facebook */}
+        <meta property="og:title" content={project.title || "Elite Construction Project"} />
+        <meta property="og:description" content={project.description || "Premium structural execution with modern design standards."} />
+        <meta property="og:image" content={getFileUrl(project.imageUrl)} />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={project.title || "Elite Construction Project"} />
+        <meta name="twitter:description" content={project.description || "Premium structural execution with modern design standards."} />
+        <meta name="twitter:image" content={getFileUrl(project.imageUrl)} />
+      </Helmet>
+
       <Navbar />
 
       <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-10 pb-32">

@@ -83,7 +83,7 @@ const ImageViewModal = ({ imageUrl, onClose }) => {
 };
 
 // --- 2. INQUIRY MODAL ---
-const InquiryModal = ({ product, onClose }) => {
+const InquiryModal = ({ product, onClose }: { product: any; onClose: () => void }) => {
   const dispatch: AppDispatch = useDispatch();
   const { actionStatus, error } = useSelector(
     (state: RootState) => state.sellerInquiries
@@ -202,74 +202,59 @@ const InquiryModal = ({ product, onClose }) => {
   );
 };
 
-// --- 3. PRODUCT CARD (Optimized for Mobile 2-Cols) ---
-const ProductCard = ({ product, onInquiryClick, onImageClick }) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.3 }}
-    className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden h-full"
-  >
-    {/* Image Section - Smaller height on mobile */}
-    <div
-      className="relative h-36 sm:h-64 overflow-hidden bg-gray-100 cursor-zoom-in"
-      onClick={() => onImageClick(product.image)}
+// --- 3. SHOP CARD (Main Grid Item) ---
+const ShopCard = ({ seller, productCount, products }: { seller: any; productCount: number; products: any[] }) => {
+  const navigate = useNavigate();
+  // We use the image of the first product as the shop's representative image
+  const displayImage = products[0]?.image || "https://via.placeholder.com/400x300";
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden h-full cursor-pointer"
+      onClick={() => navigate(`/seller-shop/${seller._id}`)}
     >
-      <img
-        src={product.image || "https://via.placeholder.com/400x300"}
-        alt={product.name}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-      />
-
-      {/* City Badge - Smaller font on mobile */}
-      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold text-gray-700 flex items-center gap-1 shadow-sm z-10">
-        <MapPin size={10} className="sm:w-3 sm:h-3 text-orange-500" />{" "}
-        <span className="truncate max-w-[60px] sm:max-w-none">
-          {product.city}
-        </span>
-      </div>
-
-      {/* Category Badge - Smaller on mobile */}
-      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-orange-600 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md text-[8px] sm:text-[10px] font-bold uppercase tracking-wider shadow-sm z-10">
-        {product.category}
-      </div>
-    </div>
-
-    {/* Content Section - Compact padding on mobile */}
-    <div className="p-3 sm:p-5 flex flex-col flex-grow">
-      <div className="mb-2">
-        <h3 className="text-sm sm:text-lg font-bold text-gray-900 leading-tight line-clamp-2 sm:line-clamp-1 group-hover:text-orange-600 transition-colors">
-          {product.name}
-        </h3>
-        <p className="text-[10px] sm:text-xs text-gray-400 mt-1 truncate">
-          By:{" "}
-          <span className="font-medium text-gray-600">
-            {product.seller?.businessName || "Verified Seller"}
-          </span>
-        </p>
-      </div>
-
-      <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-        <div className="flex flex-col">
-          <span className="hidden sm:block text-xs text-gray-400">Price</span>
-          <span className="text-sm sm:text-xl font-extrabold text-gray-900">
-            ₹{product.price.toLocaleString()}
-          </span>
+      <div className="relative h-48 sm:h-64 overflow-hidden bg-gray-100">
+        <img
+          src={displayImage}
+          alt={seller.businessName}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+        
+        {/* City Badge */}
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full text-xs font-semibold text-gray-700 flex items-center gap-1 shadow-sm z-10">
+          <MapPin size={12} className="text-orange-500" /> {products[0]?.city || "India"}
         </div>
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            onInquiryClick(product);
-          }}
-          className="w-full sm:w-auto h-8 sm:h-10 text-xs sm:text-sm bg-gray-900 hover:bg-orange-600 text-white rounded-lg px-3 sm:px-5 transition-colors"
-        >
-          Inquiry
-        </Button>
+
+        {/* Product Count Badge */}
+        <div className="absolute bottom-3 left-3 bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg z-10 flex items-center gap-2">
+          <Package size={14} /> {productCount} Items
+        </div>
       </div>
-    </div>
-  </motion.div>
-);
+
+      <div className="p-4 sm:p-5 flex flex-col flex-grow">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-base sm:text-xl font-extrabold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors uppercase">
+            {seller.businessName || "Verified Shop"}
+          </h3>
+        </div>
+        
+        <p className="text-xs text-gray-500 mb-4 line-clamp-1">
+          Explore collection of {products[0]?.category} and more.
+        </p>
+
+        <div className="mt-auto pt-4 border-t border-gray-50">
+          <Button className="w-full bg-gray-900 hover:bg-orange-600 text-white rounded-lg h-10 sm:h-11 font-bold">
+            Visit Store <Store size={16} className="ml-2" />
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 // --- 4. MAIN PAGE ---
 const MarketplacePage: FC = () => {
@@ -285,85 +270,67 @@ const MarketplacePage: FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("all-cities");
 
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [fullScreenImage, setFullScreenImage] = useState(null);
-
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 12;
-
   useEffect(() => {
-    dispatch(fetchPublicSellerProducts({ limit: 200 }));
+    dispatch(fetchPublicSellerProducts({ limit: 500 }));
   }, [dispatch]);
 
-  // Derived Filtered Data
+  // Unique Categories & Cities from products
   const uniqueCategories = useMemo(
     () => [
       "All",
-      ...Array.from(
-        new Set(products.map((p) => p.category).filter(Boolean))
-      ).sort(),
+      ...Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort(),
     ],
     [products]
   );
   const uniqueCities = useMemo(
     () => [
       "All Cities",
-      ...Array.from(
-        new Set(products.map((p) => p.city).filter(Boolean))
-      ).sort(),
+      ...Array.from(new Set(products.map((p) => p.city).filter(Boolean))).sort(),
     ],
     [products]
   );
 
-  const filteredProducts = useMemo(() => {
-    let items = products;
+  // Grouped Shops Logic
+  const filteredShops = useMemo(() => {
+    // 1. First filter products by search/category/city
+    let filteredItems = products;
     if (selectedCategory !== "All")
-      items = items.filter((p) => p.category === selectedCategory);
+      filteredItems = filteredItems.filter((p) => p.category === selectedCategory);
     if (selectedCity !== "all-cities")
-      items = items.filter((p) => p.city === selectedCity);
+      filteredItems = filteredItems.filter((p) => p.city === selectedCity);
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
-      items = items.filter(
+      filteredItems = filteredItems.filter(
         (p) =>
           p.name.toLowerCase().includes(lower) ||
           p.seller?.businessName?.toLowerCase().includes(lower)
       );
     }
-    return items;
+
+    // 2. Group these filtered products by Seller
+    const shopsMap = new Map();
+    filteredItems.forEach((p) => {
+      if (!p.seller) return;
+      const sellerId = p.seller._id;
+      if (!shopsMap.has(sellerId)) {
+        shopsMap.set(sellerId, {
+          seller: p.seller,
+          products: [],
+        });
+      }
+      shopsMap.get(sellerId).products.push(p);
+    });
+
+    return Array.from(shopsMap.values());
   }, [products, searchTerm, selectedCategory, selectedCity]);
-
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const displayedProducts = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // Reset page on filter change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory, selectedCity]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 350, behavior: "smooth" });
-  };
-
-  const handleOpenInquiry = (product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/50">
       <Helmet>
-        <title>home and interior designing product marketplace</title>
+        <title>Home & Interior Product Marketplace | Discover Stores</title>
         <meta
           name="description"
-          content="Discover the HousePlanFiles Marketplace — buy & sell premium house construction and interior designing products design. Find the perfect design for your project easily."
+          content="Browse verified sellers and stores for house construction and interior designing products. Visit stores to explore full collections."
         />
       </Helmet>
 
@@ -372,241 +339,129 @@ const MarketplacePage: FC = () => {
       {/* --- Banner --- */}
       <div className="relative h-[300px] md:h-[450px] bg-gray-900 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-gray-800" />
-        <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80')] bg-cover bg-center" />
+        <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80')] bg-cover bg-center" />
         <div className="relative z-10 h-full max-w-7xl mx-auto px-4 flex flex-col justify-center items-center text-center">
-          <h1 className="text-3xl md:text-6xl font-black text-white tracking-tight mb-4">
-            Marketplace
-          </h1>
-          <p className="text-gray-300 text-sm md:text-lg max-w-2xl mb-8">
-            Find the best construction materials & sellers in one place.
-          </p>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-7xl font-black text-white tracking-tighter mb-4"
+          >
+            MARKETPLACE
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-300 text-sm md:text-xl max-w-2xl mb-8 font-medium"
+          >
+            Discover verified building material stores and interior showrooms.
+          </motion.p>
 
           <Button
             onClick={() => navigate("/register")}
-            className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-6 px-8 rounded-full shadow-lg hover:shadow-orange-500/20 transition-all transform hover:-translate-y-1 text-lg"
+            className="bg-orange-600 hover:bg-orange-700 text-white font-black py-7 px-10 rounded-2xl shadow-2xl hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1 text-lg uppercase tracking-wider"
           >
-            <Store className="w-5 h-5 mr-2" />
+            <Store className="w-6 h-6 mr-3" />
             Register Your Shop
           </Button>
         </div>
       </div>
 
-      <main className="flex-grow max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-10 md:-mt-16 relative z-20 pb-20">
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 md:-mt-16 relative z-20 pb-20 w-full">
         {/* --- Filters Card --- */}
-        <div className="bg-white rounded-lg md:rounded-xl shadow-lg md:shadow-xl border border-gray-100 p-3 md:p-6 mb-4 md:mb-10">
-          <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-4 md:items-end">
-            {/* Search - Full width on mobile */}
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 md:p-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div className="md:col-span-2">
-              <Label className="text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1 block">
-                Search
-              </Label>
+              <Label className="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Search Shop or Product</Label>
               <div className="relative">
-                <Search className="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 md:w-4 md:h-4" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <Input
-                  placeholder="Search products..."
+                  placeholder="What are you looking for?"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 md:pl-10 h-9 md:h-11 bg-gray-50 border-gray-200 text-sm"
+                  className="pl-12 h-12 bg-gray-50 border-gray-200 text-base rounded-xl focus:ring-orange-500"
                 />
               </div>
             </div>
 
-            {/* Category & City - Side by side on mobile */}
-            <div className="grid grid-cols-2 gap-2 md:contents">
-              <div>
-                <Label className="text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1 block">
-                  Category
-                </Label>
-                <Select
-                  value={selectedCategory}
-                  onValueChange={setSelectedCategory}
-                >
-                  <SelectTrigger className="h-9 md:h-11 bg-gray-50 border-gray-200 text-xs md:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueCategories.map((c) => (
-                      <SelectItem
-                        key={c}
-                        value={c}
-                        className="text-xs md:text-sm"
-                      >
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label className="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Category</Label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="h-12 bg-gray-50 border-gray-200 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {uniqueCategories.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div>
-                <Label className="text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1 block">
-                  City
-                </Label>
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
-                  <SelectTrigger className="h-9 md:h-11 bg-gray-50 border-gray-200 text-xs md:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueCities.map((c) => (
-                      <SelectItem
-                        key={c}
-                        value={c === "All Cities" ? "all-cities" : c}
-                        className="text-xs md:text-sm"
-                      >
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label className="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">City</Label>
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="h-12 bg-gray-50 border-gray-200 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {uniqueCities.map((c) => (
+                    <SelectItem key={c} value={c === "All Cities" ? "all-cities" : c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-
-          {/* Active Filters Pills - Optional but nice to have */}
-          {(selectedCategory !== "All" ||
-            selectedCity !== "all-cities" ||
-            searchTerm) && (
-            <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
-              {searchTerm && (
-                <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full">
-                  <Search className="w-3 h-3" />
-                  {searchTerm}
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="hover:bg-orange-200 rounded-full p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {selectedCategory !== "All" && (
-                <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
-                  {selectedCategory}
-                  <button
-                    onClick={() => setSelectedCategory("All")}
-                    className="hover:bg-blue-200 rounded-full p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {selectedCity !== "all-cities" && (
-                <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                  <MapPin className="w-3 h-3" />
-                  {selectedCity}
-                  <button
-                    onClick={() => setSelectedCity("all-cities")}
-                    className="hover:bg-green-200 rounded-full p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-            </div>
-          )}
         </div>
-        {/* --- Product Grid (Updated for 2 Columns Mobile) --- */}
+
+        {/* --- Shops Grid --- */}
         {status === "loading" ? (
           <div className="py-20 flex justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-orange-600" />
           </div>
         ) : status === "failed" ? (
-          <div className="py-20 text-center">
+          <div className="py-20 text-center bg-white rounded-3xl shadow-inner">
             <ServerCrash className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold">Failed to load data</h3>
+            <h3 className="text-xl font-bold">Connection Error</h3>
             <p className="text-gray-500">{String(error)}</p>
           </div>
         ) : (
           <>
-            {displayedProducts.length > 0 ? (
-              // ✅ FIX: grid-cols-2 for mobile
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Available Stores</h2>
+              <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">{filteredShops.length} SHOPS</span>
+            </div>
+
+            {filteredShops.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <AnimatePresence mode="popLayout">
-                  {displayedProducts.map((product) => (
-                    <ProductCard
-                      key={product._id}
-                      product={product}
-                      onInquiryClick={handleOpenInquiry}
-                      onImageClick={setFullScreenImage}
+                  {filteredShops.map((shop) => (
+                    <ShopCard
+                      key={shop.seller._id}
+                      seller={shop.seller}
+                      productCount={shop.products.length}
+                      products={shop.products}
                     />
                   ))}
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="text-center py-20 bg-white rounded-2xl border border-dashed">
-                <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-gray-900">
-                  No products found
-                </h3>
-                <p className="text-gray-500">
-                  Try changing filters or search term.
-                </p>
-              </div>
-            )}
-
-            {/* --- Pagination Controls --- */}
-            {totalPages > 1 && (
-              <div className="mt-10 md:mt-16 flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="rounded-full h-8 w-8 sm:h-10 sm:w-10 border-gray-300 hover:border-orange-500 hover:text-orange-600"
+              <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-gray-100">
+                <Store className="h-20 w-20 text-gray-200 mx-auto mb-6" />
+                <h3 className="text-2xl font-bold text-gray-900">No stores found</h3>
+                <p className="text-gray-500 mt-2">Try adjusting your filters to find sellers in your area.</p>
+                <Button 
+                  onClick={() => {setSearchTerm(""); setSelectedCategory("All"); setSelectedCity("all-cities");}}
+                  variant="link" 
+                  className="mt-4 text-orange-600 font-bold"
                 >
-                  <ChevronLeft size={16} className="sm:w-[18px]" />
-                </Button>
-
-                <div className="flex gap-1 sm:gap-2 mx-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full text-xs sm:text-sm font-bold transition-all ${
-                          currentPage === page
-                            ? "bg-orange-600 text-white shadow-lg shadow-orange-600/30 transform scale-110"
-                            : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100 hover:border-orange-300"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    handlePageChange(Math.min(totalPages, currentPage + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="rounded-full h-8 w-8 sm:h-10 sm:w-10 border-gray-300 hover:border-orange-500 hover:text-orange-600"
-                >
-                  <ChevronRight size={16} className="sm:w-[18px]" />
+                  Clear all filters
                 </Button>
               </div>
             )}
           </>
         )}
       </main>
-
-      {/* --- Modals Overlay --- */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <InquiryModal
-            product={selectedProduct}
-            onClose={() => setIsModalOpen(false)}
-          />
-        )}
-        {fullScreenImage && (
-          <ImageViewModal
-            imageUrl={fullScreenImage}
-            onClose={() => setFullScreenImage(null)}
-          />
-        )}
-      </AnimatePresence>
 
       <Footer />
     </div>

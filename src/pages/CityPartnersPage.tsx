@@ -245,7 +245,9 @@ const PartnersPage: FC = () => {
         (professionFilter === "Building" &&
           (lowerCaseProfession.includes("civil") ||
             lowerCaseProfession.includes("general") ||
-            lowerCaseProfession.includes("building"))) ||
+            lowerCaseProfession.includes("building") ||
+            lowerCaseProfession.includes("labour") ||
+            lowerCaseProfession.includes("turnkey"))) ||
         (professionFilter === "Interior" &&
           lowerCaseProfession.includes("interior"));
 

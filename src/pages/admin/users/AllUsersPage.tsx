@@ -778,8 +778,8 @@ const AllUsersPage = () => {
                     <SelectContent>
                       {role === "Contractor" ? (
                         [
-                          "General Contractor",
-                          "Civil Contractor",
+                          "Labour Contractor",
+                          "Turnkey Contractor",
                           "Interior Contractor",
                           "Electrical Contractor",
                           "Plumbing Contractor",

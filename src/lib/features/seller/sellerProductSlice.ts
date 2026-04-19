@@ -1,8 +1,18 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const initialState = {
+interface SellerProductState {
+  products: any[];
+  product: any | null;
+  pagination: any | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  actionStatus: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}
+
+const initialState: SellerProductState = {
   products: [],
+  product: null,
   pagination: null,
   status: "idle",
   actionStatus: "idle",
@@ -11,26 +21,55 @@ const initialState = {
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/seller/products`;
 
-const getToken = (getState) => {
+const getToken = (getState: any) => {
   const { user } = getState();
   return user.userInfo?.token;
 };
 
 export const fetchPublicSellerProducts = createAsyncThunk(
   "sellerProducts/fetchPublicAll",
-  async (params = { page: 1 }, { rejectWithValue }) => {
+  async (params: { page?: number; city?: string; limit?: number } = { page: 1 }, { rejectWithValue }) => {
     try {
       const config = {
         params: {
           page: params.page || 1,
           city: params.city || undefined,
+          limit: params.limit || undefined,
         },
       };
       const { data } = await axios.get(`${API_URL}/public/all`, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch marketplace products"
+      );
+    }
+  }
+);
+
+export const fetchPublicProductsBySeller = createAsyncThunk(
+  "sellerProducts/fetchPublicBySeller",
+  async (sellerId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`${API_URL}/public/seller/${sellerId}`);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch store products"
+      );
+    }
+  }
+);
+
+export const fetchPublicProductById = createAsyncThunk(
+  "sellerProducts/fetchPublicById",
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`${API_URL}/public/${productId}`);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch product details"
       );
     }
   }
@@ -44,7 +83,7 @@ export const fetchSellerProducts = createAsyncThunk(
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.get(API_URL, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch your products"
       );
@@ -54,7 +93,7 @@ export const fetchSellerProducts = createAsyncThunk(
 
 export const fetchAllProductsForAdmin = createAsyncThunk(
   "sellerProducts/fetchAllForAdmin",
-  async (params = { page: 1 }, { getState, rejectWithValue }) => {
+  async (params: { page?: number; city?: string } = { page: 1 }, { getState, rejectWithValue }) => {
     try {
       const token = getToken(getState);
       const config = {
@@ -66,7 +105,7 @@ export const fetchAllProductsForAdmin = createAsyncThunk(
       };
       const { data } = await axios.get(`${API_URL}/admin/all`, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch products for admin"
       );
@@ -76,7 +115,7 @@ export const fetchAllProductsForAdmin = createAsyncThunk(
 
 export const createSellerProduct = createAsyncThunk(
   "sellerProducts/create",
-  async (productData, { getState, rejectWithValue }) => {
+  async (productData: any, { getState, rejectWithValue }) => {
     try {
       const token = getToken(getState);
       const config = {
@@ -87,7 +126,7 @@ export const createSellerProduct = createAsyncThunk(
       };
       const { data } = await axios.post(API_URL, productData, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create product"
       );
@@ -97,7 +136,7 @@ export const createSellerProduct = createAsyncThunk(
 
 export const updateSellerProduct = createAsyncThunk(
   "sellerProducts/update",
-  async ({ productId, productData }, { getState, rejectWithValue }) => {
+  async ({ productId, productData }: { productId: string; productData: any }, { getState, rejectWithValue }) => {
     try {
       const token = getToken(getState);
       const config = {
@@ -112,7 +151,7 @@ export const updateSellerProduct = createAsyncThunk(
         config
       );
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update product"
       );
@@ -122,13 +161,13 @@ export const updateSellerProduct = createAsyncThunk(
 
 export const deleteSellerProduct = createAsyncThunk(
   "sellerProducts/delete",
-  async (productId, { getState, rejectWithValue }) => {
+  async (productId: string, { getState, rejectWithValue }) => {
     try {
       const token = getToken(getState);
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.delete(`${API_URL}/${productId}`, config);
       return productId;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete product"
       );
@@ -161,7 +200,7 @@ const sellerProductSlice = createSlice({
       })
       .addCase(fetchPublicSellerProducts.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(fetchSellerProducts.pending, (state) => {
         state.status = "loading";
@@ -173,7 +212,7 @@ const sellerProductSlice = createSlice({
       })
       .addCase(fetchSellerProducts.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(fetchAllProductsForAdmin.pending, (state) => {
         state.status = "loading";
@@ -185,7 +224,7 @@ const sellerProductSlice = createSlice({
       })
       .addCase(fetchAllProductsForAdmin.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(createSellerProduct.pending, (state) => {
         state.actionStatus = "loading";
@@ -196,7 +235,7 @@ const sellerProductSlice = createSlice({
       })
       .addCase(createSellerProduct.rejected, (state, action) => {
         state.actionStatus = "failed";
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(updateSellerProduct.pending, (state) => {
         state.actionStatus = "loading";
@@ -210,7 +249,7 @@ const sellerProductSlice = createSlice({
       })
       .addCase(updateSellerProduct.rejected, (state, action) => {
         state.actionStatus = "failed";
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(deleteSellerProduct.pending, (state) => {
         state.actionStatus = "loading";
@@ -221,7 +260,30 @@ const sellerProductSlice = createSlice({
       })
       .addCase(deleteSellerProduct.rejected, (state, action) => {
         state.actionStatus = "failed";
-        state.error = action.payload;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchPublicProductsBySeller.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPublicProductsBySeller.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.products = action.payload;
+        state.pagination = null;
+      })
+      .addCase(fetchPublicProductsBySeller.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
+      .addCase(fetchPublicProductById.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPublicProductById.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.product = action.payload;
+      })
+      .addCase(fetchPublicProductById.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
       });
   },
 });

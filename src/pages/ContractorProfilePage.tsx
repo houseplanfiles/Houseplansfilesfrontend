@@ -31,6 +31,7 @@ import {
   Send,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
 
 const ContractorProfilePage = () => {
   const { id } = useParams();
@@ -93,6 +94,18 @@ const ContractorProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-[#fcfcfc]">
+      <Helmet>
+        <title>{contractor.name} | Expert Contractor in {contractor.city}</title>
+        <meta name="description" content={`Professional contractor with ${contractor.experience || 'Expert'} experience in ${contractor.city}. Book now for premium construction services.`} />
+        
+        {/* Open Graph Tags */}
+        <meta property="og:title" content={`${contractor.name} - Professional Contractor`} />
+        <meta property="og:description" content={`Top-rated construction expert in ${contractor.city}. Explore projects and service plans.`} />
+        <meta property="og:image" content={getFileUrl(contractor.coverPhotoUrl)} />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <Navbar />
 
       <main className="pb-32">

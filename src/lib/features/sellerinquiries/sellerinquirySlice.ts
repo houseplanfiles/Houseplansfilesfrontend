@@ -3,12 +3,20 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/sellerinquiries`;
 
-const getToken = (getState) => {
+const getToken = (getState: any) => {
   const { user } = getState();
   return user.userInfo?.token;
 };
 
-const initialState = {
+interface SellerInquiryState {
+  inquiries: any[];
+  selectedInquiry: any | null;
+  listStatus: "idle" | "loading" | "succeeded" | "failed";
+  actionStatus: "idle" | "loading" | "succeeded" | "failed";
+  error: any | null;
+}
+
+const initialState: SellerInquiryState = {
   inquiries: [],
   selectedInquiry: null,
   listStatus: "idle",
@@ -18,11 +26,11 @@ const initialState = {
 
 export const createInquiry = createAsyncThunk(
   "sellerInquiries/create",
-  async (inquiryData, { rejectWithValue }) => {
+  async (inquiryData: any, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(API_URL, inquiryData);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Inquiry failed");
     }
   }
@@ -36,7 +44,7 @@ export const fetchMyInquiries = createAsyncThunk(
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.get(`${API_URL}/my`, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch inquiries"
       );
@@ -52,7 +60,7 @@ export const fetchAllInquiries = createAsyncThunk(
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.get(`${API_URL}/all`, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch all inquiries"
       );
@@ -62,13 +70,13 @@ export const fetchAllInquiries = createAsyncThunk(
 
 export const fetchInquiryById = createAsyncThunk(
   "sellerInquiries/fetchById",
-  async (inquiryId, { getState, rejectWithValue }) => {
+  async (inquiryId: string, { getState, rejectWithValue }) => {
     try {
       const token = getToken(getState);
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.get(`${API_URL}/${inquiryId}`, config);
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch inquiry details"
       );
@@ -78,7 +86,7 @@ export const fetchInquiryById = createAsyncThunk(
 
 export const updateInquiryStatus = createAsyncThunk(
   "sellerInquiries/updateStatus",
-  async ({ inquiryId, status }, { getState, rejectWithValue }) => {
+  async ({ inquiryId, status }: { inquiryId: string; status: string }, { getState, rejectWithValue }) => {
     try {
       const token = getToken(getState);
       const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -88,7 +96,7 @@ export const updateInquiryStatus = createAsyncThunk(
         config
       );
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update status"
       );
@@ -161,7 +169,7 @@ const inquirySlice = createSlice({
       .addCase(updateInquiryStatus.fulfilled, (state, action) => {
         state.actionStatus = "succeeded";
         const index = state.inquiries.findIndex(
-          (inq) => inq._id === action.payload._id
+          (inq: any) => inq._id === action.payload._id
         );
         if (index !== -1) {
           state.inquiries[index] = action.payload;
