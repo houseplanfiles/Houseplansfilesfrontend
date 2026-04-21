@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/store";
-import { updateProfile } from "@/lib/features/users/userSlice";
+import { updateProfile, fetchCurrentUser } from "@/lib/features/users/userSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,7 @@ import {
   MoreVertical,
   Edit2,
   Search,
+  FileText,
 } from "lucide-react";
 import {
   Dialog,
@@ -58,7 +59,13 @@ const ProjectsPage = () => {
   const [editingProjectIdx, setEditingProjectIdx] = useState<number| null>(null);
 
   // Form states for modals
-  const [tempPackage, setTempPackage] = useState({ name: "", price: "", description: "" });
+  const [tempPackage, setTempPackage] = useState({ 
+    name: "", 
+    price: "", 
+    description: "", 
+    pdfFile: null as File | null,
+    pdfUrl: ""
+  });
   const [tempProject, setTempProject] = useState({ 
     title: "", 
     description: "", 
@@ -67,6 +74,10 @@ const ProjectsPage = () => {
     imageFiles: [] as File[],
     imageUrl: ""
   });
+
+  useEffect(() => {
+    dispatch(fetchCurrentUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (userInfo) {
@@ -78,10 +89,13 @@ const ProjectsPage = () => {
   const handleOpenPackageModal = (idx: number | null = null) => {
     if (idx !== null) {
       setEditingPackageIdx(idx);
-      setTempPackage({ ...packages[idx] });
+      setTempPackage({ 
+        ...packages[idx],
+        pdfFile: null // New file selection starts as null
+      });
     } else {
       setEditingPackageIdx(null);
-      setTempPackage({ name: "", price: "", description: "" });
+      setTempPackage({ name: "", price: "", description: "", pdfFile: null, pdfUrl: "" });
     }
     setIsPackageModalOpen(true);
   };
@@ -147,7 +161,16 @@ const ProjectsPage = () => {
 
   const handleSubmit = async () => {
     const formData = new FormData();
-    formData.append("packages", JSON.stringify(packages));
+    
+    // Add packages and their PDF files
+    const packagesToSubmit = packages.map((pkg, idx) => {
+      const { pdfFile, ...rest } = pkg;
+      if (pdfFile) {
+        formData.append(`package_pdf_${idx}`, pdfFile);
+      }
+      return rest;
+    });
+    formData.append("packages", JSON.stringify(packagesToSubmit));
     
     const samplesToSubmit = workSamples.map((sample, idx) => {
       const { imageFiles, ...rest } = sample;
@@ -369,6 +392,28 @@ const ProjectsPage = () => {
                 onChange={(e) => setTempPackage({ ...tempPackage, description: e.target.value })}
                 className="min-h-[120px] font-medium"
               />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Technical Brochure (PDF)</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setTempPackage({ ...tempPackage, pdfFile: e.target.files[0] });
+                    }
+                  }}
+                  className="font-bold h-11 border-dashed"
+                />
+                {(tempPackage.pdfUrl || tempPackage.pdfFile) && (
+                   <div className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-100">
+                      <FileText className="w-4 h-4" />
+                      <span className="text-[10px] font-black uppercase">{tempPackage.pdfFile ? "New Selected" : "Existing"}</span>
+                   </div>
+                )}
+              </div>
+              <p className="text-[10px] text-gray-400 font-bold uppercase italic tracking-widest">Upload detailed scope or contract in PDF format.</p>
             </div>
           </div>
           <DialogFooter className="gap-2">

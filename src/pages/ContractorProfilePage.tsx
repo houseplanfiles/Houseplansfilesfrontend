@@ -204,7 +204,7 @@ const ContractorProfilePage = () => {
               </div>
               {contractor.packages && contractor.packages.length > 0 ? (
                 <div className="space-y-6">
-                  {contractor.packages.slice(0, 3).map((pkg: any, idx: number) => (
+                  {contractor.packages.map((pkg: any, idx: number) => (
                     <Card key={idx} className="bg-white border-2 border-gray-50 shadow-sm rounded-2xl overflow-hidden hover:border-orange-200 hover:shadow-xl transition-all p-6 group">
                       <div className="flex justify-between items-start mb-4">
                         <h4 className="text-xl font-extrabold text-gray-900 group-hover:text-orange-600 transition-colors uppercase leading-tight">{pkg.name}</h4>
@@ -215,12 +215,27 @@ const ContractorProfilePage = () => {
                         </div>
                       </div>
                       <p className="text-xs text-gray-500 font-bold mb-6 line-clamp-3 leading-relaxed">{pkg.description}</p>
-                      <Button
-                        onClick={() => handleInquiryAction(pkg)}
-                        className="w-full bg-gray-900 text-white font-extrabold h-12 rounded-2xl hover:bg-orange-600 shadow-md"
-                      >
-                        Enquire Now
-                      </Button>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleInquiryAction(pkg)}
+                          className="flex-grow bg-gray-900 text-white font-extrabold h-12 rounded-2xl hover:bg-orange-600 shadow-md transition-all active:scale-95"
+                        >
+                          Enquire Now
+                        </Button>
+                        {pkg.pdfUrl && (
+                          <a href={getFileUrl(pkg.pdfUrl)} target="_blank" rel="noreferrer">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              title="Download Package PDF"
+                              className="w-12 h-12 rounded-2xl border-2 border-gray-100 text-gray-400 hover:text-orange-600 hover:border-orange-200 transition-all"
+                            >
+                              <Download className="w-5 h-5" />
+                            </Button>
+                          </a>
+                        )}
+                      </div>
                     </Card>
                   ))}
                 </div>
@@ -228,11 +243,12 @@ const ContractorProfilePage = () => {
                 <div className="p-10 bg-gray-50 rounded-3xl text-center border-2 border-dashed border-gray-200 italic font-bold text-gray-400">No packages available</div>
               )}
             </aside>
+
             {/* RIGHT: Recent Projects Grid */}
             <div className="lg:col-span-9 space-y-10">
               <div className="flex items-center gap-3 mb-2 px-2">
                 <div className="w-2 h-8 bg-orange-600 rounded-full" />
-                <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Recent Projects</h2>
+                <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight uppercase">Recent Projects</h2>
               </div>
               {contractor.workSamples && contractor.workSamples.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">

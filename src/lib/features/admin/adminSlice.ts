@@ -17,6 +17,11 @@ interface SummaryData {
   totalOrders: number;
   totalRevenue: number;
   totalCustomers: number;
+  totalContractors: number;
+  totalProfessionals: number;
+  totalSellers: number;
+  totalContractorProjects: number;
+  totalSellerProducts: number;
   totalProducts: number;
   recentOrders: any[];
 }

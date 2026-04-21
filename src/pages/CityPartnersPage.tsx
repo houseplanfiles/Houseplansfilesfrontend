@@ -420,13 +420,13 @@ const PartnersPage: FC = () => {
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
                       <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
                         {contractor.contractorType === "Premium" && (
-                          <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-none shadow-md">
+                          <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-none shadow-lg px-3 py-1 font-bold">
                             <Star className="w-3 h-3 mr-1 fill-current" /> Premium
                           </Badge>
                         )}
                         {contractor.contractorType === "Verified" && (
-                          <Badge className="bg-green-500 hover:bg-green-600 gap-1 pl-1 pr-2 shadow-sm">
-                            <CheckCircle2 className="w-3 h-3" /> Verified
+                          <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg px-3 py-1 font-bold">
+                            <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
                           </Badge>
                         )}
                       </div>

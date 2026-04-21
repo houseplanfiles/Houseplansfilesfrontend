@@ -47,21 +47,57 @@ const AdminDashboardPage = () => {
       title: "Total Revenue",
       value: `₹${summary.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
+      color: "text-green-600",
+      bg: "bg-green-50"
     },
     {
       title: "Total Orders",
       value: summary.totalOrders.toLocaleString(),
       icon: ShoppingCart,
+      color: "text-blue-600",
+      bg: "bg-blue-50"
     },
     {
-      title: "Total Customers",
+      title: "Total User",
       value: summary.totalCustomers.toLocaleString(),
       icon: Users,
+      color: "text-purple-600",
+      bg: "bg-purple-50"
+    },
+    {
+      title: "Contractors",
+      value: summary.totalContractors.toLocaleString(),
+      icon: Briefcase,
+      color: "text-orange-600",
+      bg: "bg-orange-50"
+    },
+    {
+      title: "Professionals",
+      value: summary.totalProfessionals.toLocaleString(),
+      icon: Users,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50"
     },
     {
       title: "Total Plans",
       value: summary.totalProducts.toLocaleString(),
       icon: BookOpen,
+      color: "text-cyan-600",
+      bg: "bg-cyan-50"
+    },
+    {
+      title: "Project Uploaded",
+      value: summary.totalContractorProjects.toLocaleString(),
+      icon: Briefcase,
+      color: "text-pink-600",
+      bg: "bg-pink-50"
+    },
+    {
+      title: "Seller Product",
+      value: summary.totalSellerProducts.toLocaleString(),
+      icon: ShoppingCart,
+      color: "text-amber-600",
+      bg: "bg-amber-50"
     },
   ];
 
@@ -86,17 +122,21 @@ const AdminDashboardPage = () => {
         {summaryCards.map((card) => (
           <div
             key={card.title}
-            className="bg-white border rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-300"
+            className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300"
           >
             <div className="flex justify-between items-start">
-              <h3 className="text-sm font-medium text-gray-500">
-                {card.title}
-              </h3>
-              <card.icon className="h-5 w-5 text-gray-400" />
+              <div className="space-y-1">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                  {card.title}
+                </h3>
+                <p className="text-3xl font-black text-gray-900">
+                  {card.value}
+                </p>
+              </div>
+              <div className={`${card.bg} ${card.color} p-3 rounded-xl`}>
+                <card.icon className="h-6 w-6" />
+              </div>
             </div>
-            <p className="text-3xl font-bold text-gray-800 mt-2">
-              {card.value}
-            </p>
           </div>
         ))}
       </div>

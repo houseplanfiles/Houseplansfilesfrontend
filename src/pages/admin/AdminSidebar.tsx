@@ -51,6 +51,16 @@ const mainLinks = [
     path: "/admin/managesellerplans",
     icon: Briefcase,
   },
+  {
+    name: "Contractor Projects",
+    path: "/admin/contractor-projects",
+    icon: Box,
+  },
+  {
+    name: "Manage Contractors",
+    path: "/admin/manage-contractors",
+    icon: Briefcase,
+  },
 ];
 
 const requestLinks = [

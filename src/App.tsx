@@ -109,6 +109,8 @@ import ProjectsPageProf from "./pages/professional/ProjectsPage";
 import SellerStorePage from "./pages/SellerStorePage";
 import SellerProductDetailPage from "./pages/SellerProductDetailPage";
 import ContractorSEOPage from "./pages/admin/users/ContractorSEOPage";
+import AdminContractorProjectsPage from "./pages/admin/users/ContractorProjectsPage";
+import AdminContractorsPage from "./pages/admin/AdminContractorsPage";
 
 const queryClient = new QueryClient();
 
@@ -358,6 +360,14 @@ const App = () => (
                           <Route
                             path="users/contractors/:id/seo"
                             element={<ContractorSEOPage />}
+                          />
+                          <Route
+                            path="contractor-projects"
+                            element={<AdminContractorProjectsPage />}
+                          />
+                          <Route
+                            path="manage-contractors"
+                            element={<AdminContractorsPage />}
                           />
                           <Route
                             path="profile"

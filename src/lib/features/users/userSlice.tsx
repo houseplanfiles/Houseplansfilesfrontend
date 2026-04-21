@@ -39,7 +39,7 @@ interface UserInfo {
   experience?: string;
   isApproved?: boolean;
   status?: string;
-  contractorType?: "Normal" | "Premium";
+  contractorType?: "Normal" | "Verified" | "Premium";
   [key: string]: any;
 }
 
@@ -120,6 +120,24 @@ export const registerUser = createAsyncThunk<UserInfo, FormData>(
       return rejectWithValue(
         error.response?.data?.message || "Registration failed"
       );
+    }
+  }
+);
+
+export const fetchCurrentUser = createAsyncThunk<UserInfo, void, { state: RootState }>(
+  "user/fetchCurrentUser",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const userId = state.user.userInfo?._id;
+      const token = getToken(state);
+      if (!userId || !token) throw new Error("Missing auth info");
+
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.get(`${API_URL}/${userId}`, config);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch profile");
     }
   }
 );
@@ -366,6 +384,12 @@ const userSlice = createSlice({
       .addCase(updateProfile.pending, actionPending)
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.actionStatus = "succeeded";
+        const user = { ...action.payload };
+        if (user.role) user.role = user.role.toLowerCase();
+        state.userInfo = user;
+        localStorage.setItem("userInfo", JSON.stringify(user));
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         const user = { ...action.payload };
         if (user.role) user.role = user.role.toLowerCase();
         state.userInfo = user;
