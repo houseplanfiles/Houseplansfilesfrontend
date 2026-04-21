@@ -106,6 +106,7 @@ const AllUsersPage = () => {
   const [status, setStatus] = useState("");
   const [profession, setProfession] = useState("");
   const [contractorType, setContractorType] = useState("Normal");
+  const [premiumExpiresAt, setPremiumExpiresAt] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   // New state for export loading
@@ -165,6 +166,11 @@ const AllUsersPage = () => {
       setRole(selectedUser.role || "");
       setStatus(selectedUser.status || "");
       setContractorType(selectedUser.contractorType || "Normal");
+      setPremiumExpiresAt(
+        selectedUser.premiumExpiresAt
+          ? new Date(selectedUser.premiumExpiresAt).toISOString().slice(0, 10)
+          : ""
+      );
       if (selectedUser.role === "professional" || selectedUser.role === "Contractor") {
         setProfession(selectedUser.profession || "");
       } else {
@@ -342,6 +348,11 @@ const AllUsersPage = () => {
 
     if (role === "Contractor") {
       userData.contractorType = contractorType;
+      if (contractorType === "Premium" && premiumExpiresAt) {
+        userData.premiumExpiresAt = new Date(premiumExpiresAt).toISOString();
+      } else {
+        userData.premiumExpiresAt = null;
+      }
     }
 
     try {
@@ -600,6 +611,16 @@ const AllUsersPage = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+                          {user.role === "Contractor" && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              title="Manage Project SEO"
+                              onClick={() => navigate(`/admin/users/contractors/${user._id}/seo`)}
+                            >
+                              <Search className="h-4 w-4 text-orange-600" />
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="icon"
@@ -817,6 +838,20 @@ const AllUsersPage = () => {
                       <SelectItem value="Premium">Premium</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+
+              {role === "Contractor" && contractorType === "Premium" && (
+                <div className="space-y-1">
+                  <Label className="font-semibold text-orange-600">⏳ Premium Expiry Date</Label>
+                  <input
+                    type="date"
+                    value={premiumExpiresAt}
+                    min={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => setPremiumExpiresAt(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                  <p className="text-xs text-gray-500">After this date, contractor will automatically revert to Normal.</p>
                 </div>
               )}
 

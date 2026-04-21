@@ -40,6 +40,8 @@ import {
   CheckCircle2,
   Filter,
   UserPlus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // --- Types ---
@@ -218,10 +220,17 @@ const PartnersPage: FC = () => {
     useState<ContractorType | null>(null);
   const [cityFilter, setCityFilter] = useState("");
   const [professionFilter, setProfessionFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
-    dispatch(fetchContractors());
+    dispatch(fetchContractors({ page: 1, limit: 500 }));
   }, [dispatch]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [cityFilter, professionFilter]);
 
   const approvedContractors = useMemo(() => {
     if (!Array.isArray(contractors)) return [];
@@ -254,6 +263,12 @@ const PartnersPage: FC = () => {
       return isApproved && isValidType && matchesCity && matchesProfession;
     });
   }, [contractors, cityFilter, professionFilter]);
+
+  const totalPages = Math.ceil(approvedContractors.length / itemsPerPage);
+  const paginatedContractors = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return approvedContractors.slice(startIndex, startIndex + itemsPerPage);
+  }, [approvedContractors, currentPage, itemsPerPage]);
 
   const handleContactClick = (contractor: ContractorType) => {
     setSelectedContractor(contractor);
@@ -381,9 +396,10 @@ const PartnersPage: FC = () => {
           </div>
         ) : (
           <>
-            {approvedContractors.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {approvedContractors.map((contractor, index) => (
+            {paginatedContractors.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {paginatedContractors.map((contractor, index) => (
                   <motion.div
                     key={contractor._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -500,6 +516,45 @@ const PartnersPage: FC = () => {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex justify-center items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-xl"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </Button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-10 h-10 rounded-xl font-bold ${
+                        currentPage === pageNum ? "bg-orange-600 hover:bg-orange-700" : ""
+                      }`}
+                    >
+                      {pageNum}
+                    </Button>
+                  ))}
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="rounded-xl"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </Button>
+                </div>
+              )}
+              </>
             ) : (
               <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
                 <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">

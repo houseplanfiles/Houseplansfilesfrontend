@@ -105,8 +105,10 @@ import ProjectDetailPage from "./pages/ProjectDetailPage";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import VoiceNavigation from "@/components/VoiceNavigation";
 import PortfolioPageProf from "./pages/professional/PortfolioPage";
+import ProjectsPageProf from "./pages/professional/ProjectsPage";
 import SellerStorePage from "./pages/SellerStorePage";
 import SellerProductDetailPage from "./pages/SellerProductDetailPage";
+import ContractorSEOPage from "./pages/admin/users/ContractorSEOPage";
 
 const queryClient = new QueryClient();
 
@@ -297,6 +299,10 @@ const App = () => (
                             path="portfolio"
                             element={<PortfolioPageProf />}
                           />
+                          <Route
+                            path="projects"
+                            element={<ProjectsPageProf />}
+                          />
                           <Route path="profile" element={<ProfilePageProf />} />
                         </Route>
                       </Route>
@@ -348,6 +354,10 @@ const App = () => (
                           <Route
                             path="users/add"
                             element={<AddNewUserPage />}
+                          />
+                          <Route
+                            path="users/contractors/:id/seo"
+                            element={<ContractorSEOPage />}
                           />
                           <Route
                             path="profile"

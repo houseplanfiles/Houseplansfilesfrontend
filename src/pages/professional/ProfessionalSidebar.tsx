@@ -22,6 +22,7 @@ const navLinks = [
   { name: "Add New Product", path: "add-product", icon: PlusSquare },
   { name: "My Orders", path: "my-orders", icon: ClipboardList },
   { name: "My Portfolio", path: "portfolio", icon: Briefcase }, // NEW
+  { name: "My Projects", path: "projects", icon: LayoutGrid }, 
   { name: "My Profile", path: "profile", icon: User },
 ];
 

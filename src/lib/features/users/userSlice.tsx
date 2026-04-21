@@ -49,6 +49,8 @@ interface UserState {
   sellers: UserInfo[];
   contractors: UserInfo[];
   pagination: any;
+  sellerPagination: any;
+  contractorPagination: any;
   stats: any;
   listStatus: "idle" | "loading" | "succeeded" | "failed";
   sellerListStatus: "idle" | "loading" | "succeeded" | "failed";
@@ -63,6 +65,8 @@ const initialState: UserState = {
   sellers: [],
   contractors: [],
   pagination: null,
+  sellerPagination: null,
+  contractorPagination: null,
   stats: null,
   listStatus: "idle",
   sellerListStatus: "idle",
@@ -75,10 +79,10 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/users`;
 
 export const fetchSellers = createAsyncThunk(
   "user/fetchSellers",
-  async (_, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number } = { page: 1, limit: 12 }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}?role=seller`);
-      return data.users || [];
+      const { data } = await axios.get(`${API_URL}?role=seller`, { params });
+      return data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch sellers"
@@ -89,10 +93,10 @@ export const fetchSellers = createAsyncThunk(
 
 export const fetchContractors = createAsyncThunk(
   "user/fetchContractors",
-  async (_, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number } = { page: 1, limit: 12 }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}?role=Contractor`);
-      return data.users || [];
+      const { data } = await axios.get(`${API_URL}?role=Contractor`, { params });
+      return data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch contractors"
@@ -433,9 +437,10 @@ const userSlice = createSlice({
       })
       .addCase(
         fetchSellers.fulfilled,
-        (state, action: PayloadAction<UserInfo[]>) => {
+        (state, action: PayloadAction<{ users: UserInfo[]; pagination: any }>) => {
           state.sellerListStatus = "succeeded";
-          state.sellers = action.payload;
+          state.sellers = action.payload.users;
+          state.sellerPagination = action.payload.pagination;
         }
       )
       .addCase(fetchSellers.rejected, (state, action: AnyAction) => {
@@ -449,9 +454,10 @@ const userSlice = createSlice({
       })
       .addCase(
         fetchContractors.fulfilled,
-        (state, action: PayloadAction<UserInfo[]>) => {
+        (state, action: PayloadAction<{ users: UserInfo[]; pagination: any }>) => {
           state.contractorListStatus = "succeeded";
-          state.contractors = action.payload;
+          state.contractors = action.payload.users;
+          state.contractorPagination = action.payload.pagination;
         }
       )
       .addCase(fetchContractors.rejected, (state, action: AnyAction) => {
