@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/store";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -88,6 +88,7 @@ const getStatusClass = (status: string) => {
 
 const AllUsersPage = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { users, pagination, listStatus, actionStatus, error } = useSelector(
     (state: RootState) => state.user
