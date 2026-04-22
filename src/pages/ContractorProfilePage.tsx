@@ -67,10 +67,43 @@ const ContractorProfilePage = () => {
     setIsDialogOpen(true);
   };
 
-  const onInquirySubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    senderName: "",
+    senderEmail: "",
+    senderWhatsapp: "",
+    requirements: ""
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const onInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Enquiry sent successfully! The contractor will contact you soon.");
-    setIsDialogOpen(false);
+    setSubmitting(true);
+    
+    try {
+      const inquiryData = {
+        recipient: id,
+        recipientInfo: {
+          name: contractor.name,
+          role: contractor.role,
+          city: contractor.city,
+          detail: selectedPackage ? `Service Plan: ${selectedPackage.name}` : "General Enquiry"
+        },
+        senderName: formData.senderName,
+        senderEmail: formData.senderEmail,
+        senderWhatsapp: formData.senderWhatsapp,
+        requirements: formData.requirements
+      };
+
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/inquiries`, inquiryData);
+      
+      toast.success("Enquiry sent successfully! The contractor will contact you soon.");
+      setFormData({ senderName: "", senderEmail: "", senderWhatsapp: "", requirements: "" });
+      setIsDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to send enquiry.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -322,18 +355,53 @@ const ContractorProfilePage = () => {
           <form onSubmit={onInquirySubmit} className="p-8 space-y-6 bg-white">
             <div className="space-y-1.5">
               <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Your Name</p>
-              <Input placeholder="John Doe" className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" required />
+              <Input 
+                placeholder="John Doe" 
+                className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" 
+                value={formData.senderName}
+                onChange={(e) => setFormData({...formData, senderName: e.target.value})}
+                required 
+              />
             </div>
-            <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Phone Number</p>
-              <Input placeholder="+91 999 999 9999" className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" required />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Email Address</p>
+                <Input 
+                  type="email"
+                  placeholder="john@example.com" 
+                  className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" 
+                  value={formData.senderEmail}
+                  onChange={(e) => setFormData({...formData, senderEmail: e.target.value})}
+                  required 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">WhatsApp Number</p>
+                <Input 
+                  placeholder="9998887776" 
+                  className="h-12 px-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" 
+                  value={formData.senderWhatsapp}
+                  onChange={(e) => setFormData({...formData, senderWhatsapp: e.target.value})}
+                  required 
+                />
+              </div>
             </div>
             <div className="space-y-1.5">
               <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Your Message</p>
-              <Textarea placeholder="How can we help you?" className="min-h-[120px] p-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" required />
+              <Textarea 
+                placeholder="How can we help you?" 
+                className="min-h-[120px] p-4 rounded-xl bg-gray-50 border-gray-200 text-base font-bold" 
+                value={formData.requirements}
+                onChange={(e) => setFormData({...formData, requirements: e.target.value})}
+                required 
+              />
             </div>
-            <Button type="submit" className="w-full h-14 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-lg font-extrabold shadow-md flex gap-2">
-              Send Inquiry <Send className="w-5 h-5" />
+            <Button 
+              type="submit" 
+              disabled={submitting}
+              className="w-full h-14 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-lg font-extrabold shadow-md flex gap-2"
+            >
+              {submitting ? <Loader2 className="animate-spin w-5 h-5" /> : <>Send Inquiry <Send className="w-5 h-5" /></>}
             </Button>
           </form>
         </DialogContent>

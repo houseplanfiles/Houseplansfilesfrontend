@@ -4,6 +4,7 @@ import {
   createAsyncThunk,
   PayloadAction,
   AnyAction,
+  isAnyOf,
 } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
 
@@ -44,6 +45,25 @@ export const createInquiry = createAsyncThunk<Inquiry, any>(
     }
   }
 );
+
+// --- Recipient Action (For Contractors/Professionals) ---
+export const fetchMyInquiries = createAsyncThunk<
+  Inquiry[],
+  void,
+  { state: RootState }
+>("inquiries/fetchMy", async (_, { getState, rejectWithValue }) => {
+  try {
+    const state = getState();
+    const token = getToken(state);
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    const { data } = await axios.get(`${API_URL}/my`, config);
+    return data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data?.message || "Failed to fetch your inquiries"
+    );
+  }
+});
 
 // --- Admin Actions ---
 export const fetchInquiries = createAsyncThunk<
@@ -139,23 +159,6 @@ const inquirySlice = createSlice({
       })
       .addCase(createInquiry.rejected, actionRejected);
 
-    // Fetch Inquiries (for Admin)
-    builder
-      .addCase(fetchInquiries.pending, (state) => {
-        state.listStatus = "loading";
-      })
-      .addCase(
-        fetchInquiries.fulfilled,
-        (state, action: PayloadAction<Inquiry[]>) => {
-          state.listStatus = "succeeded";
-          state.inquiries = action.payload;
-        }
-      )
-      .addCase(fetchInquiries.rejected, (state, action) => {
-        state.listStatus = "failed";
-        state.error = action.payload;
-      });
-
     // Update Status (for Admin)
     builder
       .addCase(updateInquiryStatus.pending, actionPending)
@@ -186,6 +189,29 @@ const inquirySlice = createSlice({
         }
       )
       .addCase(deleteInquiry.rejected, actionRejected);
+
+    // Fetch Inquiries (for Admin or Contractor/Professional) - Matchers must be at the end
+    builder
+      .addMatcher(
+        isAnyOf(fetchInquiries.pending, fetchMyInquiries.pending),
+        (state) => {
+          state.listStatus = "loading";
+        }
+      )
+      .addMatcher(
+        isAnyOf(fetchInquiries.fulfilled, fetchMyInquiries.fulfilled),
+        (state, action) => {
+          state.listStatus = "succeeded";
+          state.inquiries = action.payload;
+        }
+      )
+      .addMatcher(
+        isAnyOf(fetchInquiries.rejected, fetchMyInquiries.rejected),
+        (state, action) => {
+          state.listStatus = "failed";
+          state.error = action.payload;
+        }
+      );
   },
 });
 

@@ -18,11 +18,12 @@ import { RootState, AppDispatch } from "@/lib/store";
 
 const navLinks = [
   { name: "Dashboard", path: "/professional", icon: LayoutGrid },
-  { name: "My Products", path: "my-products", icon: Package },
-  { name: "Add New Product", path: "add-product", icon: PlusSquare },
-  { name: "My Orders", path: "my-orders", icon: ClipboardList },
-  { name: "My Portfolio", path: "portfolio", icon: Briefcase }, // NEW
-  { name: "My Projects", path: "projects", icon: LayoutGrid }, 
+  { name: "My Products", path: "my-products", icon: Package, roles: ["professional", "admin"] },
+  { name: "Add New Product", path: "add-product", icon: PlusSquare, roles: ["professional", "admin"] },
+  { name: "My Enquiries", path: "enquiries", icon: ClipboardList, roles: ["contractor", "Contractor", "admin"] },
+  { name: "My Orders", path: "my-orders", icon: ClipboardList, roles: ["professional", "admin"] },
+  { name: "My Portfolio", path: "portfolio", icon: Briefcase, roles: ["contractor", "Contractor", "admin"] }, 
+  { name: "My Projects", path: "projects", icon: LayoutGrid, roles: ["contractor", "Contractor", "admin"] }, 
   { name: "My Profile", path: "profile", icon: User },
 ];
 
@@ -76,9 +77,11 @@ const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Navigation Links */}
       <nav className="flex flex-col space-y-2 flex-1 min-h-0 overflow-y-auto">
-        {navLinks.map((link) => {
+        {navLinks
+          .filter(link => !link.roles || (userInfo?.role && link.roles.includes(userInfo.role)))
+          .map((link) => {
           let linkName = link.name;
-          if (userInfo?.role === "contractor") {
+          if (userInfo?.role?.toLowerCase() === "contractor") {
             if (link.name === "My Products") linkName = "My Services";
             if (link.name === "Add New Product") linkName = "Add New Service";
           }

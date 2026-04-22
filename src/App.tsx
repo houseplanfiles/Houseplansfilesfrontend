@@ -106,6 +106,7 @@ import WhatsAppWidget from "@/components/WhatsAppWidget";
 import VoiceNavigation from "@/components/VoiceNavigation";
 import PortfolioPageProf from "./pages/professional/PortfolioPage";
 import ProjectsPageProf from "./pages/professional/ProjectsPage";
+import ContractorEnquiriesPage from "./pages/professional/ContractorEnquiriesPage";
 import SellerStorePage from "./pages/SellerStorePage";
 import SellerProductDetailPage from "./pages/SellerProductDetailPage";
 import ContractorSEOPage from "./pages/admin/users/ContractorSEOPage";
@@ -296,6 +297,10 @@ const App = () => (
                           <Route
                             path="add-product"
                             element={<AddProductPageProf />}
+                          />
+                          <Route
+                            path="enquiries"
+                            element={<ContractorEnquiriesPage />}
                           />
                           <Route
                             path="portfolio"
