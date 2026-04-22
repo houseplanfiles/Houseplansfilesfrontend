@@ -45,56 +45,56 @@ const AdminDashboardPage = () => {
   const summaryCards = [
     {
       title: "Total Revenue",
-      value: `₹${summary.totalRevenue.toLocaleString()}`,
+      value: `₹${(summary.totalRevenue || 0).toLocaleString()}`,
       icon: DollarSign,
       color: "text-green-600",
       bg: "bg-green-50"
     },
     {
       title: "Total Orders",
-      value: summary.totalOrders.toLocaleString(),
+      value: (summary.totalOrders || 0).toLocaleString(),
       icon: ShoppingCart,
       color: "text-blue-600",
       bg: "bg-blue-50"
     },
     {
       title: "Total User",
-      value: summary.totalCustomers.toLocaleString(),
+      value: (summary.totalCustomers || 0).toLocaleString(),
       icon: Users,
       color: "text-purple-600",
       bg: "bg-purple-50"
     },
     {
       title: "Contractors",
-      value: summary.totalContractors.toLocaleString(),
+      value: (summary.totalContractors || 0).toLocaleString(),
       icon: Briefcase,
       color: "text-orange-600",
       bg: "bg-orange-50"
     },
     {
       title: "Professionals",
-      value: summary.totalProfessionals.toLocaleString(),
+      value: (summary.totalProfessionals || 0).toLocaleString(),
       icon: Users,
       color: "text-indigo-600",
       bg: "bg-indigo-50"
     },
     {
       title: "Total Plans",
-      value: summary.totalProducts.toLocaleString(),
+      value: (summary.totalProducts || 0).toLocaleString(),
       icon: BookOpen,
       color: "text-cyan-600",
       bg: "bg-cyan-50"
     },
     {
       title: "Project Uploaded",
-      value: summary.totalContractorProjects.toLocaleString(),
+      value: (summary.totalContractorProjects || 0).toLocaleString(),
       icon: Briefcase,
       color: "text-pink-600",
       bg: "bg-pink-50"
     },
     {
       title: "Seller Product",
-      value: summary.totalSellerProducts.toLocaleString(),
+      value: (summary.totalSellerProducts || 0).toLocaleString(),
       icon: ShoppingCart,
       color: "text-amber-600",
       bg: "bg-amber-50"
@@ -173,7 +173,7 @@ const AdminDashboardPage = () => {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      ₹{order.totalPrice.toLocaleString()}
+                      ₹{(order.totalPrice || 0).toLocaleString()}
                     </TableCell>
                   </TableRow>
                 ))
