@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/store";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -88,7 +88,6 @@ const getStatusClass = (status: string) => {
 
 const AllUsersPage = () => {
   const dispatch: AppDispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { users, pagination, listStatus, actionStatus, error } = useSelector(
     (state: RootState) => state.user
@@ -347,7 +346,7 @@ const AllUsersPage = () => {
       userData.profession = profession;
     }
 
-    if (role === "Contractor") {
+    if (role === "Contractor" || role?.toLowerCase()?.trim() === "seller") {
       userData.contractorType = contractorType;
       if (contractorType === "Premium" && premiumExpiresAt) {
         userData.premiumExpiresAt = new Date(premiumExpiresAt).toISOString();
@@ -599,7 +598,7 @@ const AllUsersPage = () => {
                       </td>
                       <td className="p-4 text-xs text-gray-500">
                         {user.role === "professional" && user.profession}
-                        {user.role === "Contractor" &&
+                        {(user.role === "Contractor" || user.role?.toLowerCase()?.trim() === "seller") &&
                           `(${user.contractorType || "Normal"})`}
                       </td>
                       <td className="p-4 text-center">
@@ -612,16 +611,6 @@ const AllUsersPage = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          {user.role === "Contractor" && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              title="Manage Project SEO"
-                              onClick={() => navigate(`/admin/users/contractors/${user._id}/seo`)}
-                            >
-                              <Search className="h-4 w-4 text-orange-600" />
-                            </Button>
-                          )}
                           <Button
                             variant="outline"
                             size="icon"
@@ -800,8 +789,8 @@ const AllUsersPage = () => {
                     <SelectContent>
                       {role === "Contractor" ? (
                         [
-                          "Labour Contractor",
-                          "Turnkey Contractor",
+                          "General Contractor",
+                          "Civil Contractor",
                           "Interior Contractor",
                           "Electrical Contractor",
                           "Plumbing Contractor",
@@ -822,7 +811,7 @@ const AllUsersPage = () => {
                 </div>
               )}
 
-              {role === "Contractor" && (
+              {(role === "Contractor" || role?.toLowerCase()?.trim() === "seller") && (
                 <div>
                   <Label>Service Category (Level)</Label>
                   <Select
@@ -842,7 +831,7 @@ const AllUsersPage = () => {
                 </div>
               )}
 
-              {role === "Contractor" && contractorType === "Premium" && (
+              {(role === "Contractor" || role?.toLowerCase()?.trim() === "seller") && contractorType === "Premium" && (
                 <div className="space-y-1">
                   <Label className="font-semibold text-orange-600">⏳ Premium Expiry Date</Label>
                   <input
@@ -852,7 +841,7 @@ const AllUsersPage = () => {
                     onChange={(e) => setPremiumExpiresAt(e.target.value)}
                     className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
-                  <p className="text-xs text-gray-500">After this date, contractor will automatically revert to Normal.</p>
+                  <p className="text-xs text-gray-500">After this date, user will automatically revert to Normal.</p>
                 </div>
               )}
 

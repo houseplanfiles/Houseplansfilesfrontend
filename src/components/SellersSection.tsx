@@ -43,9 +43,9 @@ import {
 
 // --- Inquiry Modal ---
 const InquiryModal = ({ product, onClose }) => {
-  const dispatch = useDispatch();
-  const { actionStatus, error } = useSelector((state) => state.sellerInquiries);
-  const { userInfo } = useSelector((state) => state.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const { actionStatus, error } = useSelector((state: RootState) => state.sellerInquiries);
+  const { userInfo } = useSelector((state: RootState) => state.user);
 
   const [formData, setFormData] = useState({
     name: userInfo?.name || "",
@@ -200,12 +200,61 @@ const ProductCard = ({ product, onInquiryClick, isMobile = false }) => (
   </div>
 );
 
+// --- Shop Card ---
+const ShopCard = ({ seller, productCount, products, isMobile = false }) => {
+  const navigate = useNavigate();
+  const displayImage = products[0]?.image || "https://via.placeholder.com/400x300";
+
+  return (
+    <div
+      onClick={() => navigate(`/seller-shop/${seller._id}`)}
+      className={`group bg-white rounded-xl flex flex-col transition-all duration-300 border border-gray-100 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 cursor-pointer overflow-hidden
+      ${isMobile ? "w-full p-2 shadow-sm" : "w-80 flex-shrink-0 snap-start p-4 shadow-md"}`}
+    >
+      <div className={`relative overflow-hidden rounded-lg bg-gray-100 ${isMobile ? "h-32" : "h-48"}`}>
+        <img
+          src={displayImage}
+          alt={seller.businessName}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+        
+        {/* City Badge */}
+        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-gray-700 flex items-center gap-1 shadow-sm z-10">
+          <MapPin size={10} className="text-orange-500" /> {products[0]?.city || "India"}
+        </div>
+
+        {/* Product Count Badge */}
+        <div className="absolute bottom-2 left-2 bg-orange-600 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold shadow-lg z-10 flex items-center gap-1.5">
+          <Package size={12} className="sm:w-[14px] sm:h-[14px]" /> {productCount} Items
+        </div>
+      </div>
+
+      <div className={`flex flex-col flex-grow ${isMobile ? "pt-2" : "pt-3"}`}>
+        <h3 className={`font-extrabold text-gray-900 leading-tight mb-1 uppercase group-hover:text-orange-600 transition-colors ${isMobile ? "text-xs truncate" : "text-lg truncate"}`}>
+          {seller.businessName || "Verified Shop"}
+        </h3>
+        
+        <p className={`text-gray-500 mb-2 sm:mb-4 line-clamp-1 ${isMobile ? "text-[10px]" : "text-xs"}`}>
+          Explore collection of {products[0]?.category} and more.
+        </p>
+
+        <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-50">
+          <Button className={`w-full bg-gray-900 hover:bg-orange-600 text-white rounded-lg font-bold ${isMobile ? "h-8 text-xs" : "h-10 sm:h-11 text-sm"}`}>
+            Visit Store <Store size={14} className="ml-1 sm:ml-2 sm:w-4 sm:h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- MAIN COMPONENT: SellersSection ---
 const SellersSection = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { products, status, error } = useSelector(
-    (state) => state.sellerProducts
+    (state: RootState) => state.sellerProducts
   );
   const scrollContainerRef = useRef(null);
 
@@ -242,7 +291,7 @@ const SellersSection = () => {
     [products]
   );
 
-  const filteredProducts = useMemo(() => {
+  const displayItems = useMemo(() => {
     let items = products;
     if (selectedCategory !== "All")
       items = items.filter((p) => p.category === selectedCategory);
@@ -256,14 +305,42 @@ const SellersSection = () => {
           p.seller?.businessName?.toLowerCase().includes(lower)
       );
     }
-    return items;
+
+    const itemsList: any[] = [];
+    const premiumShopsMap = new Map();
+
+    items.forEach((p) => {
+      if (!p.seller) return;
+      const isPremium = p.seller.contractorType === "Premium" || p.seller.role === "Premium";
+      
+      if (isPremium) {
+        const sellerId = p.seller._id;
+        if (!premiumShopsMap.has(sellerId)) {
+          premiumShopsMap.set(sellerId, {
+            type: 'shop',
+            seller: p.seller,
+            products: [],
+            id: 'shop_' + sellerId
+          });
+        }
+        premiumShopsMap.get(sellerId).products.push(p);
+      } else {
+        itemsList.push({
+          type: 'product',
+          product: p,
+          id: 'prod_' + p._id
+        });
+      }
+    });
+
+    return [...Array.from(premiumShopsMap.values()), ...itemsList];
   }, [products, searchTerm, selectedCategory, selectedCity]);
 
   // Mobile Pagination Logic
   const totalMobilePages = Math.ceil(
-    filteredProducts.length / mobileItemsPerPage
+    displayItems.length / mobileItemsPerPage
   );
-  const currentMobileItems = filteredProducts.slice(
+  const currentMobileItems = displayItems.slice(
     (mobilePage - 1) * mobileItemsPerPage,
     mobilePage * mobileItemsPerPage
   );
@@ -402,7 +479,7 @@ const SellersSection = () => {
 
           {status === "succeeded" && (
             <>
-              {filteredProducts.length === 0 ? (
+              {displayItems.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-xl border border-dashed">
                   <Package className="mx-auto h-12 w-12 text-gray-300 mb-2" />
                   <p className="text-gray-500">No products found.</p>
@@ -425,13 +502,23 @@ const SellersSection = () => {
                       style={{ scrollbarWidth: "none" }}
                     >
                       <div className="flex gap-6">
-                        {filteredProducts.map((product) => (
-                          <ProductCard
-                            key={product._id}
-                            product={product}
-                            onInquiryClick={handleOpenInquiryModal}
-                            isMobile={false}
-                          />
+                        {displayItems.map((item) => (
+                          item.type === 'shop' ? (
+                            <ShopCard
+                              key={item.id}
+                              seller={item.seller}
+                              productCount={item.products.length}
+                              products={item.products}
+                              isMobile={false}
+                            />
+                          ) : (
+                            <ProductCard
+                              key={item.id}
+                              product={item.product}
+                              onInquiryClick={handleOpenInquiryModal}
+                              isMobile={false}
+                            />
+                          )
                         ))}
                       </div>
                     </div>
@@ -449,18 +536,27 @@ const SellersSection = () => {
                   <div className="md:hidden">
                     <div className="grid grid-cols-2 gap-3">
                       <AnimatePresence mode="wait">
-                        {currentMobileItems.map((product) => (
+                        {currentMobileItems.map((item) => (
                           <motion.div
-                            key={product._id}
+                            key={item.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                           >
-                            <ProductCard
-                              product={product}
-                              onInquiryClick={handleOpenInquiryModal}
-                              isMobile={true}
-                            />
+                            {item.type === 'shop' ? (
+                              <ShopCard
+                                seller={item.seller}
+                                productCount={item.products.length}
+                                products={item.products}
+                                isMobile={true}
+                              />
+                            ) : (
+                              <ProductCard
+                                product={item.product}
+                                onInquiryClick={handleOpenInquiryModal}
+                                isMobile={true}
+                              />
+                            )}
                           </motion.div>
                         ))}
                       </AnimatePresence>

@@ -6,9 +6,7 @@ import {
   AnyAction,
 } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
-
 const getToken = (state: RootState) => state.user.userInfo?.token;
-
 const userInfoFromStorage = (() => {
   const stored = localStorage.getItem("userInfo");
   if (!stored) return null;
@@ -22,7 +20,6 @@ const userInfoFromStorage = (() => {
     return null;
   }
 })();
-
 interface UserInfo {
   _id: string;
   name?: string;
@@ -42,7 +39,6 @@ interface UserInfo {
   contractorType?: "Normal" | "Verified" | "Premium";
   [key: string]: any;
 }
-
 interface UserState {
   userInfo: UserInfo | null;
   users: UserInfo[];
@@ -58,7 +54,6 @@ interface UserState {
   actionStatus: "idle" | "loading" | "succeeded" | "failed";
   error: any;
 }
-
 const initialState: UserState = {
   userInfo: userInfoFromStorage,
   users: [],
@@ -74,19 +69,17 @@ const initialState: UserState = {
   actionStatus: "idle",
   error: null,
 };
-
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/users`;
-
 export const fetchSellers = createAsyncThunk(
   "user/fetchSellers",
   async (params: { page?: number; limit?: number; search?: string; city?: string } | undefined, { rejectWithValue }) => {
     try {
-      const config = { 
-        params: { 
-          ...(params || {}), 
-          role: "seller", 
-          limit: params?.limit || 12 
-        } 
+      const config = {
+        params: {
+          ...(params || {}),
+          role: "seller",
+          limit: params?.limit || 12
+        }
       };
       const { data } = await axios.get(API_URL, config);
       return data;
@@ -97,17 +90,16 @@ export const fetchSellers = createAsyncThunk(
     }
   }
 );
-
 export const fetchContractors = createAsyncThunk(
   "user/fetchContractors",
   async (params: { page?: number; limit?: number; search?: string; city?: string; status?: string } | undefined, { rejectWithValue }) => {
     try {
-      const config = { 
-        params: { 
-          ...(params || {}), 
-          role: "Contractor", 
-          limit: params?.limit || 12 
-        } 
+      const config = {
+        params: {
+          ...(params || {}),
+          role: "Contractor",
+          limit: params?.limit || 12
+        }
       };
       const { data } = await axios.get(API_URL, config);
       return data;
@@ -118,7 +110,6 @@ export const fetchContractors = createAsyncThunk(
     }
   }
 );
-
 export const registerUser = createAsyncThunk<UserInfo, FormData>(
   "user/register",
   async (userData, { rejectWithValue }) => {
@@ -137,7 +128,6 @@ export const registerUser = createAsyncThunk<UserInfo, FormData>(
     }
   }
 );
-
 export const fetchCurrentUser = createAsyncThunk<UserInfo, void, { state: RootState }>(
   "user/fetchCurrentUser",
   async (_, { getState, rejectWithValue }) => {
@@ -155,7 +145,6 @@ export const fetchCurrentUser = createAsyncThunk<UserInfo, void, { state: RootSt
     }
   }
 );
-
 export const loginUser = createAsyncThunk<
   UserInfo,
   { email: string; password: string }
@@ -196,7 +185,6 @@ export const updateProfile = createAsyncThunk<
     );
   }
 });
-
 export const fetchUsers = createAsyncThunk<
   { users: UserInfo[]; pagination: any },
   Record<string, any>,
@@ -214,7 +202,6 @@ export const fetchUsers = createAsyncThunk<
     );
   }
 });
-
 export const updateUserByAdmin = createAsyncThunk<
   UserInfo,
   { userId: string; userData: any },
@@ -241,7 +228,6 @@ export const updateUserByAdmin = createAsyncThunk<
     );
   }
 });
-
 export const createUserByAdmin = createAsyncThunk<
   UserInfo,
   any,
@@ -268,7 +254,6 @@ export const createUserByAdmin = createAsyncThunk<
     );
   }
 });
-
 export const deleteUserByAdmin = createAsyncThunk<
   string,
   string,
@@ -286,7 +271,6 @@ export const deleteUserByAdmin = createAsyncThunk<
     );
   }
 });
-
 export const getUserStats = createAsyncThunk<any, void, { state: RootState }>(
   "user/getStats",
   async (_, { getState, rejectWithValue }) => {
@@ -303,7 +287,6 @@ export const getUserStats = createAsyncThunk<any, void, { state: RootState }>(
     }
   }
 );
-
 export const forgotPassword = createAsyncThunk<
   { message: string },
   { email: string }
@@ -322,7 +305,6 @@ export const forgotPassword = createAsyncThunk<
     );
   }
 });
-
 export const resetPassword = createAsyncThunk<
   { message: string },
   { token: string; password: string }
@@ -372,7 +354,6 @@ const userSlice = createSlice({
       state.actionStatus = "failed";
       state.error = action.payload;
     };
-
     builder
       .addCase(registerUser.pending, actionPending)
       .addCase(registerUser.fulfilled, (state, action) => {
@@ -504,6 +485,5 @@ const userSlice = createSlice({
       });
   },
 });
-
 export const { logout, resetActionStatus } = userSlice.actions;
 export default userSlice.reducer;

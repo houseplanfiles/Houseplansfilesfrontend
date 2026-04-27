@@ -88,6 +88,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   }, [user, reset, isOpen]);
 
   const onSubmit = async (data: any) => {
+    console.log("Submitting form with role:", role);
     const userData: any = { ...data, role, status };
 
     if (status === "Approved") {
@@ -100,8 +101,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       userData.profession = profession;
     }
 
-    // Yeh important hai: Jab role 'Contractor' ho, tabhi type ko data mein bhejo
-    if (role === "Contractor") {
+    // Send contractorType for both Contractor and seller roles
+    if (role === "Contractor" || role?.toLowerCase()?.trim() === "seller") {
       userData.contractorType = contractorType;
     }
 
@@ -122,7 +123,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   };
 
   const needsApproval =
-    role === "professional" || role === "seller" || role === "Contractor";
+    role === "professional" || role?.toLowerCase()?.trim() === "seller" || role === "Contractor";
 
   const isLoading = actionStatus === "loading";
 
@@ -208,22 +209,21 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             </div>
           )}
 
-          {/* ========================================================== */}
-          {/* ===> YEH WALA SECTION AAPKE CODE MEIN MISSING HAI <=== */}
-          {/* ========================================================== */}
-          {role === "Contractor" && (
+          {/* ===> Account Type (For Contractor & Seller) <=== */}
+          {(role === "Contractor" || role?.toLowerCase()?.trim() === "seller") && (
             <div>
-              <Label>Contractor Type</Label>
+              <Label>Account Type</Label>
               <Select
                 value={contractorType}
                 onValueChange={setContractorType}
                 disabled={isLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select contractor type" />
+                  <SelectValue placeholder="Select account type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Normal">Normal</SelectItem>
+                  <SelectItem value="Verified">Verified</SelectItem>
                   <SelectItem value="Premium">Premium</SelectItem>
                 </SelectContent>
               </Select>

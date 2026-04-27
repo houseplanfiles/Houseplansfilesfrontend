@@ -202,7 +202,65 @@ const InquiryModal = ({ product, onClose }: { product: any; onClose: () => void 
   );
 };
 
-// --- 3. SHOP CARD (Main Grid Item) ---
+// --- 3. PRODUCT CARD (Optimized for Mobile 2-Cols) ---
+const ProductCard = ({ product, onInquiryClick, onImageClick }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.3 }}
+    className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden h-full"
+  >
+    <div
+      className="relative h-36 sm:h-64 overflow-hidden bg-gray-100 cursor-zoom-in"
+      onClick={() => onImageClick(product.image)}
+    >
+      <img
+        src={product.image || "https://via.placeholder.com/400x300"}
+        alt={product.name}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
+      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold text-gray-700 flex items-center gap-1 shadow-sm z-10">
+        <MapPin size={10} className="sm:w-3 sm:h-3 text-orange-500" />
+        <span className="truncate max-w-[60px] sm:max-w-none">
+          {product.city}
+        </span>
+      </div>
+      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-orange-600 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md text-[8px] sm:text-[10px] font-bold uppercase tracking-wider shadow-sm z-10">
+        {product.category}
+      </div>
+    </div>
+    <div className="p-3 sm:p-5 flex flex-col flex-grow">
+      <div className="mb-2">
+        <h3 className="text-sm sm:text-lg font-bold text-gray-900 leading-tight line-clamp-2 sm:line-clamp-1 group-hover:text-orange-600 transition-colors">
+          {product.name}
+        </h3>
+        <p className="text-[10px] sm:text-xs text-gray-400 mt-1 truncate">
+          By: <span className="font-medium text-gray-600">{product.seller?.businessName || "Verified Seller"}</span>
+        </p>
+      </div>
+      <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+        <div className="flex flex-col">
+          <span className="hidden sm:block text-xs text-gray-400">Price</span>
+          <span className="text-sm sm:text-xl font-extrabold text-gray-900">
+            ₹{product.price.toLocaleString()}
+          </span>
+        </div>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onInquiryClick(product);
+          }}
+          className="w-full sm:w-auto h-8 sm:h-10 text-xs sm:text-sm bg-gray-900 hover:bg-orange-600 text-white rounded-lg px-3 sm:px-5 transition-colors"
+        >
+          Inquiry
+        </Button>
+      </div>
+    </div>
+  </motion.div>
+);
+
+// --- 4. SHOP CARD (Main Grid Item) ---
 const ShopCard = ({ seller, productCount, products }: { seller: any; productCount: number; products: any[] }) => {
   const navigate = useNavigate();
   // We use the image of the first product as the shop's representative image
@@ -270,6 +328,16 @@ const MarketplacePage: FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("all-cities");
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [fullScreenImage, setFullScreenImage] = useState(null);
+  
+  const handleOpenInquiry = (product: any) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
   useEffect(() => {
     dispatch(fetchPublicSellerProducts({ limit: 500 }));
   }, [dispatch]);
@@ -290,8 +358,8 @@ const MarketplacePage: FC = () => {
     [products]
   );
 
-  // Grouped Shops Logic
-  const filteredShops = useMemo(() => {
+  // Display Items Logic
+  const displayItems = useMemo(() => {
     // 1. First filter products by search/category/city
     let filteredItems = products;
     if (selectedCategory !== "All")
@@ -307,21 +375,36 @@ const MarketplacePage: FC = () => {
       );
     }
 
-    // 2. Group these filtered products by Seller
-    const shopsMap = new Map();
+    // 2. Separate into Shop vs Product based on Premium status
+    const itemsList: any[] = [];
+    const premiumShopsMap = new Map();
+
     filteredItems.forEach((p) => {
       if (!p.seller) return;
-      const sellerId = p.seller._id;
-      if (!shopsMap.has(sellerId)) {
-        shopsMap.set(sellerId, {
-          seller: p.seller,
-          products: [],
+      
+      const isPremium = p.seller.contractorType === "Premium" || p.seller.role === "Premium";
+      
+      if (isPremium) {
+        const sellerId = p.seller._id;
+        if (!premiumShopsMap.has(sellerId)) {
+          premiumShopsMap.set(sellerId, {
+            type: 'shop',
+            seller: p.seller,
+            products: [],
+            id: 'shop_' + sellerId
+          });
+        }
+        premiumShopsMap.get(sellerId).products.push(p);
+      } else {
+        itemsList.push({
+          type: 'product',
+          product: p,
+          id: 'prod_' + p._id
         });
       }
-      shopsMap.get(sellerId).products.push(p);
     });
 
-    return Array.from(shopsMap.values());
+    return [...Array.from(premiumShopsMap.values()), ...itemsList];
   }, [products, searchTerm, selectedCategory, selectedCity]);
 
   return (
@@ -428,27 +511,36 @@ const MarketplacePage: FC = () => {
         ) : (
           <>
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Available Stores</h2>
-              <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">{filteredShops.length} SHOPS</span>
+              <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Marketplace Results</h2>
+              <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">{displayItems.length} ITEMS</span>
             </div>
 
-            {filteredShops.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {displayItems.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 <AnimatePresence mode="popLayout">
-                  {filteredShops.map((shop) => (
-                    <ShopCard
-                      key={shop.seller._id}
-                      seller={shop.seller}
-                      productCount={shop.products.length}
-                      products={shop.products}
-                    />
+                  {displayItems.map((item) => (
+                    item.type === 'shop' ? (
+                      <ShopCard
+                        key={item.id}
+                        seller={item.seller}
+                        productCount={item.products.length}
+                        products={item.products}
+                      />
+                    ) : (
+                      <ProductCard
+                        key={item.id}
+                        product={item.product}
+                        onInquiryClick={handleOpenInquiry}
+                        onImageClick={setFullScreenImage}
+                      />
+                    )
                   ))}
                 </AnimatePresence>
               </div>
             ) : (
               <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-gray-100">
                 <Store className="h-20 w-20 text-gray-200 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-900">No stores found</h3>
+                <h3 className="text-2xl font-bold text-gray-900">No items found</h3>
                 <p className="text-gray-500 mt-2">Try adjusting your filters to find sellers in your area.</p>
                 <Button 
                   onClick={() => {setSearchTerm(""); setSelectedCategory("All"); setSelectedCity("all-cities");}}
@@ -462,6 +554,22 @@ const MarketplacePage: FC = () => {
           </>
         )}
       </main>
+
+      {/* --- Modals Overlay --- */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <InquiryModal
+            product={selectedProduct}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
+        {fullScreenImage && (
+          <ImageViewModal
+            imageUrl={fullScreenImage}
+            onClose={() => setFullScreenImage(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
