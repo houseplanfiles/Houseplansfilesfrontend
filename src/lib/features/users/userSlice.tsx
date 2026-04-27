@@ -79,9 +79,16 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/users`;
 
 export const fetchSellers = createAsyncThunk(
   "user/fetchSellers",
-  async (params: { page?: number; limit?: number } = { page: 1, limit: 12 }, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number; search?: string; city?: string } | undefined, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}?role=seller`, { params });
+      const config = { 
+        params: { 
+          ...(params || {}), 
+          role: "seller", 
+          limit: params?.limit || 12 
+        } 
+      };
+      const { data } = await axios.get(API_URL, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(
@@ -93,9 +100,16 @@ export const fetchSellers = createAsyncThunk(
 
 export const fetchContractors = createAsyncThunk(
   "user/fetchContractors",
-  async (params: { page?: number; limit?: number } = { page: 1, limit: 12 }, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number; search?: string; city?: string; status?: string } | undefined, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}?role=Contractor`, { params });
+      const config = { 
+        params: { 
+          ...(params || {}), 
+          role: "Contractor", 
+          limit: params?.limit || 12 
+        } 
+      };
+      const { data } = await axios.get(API_URL, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(

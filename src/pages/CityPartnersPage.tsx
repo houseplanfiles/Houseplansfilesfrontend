@@ -42,6 +42,7 @@ import {
   UserPlus,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
 
 // --- Types ---
@@ -221,7 +222,20 @@ const PartnersPage: FC = () => {
   const [cityFilter, setCityFilter] = useState("");
   const [professionFilter, setProfessionFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [revealedPhoneIds, setRevealedPhoneIds] = useState<Set<string>>(new Set());
   const itemsPerPage = 8;
+  
+  const togglePhoneReveal = (id: string) => {
+    setRevealedPhoneIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     dispatch(fetchContractors({ page: 1, limit: 500 }));
@@ -399,7 +413,13 @@ const PartnersPage: FC = () => {
             {paginatedContractors.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {paginatedContractors.map((contractor, index) => (
+                {paginatedContractors.map((contractor, index) => {
+                  const type = contractor.contractorType || "Normal";
+                  const phoneStr = contractor.phone ? contractor.phone.replace(/\D/g, '') : '';
+                  const waLink = `https://wa.me/${phoneStr}?text=${encodeURIComponent(`Hi ${contractor.name}, I found your profile on HousePlansFiles and would like to discuss a project.`)}`;
+                  const callLink = `tel:${phoneStr}`;
+
+                  return (
                   <motion.div
                     key={contractor._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -483,7 +503,7 @@ const PartnersPage: FC = () => {
 
                       {/* Action Button */}
                       <div className="pt-5 mt-auto flex flex-col gap-2">
-                        {contractor.contractorType === "Premium" && (
+                        {type === "Premium" && (
                           <Button
                             onClick={() =>
                               navigate(`/contractors/${contractor._id}`)
@@ -494,27 +514,54 @@ const PartnersPage: FC = () => {
                             View Profile
                           </Button>
                         )}
-                        <Button
-                          onClick={() => handleContactClick(contractor)}
-                          className={`w-full ${
-                            contractor.contractorType === "Normal"
-                              ? "bg-gray-800 hover:bg-gray-900"
-                              : "bg-orange-600 hover:bg-orange-700"
-                          } text-white transition-colors h-11 shadow-sm`}
-                        >
-                          {contractor.contractorType === "Normal" ? (
-                            <>Enquiry Now</>
-                          ) : (
-                            <>
-                              <Phone className="w-4 h-4 mr-2" />
-                              Contact Now
-                            </>
-                          )}
-                        </Button>
+
+                        {type === "Premium" && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button 
+                              onClick={() => window.open(waLink, "_blank")}
+                              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white transition-colors h-11 px-0"
+                            >
+                              <MessageCircle className="w-4 h-4 mr-1.5" />
+                              WhatsApp
+                            </Button>
+                            <Button 
+                              onClick={() => {
+                                if (revealedPhoneIds.has(contractor._id)) {
+                                  window.location.href = callLink;
+                                } else {
+                                  togglePhoneReveal(contractor._id);
+                                }
+                              }}
+                              className={`w-full ${revealedPhoneIds.has(contractor._id) ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'} text-white transition-colors h-11 px-0`}
+                            >
+                              <Phone className="w-4 h-4 mr-1.5" />
+                              {revealedPhoneIds.has(contractor._id) ? contractor.phone : "Call Now"}
+                            </Button>
+                          </div>
+                        )}
+
+                        {type === "Verified" && (
+                          <Button 
+                            onClick={() => window.open(waLink, "_blank")}
+                            className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white transition-colors h-11"
+                          >
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            WhatsApp Enquiry
+                          </Button>
+                        )}
+
+                        {type === "Normal" && (
+                          <Button 
+                            onClick={() => handleContactClick(contractor)} 
+                            className="w-full bg-gray-800 hover:bg-gray-900 text-white transition-colors h-11 shadow-sm"
+                          >
+                            Enquiry Now
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                )})}
               </div>
 
               {/* Pagination Controls */}

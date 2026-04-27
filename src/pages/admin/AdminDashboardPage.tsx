@@ -1,5 +1,4 @@
 // src/pages/admin/AdminDashboardPage.jsx
-
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,7 +40,6 @@ const AdminDashboardPage = () => {
       </div>
     );
   }
-
   const summaryCards = [
     {
       title: "Total Revenue",

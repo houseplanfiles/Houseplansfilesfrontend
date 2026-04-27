@@ -38,7 +38,8 @@ import {
   Search,
   Filter,
   HardHat,
-  Paintbrush
+  Paintbrush,
+  MessageCircle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -87,10 +88,10 @@ const ContactModal: FC<{
       recipientInfo: {
         name: user.name || "Partner",
         role: "City Partner",
-        phone: user.phone,
-        city: user.city,
-        address: user.address,
-        detail: `${user.profession} - ${user.experience}`,
+        phone: user.phone || "",
+        city: user.city || "",
+        address: user.address || "",
+        detail: `${user.profession || "Contractor"} - ${user.experience || "Experienced"}`,
       },
       senderName: formData.get("name") as string,
       senderEmail: formData.get("email") as string,
@@ -104,7 +105,7 @@ const ContactModal: FC<{
         dispatch(resetActionStatus());
         onClose();
       } else {
-        toast.error(String(result.payload) || "An error occurred.");
+        toast.error(typeof result.payload === 'string' ? result.payload : "An error occurred.");
         dispatch(resetActionStatus());
       }
     });
@@ -174,7 +175,14 @@ const PartnerCard: FC<{
   partner: CityPartnerType;
   onContact: (p: CityPartnerType) => void;
   index: number;
-}> = ({ partner, onContact, index }) => (
+  navigate: ReturnType<typeof useNavigate>;
+}> = ({ partner, onContact, index, navigate }) => {
+  const type = partner.contractorType || "Normal";
+  const phoneStr = partner.phone ? partner.phone.replace(/\D/g, '') : '';
+  const waLink = `https://wa.me/${phoneStr}?text=${encodeURIComponent(`Hi ${partner.name}, I found your profile on HousePlansFiles and would like to discuss a project.`)}`;
+  const callLink = `tel:${phoneStr}`;
+
+  return (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -235,30 +243,57 @@ const PartnerCard: FC<{
       </div>
 
       <div className="pt-5 mt-auto flex flex-col gap-2">
-        {partner.contractorType === "Premium" && (
+        {type === "Premium" && (
           <Button 
-            onClick={() => window.location.href = `/contractors/${partner._id}`}
+            onClick={() => navigate(`/contractors/${partner._id}`)}
             variant="outline" 
             className="w-full border-orange-600 text-orange-600 hover:bg-orange-50 h-11"
           >
             View Profile
           </Button>
         )}
-        <Button 
-          onClick={() => onContact(partner)} 
-          className={`w-full ${partner.contractorType === "Normal" ? "bg-gray-800" : "bg-orange-600"} hover:opacity-90 text-white transition-colors h-11`}
-        >
-          {partner.contractorType === "Normal" ? "Enquiry Now" : (
-            <>
-              <Phone className="w-4 h-4 mr-2" />
-              Contact Now
-            </>
-          )}
-        </Button>
+
+        {type === "Premium" && (
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              onClick={() => window.open(waLink, "_blank")}
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white transition-colors h-11 px-0"
+            >
+              <MessageCircle className="w-4 h-4 mr-1.5" />
+              WhatsApp
+            </Button>
+            <Button 
+              onClick={() => window.location.href = callLink}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors h-11 px-0"
+            >
+              <Phone className="w-4 h-4 mr-1.5" />
+              Call Now
+            </Button>
+          </div>
+        )}
+
+        {type === "Verified" && (
+          <Button 
+            onClick={() => window.open(waLink, "_blank")}
+            className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white transition-colors h-11"
+          >
+            <MessageCircle className="w-4 h-4 mr-2" />
+            WhatsApp Enquiry
+          </Button>
+        )}
+
+        {type === "Normal" && (
+          <Button 
+            onClick={() => onContact(partner)} 
+            className="w-full bg-gray-800 hover:opacity-90 text-white transition-colors h-11"
+          >
+            Enquiry Now
+          </Button>
+        )}
       </div>
     </div>
   </motion.div>
-);
+)};
 
 // --- MAIN COMPONENT: ConstructionPartnersSection ---
 const ConstructionPartnersSection: FC = () => {
@@ -275,8 +310,16 @@ const ConstructionPartnersSection: FC = () => {
   const [professionFilter, setProfessionFilter] = useState("All");
 
   useEffect(() => {
-    dispatch(fetchContractors());
-  }, [dispatch]);
+    const timer = setTimeout(() => {
+      dispatch(fetchContractors({ 
+        city: cityFilter, 
+        status: "Approved",
+        limit: 24 // Fetch a reasonable amount for the section
+      }));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, cityFilter]);
 
   const filteredPartners = useMemo(() => {
     if (!Array.isArray(contractors)) return [];
@@ -415,7 +458,7 @@ const ConstructionPartnersSection: FC = () => {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {filteredPartners.slice(0, 8).map((partner, index) => (
-                      <PartnerCard key={partner._id} partner={partner} onContact={handleContactClick} index={index} />
+                      <PartnerCard key={partner._id} partner={partner} onContact={handleContactClick} index={index} navigate={navigate} />
                     ))}
                   </div>
                 )}
