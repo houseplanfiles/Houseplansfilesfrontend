@@ -35,6 +35,7 @@ interface IFormData {
   countInStock: number;
   category: string;
   brand: string;
+  unit: string;
 }
 
 interface EditProductModalProps {
@@ -67,6 +68,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       countInStock: product?.countInStock,
       category: product?.category._id,
       brand: product?.brand._id,
+      unit: product?.unit,
     },
   });
   const [newImage, setNewImage] = useState<File | null>(null);
@@ -82,6 +84,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
         countInStock: product.countInStock,
         category: product.category._id,
         brand: product.brand._id,
+        unit: product.unit,
       });
       setNewImage(null);
     }
@@ -179,6 +182,23 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                 valueAsNumber: true,
               })}
             />
+          </div>
+          <div>
+            <Label htmlFor="unit">Unit (kg, nos, per sqft, etc.)</Label>
+            <Input
+              id="unit"
+              list="units-list-edit"
+              {...register("unit", { required: true })}
+            />
+            <datalist id="units-list-edit">
+              <option value="nos" />
+              <option value="kg" />
+              <option value="per sqft" />
+              <option value="per cm" />
+              <option value="bag" />
+              <option value="ton" />
+              <option value="mtr" />
+            </datalist>
           </div>
           <div>
             <Label htmlFor="newImage">Change Main Image (Optional)</Label>

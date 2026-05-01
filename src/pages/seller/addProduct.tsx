@@ -38,7 +38,8 @@ interface IFormData {
   countInStock: number;
   category: string;
   brand: string;
-  city: string; // <<< City yahan add ki gayi hai
+  city: string;
+  unit: string; // Add unit field
 }
 
 const AddSellerProductPage = () => {
@@ -305,6 +306,29 @@ const AddSellerProductPage = () => {
                   {errors.countInStock && (
                     <p className="text-xs text-red-500">
                       {errors.countInStock.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="unit">Unit (e.g., kg, nos, per sqft)</Label>
+                  <Input
+                    id="unit"
+                    list="units-list"
+                    {...register("unit", { required: "Unit is required" })}
+                    placeholder="e.g., nos"
+                  />
+                  <datalist id="units-list">
+                    <option value="nos" />
+                    <option value="kg" />
+                    <option value="per sqft" />
+                    <option value="per cm" />
+                    <option value="bag" />
+                    <option value="ton" />
+                    <option value="mtr" />
+                  </datalist>
+                  {errors.unit && (
+                    <p className="text-xs text-red-500">
+                      {errors.unit.message}
                     </p>
                   )}
                 </div>

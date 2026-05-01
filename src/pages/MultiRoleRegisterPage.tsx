@@ -91,6 +91,9 @@ const MultiRoleRegisterPage = () => {
     bankName: "", // <--- ADDED: Bank Name
     ifscCode: "",
     upiId: "",
+    gstNumber: "",
+    natureOfBusiness: "",
+    businessAddress: "",
     // Files
     photo: null,
     businessCertification: null,
@@ -470,6 +473,35 @@ const MultiRoleRegisterPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label>GST Number (Optional)</Label>
+              <Input
+                id="gstNumber"
+                value={formData.gstNumber}
+                onChange={handleChange}
+                placeholder="Enter GSTIN"
+              />
+            </div>
+            <div>
+              <Label>Nature of Business (B2B, Manufacturer, Wholesale, etc.)*</Label>
+              <Input
+                id="natureOfBusiness"
+                required
+                value={formData.natureOfBusiness}
+                onChange={handleChange}
+                placeholder="e.g. B2B, Manufacturer, Supplier"
+              />
+            </div>
+            <div>
+              <Label>Business Address*</Label>
+              <Textarea
+                id="businessAddress"
+                required
+                value={formData.businessAddress}
+                onChange={handleChange}
+                placeholder="Enter detailed business address"
+              />
             </div>
             <div>
               <Label htmlFor="photo">Profile/Store Image (Optional)</Label>

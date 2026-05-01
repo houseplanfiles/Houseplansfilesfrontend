@@ -33,6 +33,9 @@ const SellerProfilePage = () => {
     address: "",
     city: "",
     materialType: "",
+    gstNumber: "",
+    natureOfBusiness: "",
+    businessAddress: "",
   });
   const [passwordData, setPasswordData] = useState({
     newPassword: "",
@@ -53,6 +56,9 @@ const SellerProfilePage = () => {
         address: userInfo.address || "",
         city: userInfo.city || "",
         materialType: userInfo.materialType || "",
+        gstNumber: userInfo.gstNumber || "",
+        natureOfBusiness: Array.isArray(userInfo.natureOfBusiness) ? userInfo.natureOfBusiness.join(", ") : "",
+        businessAddress: userInfo.businessAddress || "",
       });
       setPhotoPreview(userInfo.photoUrl || null);
     }
@@ -210,6 +216,33 @@ const SellerProfilePage = () => {
                   id="city"
                   value={formData.city}
                   onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gstNumber">GST Number</Label>
+                <Input
+                  id="gstNumber"
+                  value={formData.gstNumber}
+                  onChange={handleChange}
+                  placeholder="Enter GSTIN"
+                />
+              </div>
+              <div>
+                <Label htmlFor="natureOfBusiness">Nature of Business (Comma separated)</Label>
+                <Input
+                  id="natureOfBusiness"
+                  value={formData.natureOfBusiness}
+                  onChange={handleChange}
+                  placeholder="e.g. B2B, Manufacturer, Wholesale"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="businessAddress">Business Address</Label>
+                <Textarea
+                  id="businessAddress"
+                  value={formData.businessAddress}
+                  onChange={handleChange}
+                  placeholder="Enter detailed business address"
                 />
               </div>
             </div>

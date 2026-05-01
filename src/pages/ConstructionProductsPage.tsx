@@ -193,10 +193,12 @@ const ProductCard = ({ product, onInquiryClick }) => (
             </p>
           </div>
         </div>
-        <div className="flex items-baseline gap-2 mt-3">
           <span className="text-2xl font-extrabold text-gray-800">
             ₹{product.price.toLocaleString()}
           </span>
+          {product.unit && (
+            <span className="text-sm text-gray-500 font-medium ml-1">/ {product.unit}</span>
+          )}
         </div>
         {product.seller?.contractorType === "Premium" ? (
           <div className="grid grid-cols-2 gap-2 mt-3">

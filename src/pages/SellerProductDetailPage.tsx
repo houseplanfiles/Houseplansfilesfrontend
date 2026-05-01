@@ -290,7 +290,10 @@ const SellerProductDetailPage: FC = () => {
                 </h1>
                 
                 <div className="flex items-baseline gap-4 mb-8">
-                  <span className="text-4xl font-extrabold text-orange-600">₹{product.price.toLocaleString()}</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-extrabold text-orange-600">₹{product.price.toLocaleString()}</span>
+                    {product.unit && <span className="text-lg text-gray-500 font-medium">/ {product.unit}</span>}
+                  </div>
                   {product.salePrice > 0 && product.salePrice < product.price && (
                     <span className="text-xl text-gray-400 line-through">₹{product.salePrice.toLocaleString()}</span>
                   )}
@@ -373,12 +376,20 @@ const SellerProductDetailPage: FC = () => {
               <div>
                 <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Sold By</p>
                 <h4 className="text-xl font-bold text-gray-900">{product.seller.businessName}</h4>
+                {product.seller.natureOfBusiness && product.seller.natureOfBusiness.length > 0 && (
+                  <p className="text-xs font-semibold text-orange-600 mt-1">
+                    {product.seller.natureOfBusiness.join(" • ")}
+                  </p>
+                )}
+                {product.seller.gstNumber && (
+                  <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase">GST: {product.seller.gstNumber}</p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-8">
                <div className="text-center md:text-left">
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Location</p>
-                  <p className="text-sm font-bold text-gray-700">{product.seller.city || "India"}</p>
+                  <p className="text-sm font-bold text-gray-700">{product.seller.businessAddress || product.seller.address || product.seller.city || "India"}</p>
                </div>
                <Link 
                 to={`/seller-shop/${product.seller._id}`}

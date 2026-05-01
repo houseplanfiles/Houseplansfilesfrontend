@@ -126,7 +126,7 @@ const CartModal = ({ items, seller, onClose, onRemove }: { items: any[]; seller:
     
     let message = `Hi ${seller.businessName}, I am interested in following products from your store on Houseplans Marketplace:\n\n`;
     items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name} - ₹${item.price.toLocaleString()}\n`;
+      message += `${index + 1}. ${item.name} - ₹${item.price.toLocaleString()}${item.unit ? ` / ${item.unit}` : ""}\n`;
       message += `Link: ${window.location.origin}/marketplace/product/${item._id}\n\n`;
     });
     message += `Please provide me your best quote for these.`;
@@ -246,7 +246,10 @@ const ProductCard = ({
         <p className="text-xs text-gray-500 line-clamp-2 mt-1 mb-4">{product.description}</p>
         <div className="mt-auto pt-4 border-t border-gray-50">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xl font-extrabold text-gray-900">₹{Number(product?.price || 0).toLocaleString()}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-extrabold text-gray-900">₹{Number(product?.price || 0).toLocaleString()}</span>
+              {product.unit && <span className="text-xs text-gray-500">/ {product.unit}</span>}
+            </div>
           </div>
 
           {sellerData?.contractorType === "Premium" ? (
