@@ -13,6 +13,8 @@ import {
   X,
   Send,
   MapPin,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 
 import { RootState, AppDispatch } from "@/lib/store";
@@ -196,12 +198,36 @@ const ProductCard = ({ product, onInquiryClick }) => (
             ₹{product.price.toLocaleString()}
           </span>
         </div>
-        <Button
-          onClick={() => onInquiryClick(product)}
-          className="w-full mt-3 bg-gray-800 hover:bg-orange-600 text-white font-semibold"
-        >
-          Send Inquiry
-        </Button>
+        {product.seller?.contractorType === "Premium" ? (
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                const waLink = `https://wa.me/91${product.seller.phone}?text=${encodeURIComponent(`Hi ${product.seller.businessName}, I am interested in your product: "${product.name}".`)}`;
+                window.open(waLink, "_blank");
+              }}
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white rounded-lg font-bold flex items-center justify-center p-0 h-10 text-xs"
+            >
+              <MessageCircle size={14} className="mr-1" /> WhatsApp
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `tel:${product.seller.phone}`;
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center justify-center p-0 h-10 text-xs"
+            >
+              <Phone size={14} className="mr-1" /> Call Now
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={() => onInquiryClick(product)}
+            className="w-full mt-3 bg-gray-800 hover:bg-orange-600 text-white font-semibold"
+          >
+            Send Inquiry
+          </Button>
+        )}
       </div>
     </div>
   </motion.div>

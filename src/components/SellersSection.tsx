@@ -16,6 +16,8 @@ import {
   MapPin,
   Store, // Shop Icon
   Filter,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -190,12 +192,36 @@ const ProductCard = ({ product, onInquiryClick, isMobile = false }) => (
         </div>
       </div>
 
-      <Button
-        onClick={() => onInquiryClick(product)}
-        className={`w-full bg-gray-900 hover:bg-orange-600 text-white mt-3 ${isMobile ? "h-8 text-xs" : "h-10 text-sm"}`}
-      >
-        Send Inquiry
-      </Button>
+      {product.seller?.contractorType === "Premium" ? (
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              const waLink = `https://wa.me/91${product.seller.phone}?text=${encodeURIComponent(`Hi ${product.seller.businessName}, I am interested in your product: "${product.name}".`)}`;
+              window.open(waLink, "_blank");
+            }}
+            className={`w-full bg-[#25D366] hover:bg-[#128C7E] text-white p-0 rounded-lg font-bold flex items-center justify-center ${isMobile ? "h-8 text-[10px]" : "h-10 text-xs"}`}
+          >
+            <MessageCircle size={14} className="mr-1" /> WhatsApp
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = `tel:${product.seller.phone}`;
+            }}
+            className={`w-full bg-blue-600 hover:bg-blue-700 text-white p-0 rounded-lg font-bold flex items-center justify-center ${isMobile ? "h-8 text-[10px]" : "h-10 text-xs"}`}
+          >
+            <Phone size={14} className="mr-1" /> Call Now
+          </Button>
+        </div>
+      ) : (
+        <Button
+          onClick={() => onInquiryClick(product)}
+          className={`w-full bg-gray-900 hover:bg-orange-600 text-white mt-3 ${isMobile ? "h-8 text-xs" : "h-10 text-sm"}`}
+        >
+          Send Inquiry
+        </Button>
+      )}
     </div>
   </div>
 );
@@ -239,10 +265,34 @@ const ShopCard = ({ seller, productCount, products, isMobile = false }) => {
           Explore collection of {products[0]?.category} and more.
         </p>
 
-        <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-50">
-          <Button className={`w-full bg-gray-900 hover:bg-orange-600 text-white rounded-lg font-bold ${isMobile ? "h-8 text-xs" : "h-10 sm:h-11 text-sm"}`}>
-            Visit Store <Store size={14} className="ml-1 sm:ml-2 sm:w-4 sm:h-4" />
-          </Button>
+        <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-50 flex flex-col gap-2">
+          {seller.contractorType === "Premium" ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const waLink = `https://wa.me/91${seller.phone}?text=${encodeURIComponent(`Hi ${seller.businessName}, I saw your shop on Houseplans Marketplace and I am interested in your products.`)}`;
+                  window.open(waLink, "_blank");
+                }}
+                className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white transition-colors h-10 sm:h-11 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center p-0"
+              >
+                <MessageCircle size={14} className="mr-1 sm:mr-2" /> WhatsApp
+              </Button>
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = `tel:${seller.phone}`;
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors h-10 sm:h-11 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center p-0"
+              >
+                <Phone size={14} className="mr-1 sm:mr-2" /> Call Now
+              </Button>
+            </div>
+          ) : (
+            <Button className={`w-full bg-gray-900 hover:bg-orange-600 text-white rounded-lg font-bold ${isMobile ? "h-8 text-xs" : "h-10 sm:h-11 text-sm"}`}>
+              Visit Store <Store size={14} className="ml-1 sm:ml-2 sm:w-4 sm:h-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

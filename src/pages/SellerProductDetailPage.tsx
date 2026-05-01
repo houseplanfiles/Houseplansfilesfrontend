@@ -18,6 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ZoomIn,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 
@@ -315,11 +317,31 @@ const SellerProductDetailPage: FC = () => {
 
               {/* Action Buttons */}
               <div className="mt-auto space-y-4">
+                {product.seller?.contractorType === "Premium" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button 
+                      onClick={() => {
+                        const waLink = `https://wa.me/91${product.seller.phone}?text=${encodeURIComponent(`Hi ${product.seller.businessName}, I am interested in your product: "${product.name}".`)}`;
+                        window.open(waLink, "_blank");
+                      }}
+                      className="w-full h-14 bg-[#25D366] hover:bg-[#128C7E] text-white text-lg font-bold rounded-2xl shadow-lg shadow-[#25D366]/20 transform transition hover:-translate-y-0.5"
+                    >
+                      <MessageCircle className="mr-3 h-5 w-5" /> WhatsApp
+                    </Button>
+                    <Button 
+                      onClick={() => window.location.href = `tel:${product.seller.phone}`}
+                      className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-2xl shadow-lg shadow-blue-500/20 transform transition hover:-translate-y-0.5"
+                    >
+                      <Phone className="mr-3 h-5 w-5" /> Call Now
+                    </Button>
+                  </div>
+                )}
+                
                 <Button 
                   onClick={() => setIsInquiryOpen(true)}
-                  className="w-full h-14 bg-orange-600 hover:bg-orange-700 text-white text-lg font-bold rounded-2xl shadow-lg shadow-orange-500/20 transform transition hover:-translate-y-0.5"
+                  className={`w-full h-14 ${product.seller?.contractorType === "Premium" ? "bg-gray-900" : "bg-orange-600"} hover:opacity-90 text-white text-lg font-bold rounded-2xl shadow-lg transform transition hover:-translate-y-0.5`}
                 >
-                  <Send className="mr-3 h-5 w-5" /> Send Inquiry To Seller
+                  <Send className="mr-3 h-5 w-5" /> Send Inquiry
                 </Button>
                 
                 {product.seller && (
