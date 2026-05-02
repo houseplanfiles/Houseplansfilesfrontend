@@ -41,6 +41,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 // import DisplayPrice from "@/components/DisplayPrice"; // Uncomment if needed
 
 // --- Inquiry Modal ---
@@ -311,6 +326,8 @@ const SellersSection = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("all-cities");
+  const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
+  const [citySearchTerm, setCitySearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -331,15 +348,17 @@ const SellersSection = () => {
     ],
     [products]
   );
-  const uniqueCities = useMemo(
-    () => [
+  const uniqueCities = useMemo(() => {
+    const cities = new Set<string>();
+    products.forEach(p => {
+      if (p.city) cities.add(p.city.trim());
+      if (p.seller?.city) cities.add(p.seller.city.trim());
+    });
+    return [
       "All Cities",
-      ...Array.from(
-        new Set(products.map((p) => p.city).filter(Boolean))
-      ).sort(),
-    ],
-    [products]
-  );
+      ...Array.from(cities).sort((a, b) => a.localeCompare(b))
+    ];
+  }, [products]);
 
   const displayItems = useMemo(() => {
     let items = products;
@@ -489,26 +508,60 @@ const SellersSection = () => {
                 </Select>
               </div>
 
-              {/* City */}
               <div>
                 <Label className="text-xs font-bold text-gray-500 uppercase mb-2 block tracking-wide">
                   City
                 </Label>
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
-                  <SelectTrigger className="h-12 bg-gray-50 text-sm focus:bg-white border-gray-200">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueCities.map((c) => (
-                      <SelectItem
-                        key={c}
-                        value={c === "All Cities" ? "all-cities" : c}
-                      >
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={cityPopoverOpen}
+                      className="h-12 w-full justify-between bg-gray-50 text-sm focus:bg-white border-gray-200 font-normal"
+                    >
+                      {selectedCity === "all-cities" ? "All Cities" : selectedCity}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-0 z-[100]" align="start">
+                    <div className="flex items-center border-b px-3 bg-white">
+                      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                      <input
+                        placeholder="Search city..."
+                        value={citySearchTerm}
+                        onChange={(e) => setCitySearchTerm(e.target.value)}
+                        className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+                      />
+                    </div>
+                    <div className="max-h-72 overflow-y-auto p-1 bg-white">
+                      {uniqueCities
+                        .filter(city => city.toLowerCase().includes(citySearchTerm.toLowerCase()))
+                        .map((city) => (
+                          <div
+                            key={city}
+                            className={cn(
+                              "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-2 text-sm outline-none hover:bg-orange-50 hover:text-orange-600 transition-colors",
+                              (selectedCity === city || (city === "All Cities" && selectedCity === "all-cities")) ? "bg-orange-100 text-orange-700 font-semibold" : "text-gray-700"
+                            )}
+                            onClick={() => {
+                              setSelectedCity(city === "All Cities" ? "all-cities" : city);
+                              setCityPopoverOpen(false);
+                              setCitySearchTerm("");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                (selectedCity === city || (city === "All Cities" && selectedCity === "all-cities")) ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {city}
+                          </div>
+                        ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>

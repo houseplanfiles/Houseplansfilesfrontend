@@ -12,6 +12,7 @@ import CorporatePackagesSection from "../components/CorporatePackagesSection";
 import BrandPartnersSection from "@/components/BrandPartnersSection";
 import SellersSection from "@/components/SellersSection";
 import ConstructionPartnersSection from "@/components/ConstructionPartnersSection";
+import TopArchitectsSection from "@/components/TopArchitectsSection";
 import TopBar from "@/components/TopBar";
 import HomeFloorPlans from "@/components/HomeFloorPlans";
 import FloorDElevations from "@/components/FloorsPlansThreeD";
@@ -38,6 +39,9 @@ const Index = () => {
 
       {/* ✅ FloorDElevations Section */}
       <FloorDElevations />
+
+      {/* ✅ Top Architects Section */}
+      <TopArchitectsSection />
 
       {/* ✅ Construction Partners (Headings only) */}
       <ConstructionPartnersSection />

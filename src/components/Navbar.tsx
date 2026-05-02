@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const isUserAllowed =
     userInfo &&
-    ["user", "admin", "professional", "seller", "contractor"].includes(userInfo.role);
+    ["user", "admin", "professional", "seller", "contractor", "Architect"].includes(userInfo.role);
 
   const showCartAndWishlist = !userInfo || userInfo?.role === "user";
 
@@ -47,6 +47,7 @@ const Navbar = () => {
         return "/seller";
       case "professional":
       case "contractor":
+      case "Architect":
         return "/professional";
       case "admin":
         return "/admin";
@@ -93,6 +94,7 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Ready Made House Plan", path: "/products" },
     { name: "Services", path: "/services" },
+    { name: "Architects", path: "/architects" },
     { name: "City Partner", path: "/city-partners" },
     { name: "Career", path: "/careers" },
     { name: "Package", path: "/packages" },

@@ -35,6 +35,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -193,6 +208,7 @@ const ProductCard = ({ product, onInquiryClick }) => (
             </p>
           </div>
         </div>
+        <div className="flex items-baseline gap-2 mt-3">
           <span className="text-2xl font-extrabold text-gray-800">
             ₹{product.price.toLocaleString()}
           </span>
@@ -241,12 +257,14 @@ const MarketplacePage = () => {
     (state: RootState) => state.sellerProducts
   );
 
+  const [selectedCity, setSelectedCity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedCity, setSelectedCity] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
+  const [citySearchTerm, setCitySearchTerm] = useState("");
 
   useEffect(() => {
     const params = {
@@ -278,8 +296,15 @@ const MarketplacePage = () => {
   }, [products]);
 
   const uniqueCities = useMemo(() => {
-    const cities = products.map((p) => p.city).filter(Boolean);
-    return ["All Cities", ...Array.from(new Set(cities)).sort()];
+    const cities = new Set<string>();
+    products.forEach(p => {
+      if (p.city) cities.add(p.city.trim());
+      if (p.seller?.city) cities.add(p.seller.city.trim());
+    });
+    return [
+      "All Cities",
+      ...Array.from(cities).sort((a, b) => a.localeCompare(b))
+    ];
   }, [products]);
 
   const filteredProducts = useMemo(() => {
@@ -296,7 +321,8 @@ const MarketplacePage = () => {
         (p) =>
           p.name.toLowerCase().includes(searchLower) ||
           p.brand.toLowerCase().includes(searchLower) ||
-          p.seller?.businessName?.toLowerCase().includes(searchLower)
+          p.seller?.businessName?.toLowerCase().includes(searchLower) ||
+          (p.city && p.city.toLowerCase().includes(searchLower))
       );
     }
     return items;
@@ -417,32 +443,60 @@ const MarketplacePage = () => {
             >
               City
             </Label>
-            <Select
-              value={selectedCity}
-              onValueChange={(value) =>
-                handleFilterChange(
-                  setSelectedCity,
-                  value === "all-cities" ? "" : value
-                )
-              }
-            >
-              <SelectTrigger
-                id="city-filter"
-                className="mt-2 h-12 text-base bg-white"
-              >
-                <SelectValue placeholder="All Cities" />
-              </SelectTrigger>
-              <SelectContent>
-                {uniqueCities.map((city) => (
-                  <SelectItem
-                    key={city}
-                    value={city === "All Cities" ? "all-cities" : city}
-                  >
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="city-filter"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={cityPopoverOpen}
+                  className="mt-2 w-full h-12 justify-between bg-white text-base font-normal"
+                >
+                  {selectedCity || "All Cities"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0 z-[100]" align="start">
+                <div className="flex items-center border-b px-3 bg-white">
+                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                  <input
+                    placeholder="Search city..."
+                    value={citySearchTerm}
+                    onChange={(e) => setCitySearchTerm(e.target.value)}
+                    className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+                  />
+                </div>
+                <div className="max-h-72 overflow-y-auto p-1 bg-white">
+                  {uniqueCities
+                    .filter(city => city.toLowerCase().includes(citySearchTerm.toLowerCase()))
+                    .map((city) => (
+                      <div
+                        key={city}
+                        className={cn(
+                          "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-2 text-sm outline-none hover:bg-orange-50 hover:text-orange-600 transition-colors",
+                          (selectedCity === city || (city === "All Cities" && !selectedCity)) ? "bg-orange-100 text-orange-700 font-semibold" : "text-gray-700"
+                        )}
+                        onClick={() => {
+                          handleFilterChange(
+                            setSelectedCity,
+                            city === "All Cities" ? "" : city
+                          );
+                          setCityPopoverOpen(false);
+                          setCitySearchTerm("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            (selectedCity === city || (city === "All Cities" && !selectedCity)) ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {city}
+                      </div>
+                    ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 

@@ -7,12 +7,13 @@ import { AppDispatch, RootState } from "@/lib/store";
 import { fetchMyProducts } from "@/lib/features/products/productSlice";
 import { fetchMyProfessionalOrders } from "@/lib/features/professional/professionalOrderSlice";
 import { fetchMyInquiries } from "@/lib/features/inquiries/inquirySlice";
+import { Helmet } from "react-helmet-async";
 
 const DashboardPage = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { userInfo } = useSelector((state: RootState) => state.user);
-  const isContractor = userInfo?.role?.toLowerCase() === "contractor";
+  const isProfessionalPartner = ["professional", "contractor", "architect"].includes(userInfo?.role?.toLowerCase() || "");
 
   const { myProducts, listStatus: productStatus } = useSelector(
     (state: RootState) => state.products
@@ -25,16 +26,16 @@ const DashboardPage = () => {
   );
 
   useEffect(() => {
-    if (isContractor) {
+    if (isProfessionalPartner) {
       dispatch(fetchMyInquiries());
     } else {
       dispatch(fetchMyProducts());
       dispatch(fetchMyProfessionalOrders());
     }
-  }, [dispatch, isContractor]);
+  }, [dispatch, isProfessionalPartner]);
 
   const stats = useMemo(() => {
-    if (isContractor) {
+    if (isProfessionalPartner) {
        return {
          enquiriesCount: inquiries?.length || 0,
          portfolioCount: userInfo?.workSamples?.length || 0,
@@ -68,9 +69,9 @@ const DashboardPage = () => {
       totalSales: `₹${totalSales.toLocaleString()}`,
       averageRating: averageRating,
     };
-  }, [orders, myProducts, isContractor, inquiries, userInfo]);
+  }, [orders, myProducts, isProfessionalPartner, inquiries, userInfo]);
 
-  const summaryCards = isContractor ? [
+  const summaryCards = isProfessionalPartner ? [
     { title: "Total Enquiries", value: stats.enquiriesCount, icon: MessageSquare },
     { title: "Portfolio Items", value: stats.portfolioCount, icon: Briefcase },
     { title: "Active Projects", value: stats.projectsCount, icon: LayoutGrid },
@@ -84,14 +85,20 @@ const DashboardPage = () => {
     { title: "Average Rating", value: stats.averageRating, icon: Star },
   ];
 
+  const professionLabel = userInfo?.profession || userInfo?.role || "Professional";
+
   return (
     <div className="space-y-8">
+      <Helmet>
+        <title>{`${userInfo?.name || "Professional"} - Dashboard | HousePlanFiles`}</title>
+        <meta name="description" content={`Manage your ${professionLabel} profile, portfolio, inquiries and projects on HousePlanFiles.`} />
+      </Helmet>
       <div>
         <h1 className="text-3xl font-bold text-gray-800">
-          {isContractor ? "Contractor Dashboard" : "Professional Dashboard"}
+          {isProfessionalPartner ? `${professionLabel} Dashboard` : "Professional Dashboard"}
         </h1>
         <p className="mt-1 text-gray-600">
-          Manage your {isContractor ? "profile and leads" : "products and orders"} from
+          Manage your {isProfessionalPartner ? "profile and leads" : "products and orders"} from
           here.
         </p>
       </div>
@@ -116,23 +123,23 @@ const DashboardPage = () => {
       <div className="p-6 bg-primary/10 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 border border-primary/20">
         <div>
           <h2 className="text-xl font-bold text-gray-800">
-            {isContractor ? "Enhance Your Portfolio" : "Have a New Design?"}
+            {isProfessionalPartner ? "Enhance Your Portfolio" : "Have a New Design?"}
           </h2>
           <p className="text-gray-600 mt-1">
-            {isContractor
+            {isProfessionalPartner
               ? "Update your portfolio with latest projects to attract more clients."
               : "Upload your latest house plans and reach thousands of potential clients."}
           </p>
         </div>
-        <Link to={isContractor ? "portfolio" : "add-product"}>
+        <Link to={isProfessionalPartner ? "portfolio" : "add-product"}>
           <Button className="btn-primary flex items-center gap-2 shrink-0">
             <PlusCircle size={18} />
-            {isContractor ? "Update Portfolio" : "Upload New Product"}
+            {isProfessionalPartner ? "Update Portfolio" : "Upload New Product"}
           </Button>
         </Link>
       </div>
 
-      {isContractor ? (
+      {isProfessionalPartner ? (
         <div>
            <h2 className="text-2xl font-bold text-gray-800 mb-4">Recent Enquiries</h2>
            <div className="bg-white p-6 rounded-xl shadow-sm border overflow-x-auto">

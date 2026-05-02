@@ -48,14 +48,11 @@ import {
 
 const professionalSubRoles = [
   "Architect",
-  "Junior Architect",
-  "Civil Structural Engineer",
   "Civil Design Engineer",
+  "Structure Engineer",
   "Interior Designer",
-  "Vastu Consultant",
   "Site Engineer",
-  "Map Consultant",
-  "3D Visualizer",
+  "MEP Consultant",
 ];
 
 const getRoleClass = (role: string) => {
@@ -346,7 +343,8 @@ const AllUsersPage = () => {
       userData.profession = profession;
     }
 
-    if (role === "Contractor" || role?.toLowerCase()?.trim() === "seller") {
+    const lowerRole = role?.toLowerCase()?.trim();
+    if (lowerRole === "professional" || lowerRole === "contractor" || lowerRole === "seller") {
       userData.contractorType = contractorType;
       if (contractorType === "Premium" && premiumExpiresAt) {
         userData.premiumExpiresAt = new Date(premiumExpiresAt).toISOString();
@@ -811,27 +809,27 @@ const AllUsersPage = () => {
                 </div>
               )}
 
-              {(role === "Contractor" || role?.toLowerCase()?.trim() === "seller") && (
+              {(["professional", "contractor", "seller"].includes(role?.toLowerCase()?.trim() || "")) && (
                 <div>
-                  <Label>Service Category (Level)</Label>
+                  <Label>Account Type (Premium Status)</Label>
                   <Select
                     value={contractorType}
                     onValueChange={setContractorType}
                     disabled={isSubmitting}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select contractor type" />
+                      <SelectValue placeholder="Select account type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Normal">Normal</SelectItem>
-                      <SelectItem value="Verified">Verified</SelectItem>
-                      <SelectItem value="Premium">Premium</SelectItem>
+                      <SelectItem value="Verified">Verified ✅</SelectItem>
+                      <SelectItem value="Premium">Premium ⭐</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               )}
 
-              {(role === "Contractor" || role?.toLowerCase()?.trim() === "seller") && contractorType === "Premium" && (
+              {(["professional", "contractor", "seller"].includes(role?.toLowerCase()?.trim() || "")) && contractorType === "Premium" && (
                 <div className="space-y-1">
                   <Label className="font-semibold text-orange-600">⏳ Premium Expiry Date</Label>
                   <input

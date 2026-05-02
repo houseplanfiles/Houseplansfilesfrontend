@@ -72,9 +72,9 @@ const ProfessionalLayout = () => {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h2 className="text-lg font-semibold text-gray-800 ml-4">
-              {userInfo?.role === "contractor"
-                ? "Contractor Panel"
+            <h2 className="text-lg font-semibold text-gray-800 ml-4 capitalize">
+              {["contractor", "architect"].includes(userInfo?.role?.toLowerCase() || "")
+                ? `${userInfo?.role} Panel`
                 : "Professional Panel"}
             </h2>
           </header>

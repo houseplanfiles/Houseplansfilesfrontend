@@ -100,6 +100,8 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import PackagesPage from "./pages/PackagesPage";
 import MarketPlace from "./pages/MarketPlace";
 import CityPartnersPage from "./pages/CityPartnersPage";
+import ArchitectsPage from "./pages/ArchitectsPage";
+import ArchitectProfilePage from "./pages/ArchitectProfilePage";
 import ContractorProfilePage from "./pages/ContractorProfilePage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
@@ -162,6 +164,14 @@ const App = () => (
                       <Route path="/careers" element={<CareersPage />} />
                       <Route path="/contact" element={<ContactUs />} />
                       <Route path="/marketplace" element={<MarketPlace />} />
+                      <Route
+                        path="/architects"
+                        element={<ArchitectsPage />}
+                      />
+                      <Route
+                        path="/architects/:id"
+                        element={<ArchitectProfilePage />}
+                      />
                       <Route
                         path="/city-partners"
                         element={<CityPartnersPage />}
@@ -274,7 +284,7 @@ const App = () => (
                       <Route
                         element={
                           <ProtectedRoute
-                            allowedRoles={["professional", "admin", "contractor"]}
+                            allowedRoles={["professional", "admin", "contractor", "Architect"]}
                           />
                         }
                       >

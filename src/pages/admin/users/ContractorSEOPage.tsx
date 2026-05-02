@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowLeft, Search, Save, Globe } from "lucide-react";
+import { Loader2, ArrowLeft, Search, Save, Globe, Plus, Trash2, Link as LinkIcon } from "lucide-react";
 import AdminSidebar from "@/pages/admin/AdminSidebar";
 
 const ContractorSEOPage = () => {
@@ -23,6 +23,9 @@ const ContractorSEOPage = () => {
     title: "",
     description: "",
     keywords: "",
+    h1: "",
+    canonicalUrl: "",
+    customLinks: [] as { label: string; url: string }[],
   });
 
   useEffect(() => {
@@ -52,7 +55,29 @@ const ContractorSEOPage = () => {
       title: project.seo?.title || "",
       description: project.seo?.description || "",
       keywords: project.seo?.keywords?.join(", ") || "",
+      h1: project.seo?.h1 || "",
+      canonicalUrl: project.seo?.canonicalUrl || "",
+      customLinks: project.seo?.customLinks || [],
     });
+  };
+
+  const handleAddLink = () => {
+    setSeoForm({
+      ...seoForm,
+      customLinks: [...seoForm.customLinks, { label: "", url: "" }],
+    });
+  };
+
+  const handleRemoveLink = (index: number) => {
+    const newLinks = [...seoForm.customLinks];
+    newLinks.splice(index, 1);
+    setSeoForm({ ...seoForm, customLinks: newLinks });
+  };
+
+  const handleLinkChange = (index: number, field: string, value: string) => {
+    const newLinks = [...seoForm.customLinks];
+    newLinks[index] = { ...newLinks[index], [field]: value };
+    setSeoForm({ ...seoForm, customLinks: newLinks });
   };
 
   const handleUpdateSEO = async () => {
@@ -169,6 +194,26 @@ const ContractorSEOPage = () => {
                   </div>
 
                   <div className="space-y-2">
+                    <Label className="text-xs font-black uppercase tracking-widest text-gray-500">H1 Tag (Main Heading)</Label>
+                    <Input
+                      value={seoForm.h1}
+                      onChange={(e) => setSeoForm({ ...seoForm, h1: e.target.value })}
+                      placeholder="Enter the main H1 heading for the project page..."
+                      className="h-14 rounded-2xl border-gray-100 focus:ring-orange-600"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black uppercase tracking-widest text-gray-500">Canonical URL</Label>
+                    <Input
+                      value={seoForm.canonicalUrl}
+                      onChange={(e) => setSeoForm({ ...seoForm, canonicalUrl: e.target.value })}
+                      placeholder="https://houseplansfiles.com/projects/..."
+                      className="h-14 rounded-2xl border-gray-100 focus:ring-orange-600"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <Label className="text-xs font-black uppercase tracking-widest text-gray-500">Keywords (Comma separated)</Label>
                     <Input
                       value={seoForm.keywords}
@@ -176,6 +221,48 @@ const ContractorSEOPage = () => {
                       placeholder="modern, architecture, bangalore, villa..."
                       className="h-14 rounded-2xl border-gray-100 focus:ring-orange-600"
                     />
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4" /> Internal/External Links Insertion
+                      </Label>
+                      <Button variant="outline" size="sm" onClick={handleAddLink} className="rounded-full gap-2 font-bold">
+                        <Plus className="w-4 h-4" /> Add Link
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {seoForm.customLinks.map((link, lidx) => (
+                        <div key={lidx} className="flex gap-4 items-end animate-in fade-in slide-in-from-left-2 duration-300">
+                          <div className="flex-1 space-y-1">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">Label</span>
+                            <Input
+                              value={link.label}
+                              onChange={(e) => handleLinkChange(lidx, "label", e.target.value)}
+                              placeholder="e.g. View Similar Projects"
+                              className="h-11 rounded-xl"
+                            />
+                          </div>
+                          <div className="flex-[2] space-y-1">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">URL</span>
+                            <Input
+                              value={link.url}
+                              onChange={(e) => handleLinkChange(lidx, "url", e.target.value)}
+                              placeholder="https://..."
+                              className="h-11 rounded-xl"
+                            />
+                          </div>
+                          <Button variant="ghost" onClick={() => handleRemoveLink(lidx)} className="h-11 w-11 p-0 text-red-500 rounded-xl hover:bg-red-50">
+                            <Trash2 className="w-5 h-5" />
+                          </Button>
+                        </div>
+                      ))}
+                      {seoForm.customLinks.length === 0 && (
+                        <p className="text-center py-4 text-gray-400 text-sm italic font-medium">No custom links added yet.</p>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -44,13 +44,16 @@ interface UserState {
   users: UserInfo[];
   sellers: UserInfo[];
   contractors: UserInfo[];
+  architects: UserInfo[];
   pagination: any;
   sellerPagination: any;
   contractorPagination: any;
+  architectPagination: any;
   stats: any;
   listStatus: "idle" | "loading" | "succeeded" | "failed";
   sellerListStatus: "idle" | "loading" | "succeeded" | "failed";
   contractorListStatus: "idle" | "loading" | "succeeded" | "failed";
+  architectListStatus: "idle" | "loading" | "succeeded" | "failed";
   actionStatus: "idle" | "loading" | "succeeded" | "failed";
   error: any;
 }
@@ -59,13 +62,16 @@ const initialState: UserState = {
   users: [],
   sellers: [],
   contractors: [],
+  architects: [],
   pagination: null,
   sellerPagination: null,
   contractorPagination: null,
+  architectPagination: null,
   stats: null,
   listStatus: "idle",
   sellerListStatus: "idle",
   contractorListStatus: "idle",
+  architectListStatus: "idle",
   actionStatus: "idle",
   error: null,
 };
@@ -106,6 +112,38 @@ export const fetchContractors = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch contractors"
+      );
+    }
+  }
+);
+
+export const fetchArchitects = createAsyncThunk(
+  "user/fetchArchitects",
+  async (
+    params:
+      | {
+          page?: number;
+          limit?: number;
+          search?: string;
+          city?: string;
+          status?: string;
+        }
+      | undefined,
+    { rejectWithValue }
+  ) => {
+    try {
+      const config = {
+        params: {
+          ...(params || {}),
+          role: "professional",
+          limit: params?.limit || 500,
+        },
+      };
+      const { data } = await axios.get(API_URL, config);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch architects"
       );
     }
   }
@@ -334,9 +372,11 @@ const userSlice = createSlice({
       state.users = [];
       state.sellers = [];
       state.contractors = [];
+      state.architects = [];
       state.listStatus = "idle";
       state.sellerListStatus = "idle";
       state.contractorListStatus = "idle";
+      state.architectListStatus = "idle";
       state.actionStatus = "idle";
       state.error = null;
     },
@@ -481,6 +521,23 @@ const userSlice = createSlice({
       )
       .addCase(fetchContractors.rejected, (state, action: AnyAction) => {
         state.contractorListStatus = "failed";
+        state.error = action.payload;
+      });
+
+    builder
+      .addCase(fetchArchitects.pending, (state) => {
+        state.architectListStatus = "loading";
+      })
+      .addCase(
+        fetchArchitects.fulfilled,
+        (state, action: PayloadAction<{ users: UserInfo[]; pagination: any }>) => {
+          state.architectListStatus = "succeeded";
+          state.architects = action.payload.users;
+          state.architectPagination = action.payload.pagination;
+        }
+      )
+      .addCase(fetchArchitects.rejected, (state, action: AnyAction) => {
+        state.architectListStatus = "failed";
         state.error = action.payload;
       });
   },

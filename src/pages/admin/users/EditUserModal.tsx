@@ -30,13 +30,11 @@ import { Loader2 } from "lucide-react";
 
 const professionalSubRoles = [
   "Architect",
-  "Junior Architect",
-  "Civil Structural Engineer",
   "Civil Design Engineer",
+  "Structure Engineer",
   "Interior Designer",
-  "Contractor",
-  "Vastu Consultant",
   "Site Engineer",
+  "MEP Consultant",
 ];
 
 interface EditUserModalProps {
@@ -77,9 +75,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       });
       setRole(user.role || "");
       setStatus(user.status || "");
-      setContractorType(user.contractorType || "Normal"); // Yahan user se data set ho raha hai
+      setContractorType(user.contractorType || "Normal");
 
-      if (user.role === "professional") {
+      if (user.role?.toLowerCase() === "professional") {
         setProfession(user.profession || "");
       } else {
         setProfession("");
@@ -97,12 +95,13 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       userData.isApproved = false;
     }
 
-    if (role === "professional") {
+    if (role?.toLowerCase() === "professional") {
       userData.profession = profession;
     }
 
-    // Send contractorType for both Contractor and seller roles
-    if (role === "Contractor" || role?.toLowerCase()?.trim() === "seller") {
+    // Send contractorType for professional, Contractor and seller roles
+    const lowerRole = role?.toLowerCase()?.trim();
+    if (lowerRole === "professional" || lowerRole === "contractor" || lowerRole === "seller") {
       userData.contractorType = contractorType;
     }
 
@@ -122,8 +121,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     }
   };
 
-  const needsApproval =
-    role === "professional" || role?.toLowerCase()?.trim() === "seller" || role === "Contractor";
+  const lowerRole = role?.toLowerCase()?.trim();
+  const needsApproval = ["professional", "seller", "contractor"].includes(lowerRole || "");
 
   const isLoading = actionStatus === "loading";
 
@@ -187,7 +186,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             </Select>
           </div>
 
-          {role === "professional" && (
+          {role?.toLowerCase() === "professional" && (
             <div>
               <Label>Profession</Label>
               <Select
@@ -209,8 +208,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             </div>
           )}
 
-          {/* ===> Account Type (For Contractor & Seller) <=== */}
-          {(role === "Contractor" || role?.toLowerCase()?.trim() === "seller") && (
+          {/* ====> Account Type (For Professional, Contractor & Seller) <==== */}
+          {(["professional", "contractor", "seller"].includes(lowerRole || "")) && (
             <div>
               <Label>Account Type</Label>
               <Select
@@ -223,10 +222,13 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Normal">Normal</SelectItem>
-                  <SelectItem value="Verified">Verified</SelectItem>
-                  <SelectItem value="Premium">Premium</SelectItem>
+                  <SelectItem value="Verified">Verified ✅</SelectItem>
+                  <SelectItem value="Premium">Premium ⭐</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Normal = basic listing · Verified = WhatsApp button · Premium = full profile page + contact
+              </p>
             </div>
           )}
 

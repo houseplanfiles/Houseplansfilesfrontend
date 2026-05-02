@@ -318,7 +318,11 @@ const AddSellerProductPage = () => {
                     placeholder="e.g., nos"
                   />
                   <datalist id="units-list">
+                    <option value="Piece" />
                     <option value="nos" />
+                    <option value="Gram" />
+                    <option value="Kil" />
+                    <option value="Kilo" />
                     <option value="kg" />
                     <option value="per sqft" />
                     <option value="per cm" />

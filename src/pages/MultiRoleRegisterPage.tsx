@@ -32,15 +32,12 @@ const userRoles = [
 ];
 
 const professionalSubRoles = [
-  "Architect / Junior Architect",
-  "Civil Structural Engineer",
+  "Architect",
   "Civil Design Engineer",
+  "Structure Engineer",
   "Interior Designer",
-  "Contractor",
-  "Vastu Consultant",
   "Site Engineer",
-  "Map Consultant",
-  "3D Visualizer",
+  "MEP Consultant",
 ];
 
 const contractorProfessions = [
@@ -94,6 +91,10 @@ const MultiRoleRegisterPage = () => {
     gstNumber: "",
     natureOfBusiness: "",
     businessAddress: "",
+    // --- Architect Specific ---
+    qualification: "",
+    skills: "",
+    charges: "",
     // Files
     photo: null,
     businessCertification: null,
@@ -124,12 +125,6 @@ const MultiRoleRegisterPage = () => {
         case "seller":
           toast.success(
             "Material Seller registration successful! Your account is registered and under review."
-          );
-          setTimeout(() => navigate("/login"), 2000);
-          break;
-        case "Contractor":
-          toast.success(
-            "Contractor registration successful! Your account is registered and under review."
           );
           setTimeout(() => navigate("/login"), 2000);
           break;
@@ -176,6 +171,12 @@ const MultiRoleRegisterPage = () => {
       bankName: "", // Reset Bank Name
       ifscCode: "",
       upiId: "",
+      gstNumber: "",
+      natureOfBusiness: "",
+      businessAddress: "",
+      qualification: "",
+      skills: "",
+      charges: "",
       photo: null,
       businessCertification: null,
       shopImage: null,
@@ -233,14 +234,26 @@ const MultiRoleRegisterPage = () => {
       case "professional":
         return (
           <motion.div {...motionProps} className="space-y-5">
-            <div>
-              <Label>Full Name*</Label>
-              <Input
-                id="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Full Name*</Label>
+                <Input
+                  id="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                />
+              </div>
+              <div>
+                <Label>Company Name (Optional)</Label>
+                <Input
+                  id="companyName"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  placeholder="Enter company name"
+                />
+              </div>
             </div>
             <div>
               <Label>Phone*</Label>
@@ -271,33 +284,77 @@ const MultiRoleRegisterPage = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>City*</Label>
+                <Input
+                  id="city"
+                  required
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="Your city"
+                />
+              </div>
+              <div>
+                <Label>Qualification (Optional)</Label>
+                <Input
+                  id="qualification"
+                  value={formData.qualification}
+                  onChange={handleChange}
+                  placeholder="e.g. B.Arch, M.Tech"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Experience*</Label>
+                <Select
+                  onValueChange={(v) => handleSelectChange(v, "experience")}
+                  value={formData.experience}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select experience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {experienceLevels.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Service / Consultation Charges*</Label>
+                <Input
+                  id="charges"
+                  required
+                  value={formData.charges}
+                  onChange={handleChange}
+                  placeholder="e.g. ₹5,000 or ₹50/sqft"
+                />
+              </div>
+            </div>
             <div>
-              <Label>City*</Label>
+              <Label>Skills (Comma separated)*</Label>
               <Input
-                id="city"
+                id="skills"
                 required
-                value={formData.city}
+                value={formData.skills}
                 onChange={handleChange}
+                placeholder="e.g. AutoCAD, Interior Design, Plumbing..."
               />
             </div>
             <div>
-              <Label>Experience*</Label>
-              <Select
-                onValueChange={(v) => handleSelectChange(v, "experience")}
-                value={formData.experience}
+              <Label>Office / Contact Address*</Label>
+              <Textarea
+                id="address"
                 required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your experience level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {experienceLevels.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {level}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Full address"
+              />
             </div>
 
             {/* --- NEW SECTION: Bank & Payment Details --- */}
@@ -475,9 +532,10 @@ const MultiRoleRegisterPage = () => {
               </Select>
             </div>
             <div>
-              <Label>GST Number (Optional)</Label>
+              <Label>GST Number*</Label>
               <Input
                 id="gstNumber"
+                required
                 value={formData.gstNumber}
                 onChange={handleChange}
                 placeholder="Enter GSTIN"
@@ -502,6 +560,21 @@ const MultiRoleRegisterPage = () => {
                 onChange={handleChange}
                 placeholder="Enter detailed business address"
               />
+            </div>
+            <div>
+              <Label htmlFor="businessCertification">
+                Business License / Certification Image*
+              </Label>
+              <Input
+                id="businessCertification"
+                type="file"
+                accept="image/*,.pdf"
+                required
+                onChange={handleFileChange}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Upload your business license or shop registration certificate
+              </p>
             </div>
             <div>
               <Label htmlFor="photo">Profile/Store Image (Optional)</Label>
@@ -600,6 +673,15 @@ const MultiRoleRegisterPage = () => {
                 required
                 value={formData.city}
                 onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label>GST Number (Optional)</Label>
+              <Input
+                id="gstNumber"
+                value={formData.gstNumber}
+                onChange={handleChange}
+                placeholder="Enter GSTIN"
               />
             </div>
             <div>

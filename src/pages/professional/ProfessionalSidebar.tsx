@@ -20,10 +20,10 @@ const navLinks = [
   { name: "Dashboard", path: "/professional", icon: LayoutGrid },
   { name: "My Products", path: "my-products", icon: Package, roles: ["professional", "admin"] },
   { name: "Add New Product", path: "add-product", icon: PlusSquare, roles: ["professional", "admin"] },
-  { name: "My Enquiries", path: "enquiries", icon: ClipboardList, roles: ["contractor", "Contractor", "admin"] },
+  { name: "My Enquiries", path: "enquiries", icon: ClipboardList, roles: ["contractor", "Contractor", "Architect", "admin"] },
   { name: "My Orders", path: "my-orders", icon: ClipboardList, roles: ["professional", "admin"] },
-  { name: "My Portfolio", path: "portfolio", icon: Briefcase, roles: ["contractor", "Contractor", "admin"] }, 
-  { name: "My Projects", path: "projects", icon: LayoutGrid, roles: ["contractor", "Contractor", "admin"] }, 
+  { name: "My Portfolio", path: "portfolio", icon: Briefcase, roles: ["contractor", "Contractor", "Architect", "admin"] }, 
+  { name: "My Projects", path: "projects", icon: LayoutGrid, roles: ["contractor", "Contractor", "Architect", "admin"] }, 
   { name: "My Profile", path: "profile", icon: User },
 ];
 
@@ -41,6 +41,8 @@ const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
     "flex items-center w-full p-3.5 rounded-lg text-sm font-medium transition-colors duration-200";
   const activeClasses = "bg-primary text-white";
   const inactiveClasses = "text-gray-200 hover:bg-slate-700";
+
+  const isProPartner = ["contractor", "architect"].includes(userInfo?.role?.toLowerCase() || "");
 
   return (
     <aside
@@ -62,8 +64,8 @@ const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
-        <h2 className="text-xl font-bold text-white">
-          {userInfo?.role === "contractor" ? "Contractor" : "Professional"}
+        <h2 className="text-xl font-bold text-white capitalize">
+          {isProPartner ? userInfo?.role : "Professional"}
         </h2>
         
         <button
@@ -81,7 +83,7 @@ const ProfessionalSidebar = ({ isOpen, setIsOpen }) => {
           .filter(link => !link.roles || (userInfo?.role && link.roles.includes(userInfo.role)))
           .map((link) => {
           let linkName = link.name;
-          if (userInfo?.role?.toLowerCase() === "contractor") {
+          if (isProPartner) {
             if (link.name === "My Products") linkName = "My Services";
             if (link.name === "Add New Product") linkName = "Add New Service";
           }

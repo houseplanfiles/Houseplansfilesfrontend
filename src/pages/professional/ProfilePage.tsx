@@ -8,10 +8,11 @@ import {
   updateProfile,
   resetActionStatus,
 } from "@/lib/features/users/userSlice";
-
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -21,13 +22,17 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-// Form ke data ke liye type define karein
 type FormData = {
   name: string;
   phone: string;
   profession: string;
+  companyName?: string;
   city: string;
+  address?: string;
   experience: string;
+  qualification?: string;
+  skills?: string;
+  charges?: string;
 };
 
 const ProfilePageProf = () => {
@@ -35,6 +40,9 @@ const ProfilePageProf = () => {
   const { userInfo, actionStatus, error } = useSelector(
     (state: RootState) => state.user
   );
+
+  // professional, architect, contractor — sab ke liye extra fields dikhao
+  const isProfessional = ["professional", "architect", "contractor"].includes(userInfo?.role?.toLowerCase() || "");
 
   const {
     register,
@@ -48,17 +56,23 @@ const ProfilePageProf = () => {
 
   const isLoading = actionStatus === "loading";
 
-  // Jab bhi userInfo mile, form ko data se bharein
   useEffect(() => {
     if (userInfo) {
       setValue("name", userInfo.name || "");
       setValue("phone", userInfo.phone || "");
       setValue("profession", userInfo.profession || "");
+      setValue("companyName", userInfo.companyName || "");
       setValue("city", userInfo.city || "");
+      setValue("address", userInfo.address || "");
       setValue("experience", userInfo.experience || "");
+      if (isProfessional) {
+        setValue("qualification", userInfo.qualification || "");
+        setValue("skills", Array.isArray(userInfo.skills) ? userInfo.skills.join(", ") : userInfo.skills || "");
+        setValue("charges", userInfo.charges || "");
+      }
       setPhotoPreview(userInfo.photoUrl || null);
     }
-  }, [userInfo, setValue]);
+  }, [userInfo, setValue, isProfessional]);
 
   // Update hone ke baad success/error message dikhayein
   useEffect(() => {
@@ -84,7 +98,9 @@ const ProfilePageProf = () => {
     const dataToSubmit = new FormData();
     // Form se saara data append karein
     Object.entries(data).forEach(([key, value]) => {
-      dataToSubmit.append(key, value);
+      if (value !== undefined) {
+        dataToSubmit.append(key, value);
+      }
     });
     // Agar nayi photo hai to use bhi append karein
     if (photo) {
@@ -103,6 +119,10 @@ const ProfilePageProf = () => {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
+      <Helmet>
+        <title>{`${userInfo.name || "Professional"} - Profile | HousePlanFiles`}</title>
+        <meta name="description" content={`${userInfo.name} is a ${userInfo.profession || "Professional"} based in ${userInfo.city || "India"}. Update your profile on HousePlanFiles.`} />
+      </Helmet>
       <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
       <p className="text-gray-600">
         Update your public profile and account details.
@@ -186,6 +206,14 @@ const ProfilePageProf = () => {
                   className="capitalize"
                 />
               </div>
+              <div>
+                <Label htmlFor="companyName">Company Name (Optional)</Label>
+                <Input
+                  id="companyName"
+                  {...register("companyName")}
+                  placeholder="Enter your company name"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -224,6 +252,15 @@ const ProfilePageProf = () => {
                 </p>
               )}
             </div>
+            <div className="md:col-span-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                {...register("address")}
+                placeholder="Your office or contact address"
+                rows={2}
+              />
+            </div>
             <div>
               <Label htmlFor="experience">Years of Experience</Label>
               <Input
@@ -239,6 +276,35 @@ const ProfilePageProf = () => {
                 </p>
               )}
             </div>
+
+            {isProfessional && (
+              <>
+                <div>
+                  <Label htmlFor="qualification">Qualification</Label>
+                  <Input
+                    id="qualification"
+                    {...register("qualification")}
+                    placeholder="e.g., B.Arch, M.Arch"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="charges">Consultation Charges</Label>
+                  <Input
+                    id="charges"
+                    {...register("charges")}
+                    placeholder="e.g., ₹2000 per visit"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="skills">Skills / Expertise (Comma separated)</Label>
+                  <Input
+                    id="skills"
+                    {...register("skills")}
+                    placeholder="e.g., AutoCAD, 3DS Max, Revit, SketchUp"
+                  />
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
