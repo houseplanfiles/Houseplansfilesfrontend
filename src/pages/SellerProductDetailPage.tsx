@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SocialShare from "@/components/SocialShare";
 
 // --- 1. MODAL COMPONENT ---
 const InquiryModal = ({ product, onClose }: { product: any; onClose: () => void }) => {
@@ -289,14 +290,36 @@ const SellerProductDetailPage: FC = () => {
                   {product.name}
                 </h1>
                 
-                <div className="flex items-baseline gap-4 mb-8">
+                <div className="flex items-baseline gap-4 mb-4">
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-extrabold text-orange-600">₹{product.price.toLocaleString()}</span>
-                    {product.unit && <span className="text-lg text-gray-500 font-medium">/ {product.unit}</span>}
+                    {product.unit && (
+                      <span className="text-xl text-gray-500 font-bold bg-gray-100 px-3 py-1 rounded-lg">
+                        / {product.unit}
+                      </span>
+                    )}
                   </div>
                   {product.salePrice > 0 && product.salePrice < product.price && (
                     <span className="text-xl text-gray-400 line-through">₹{product.salePrice.toLocaleString()}</span>
                   )}
+                </div>
+
+                {/* Rating & Social Sharing */}
+                <div className="flex flex-col gap-6 mb-8 py-6 border-y border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-yellow-400 text-xl">
+                      {"★".repeat(Math.round(product.rating || 4.8))}
+                      {"☆".repeat(5 - Math.round(product.rating || 4.8))}
+                    </div>
+                    <span className="text-gray-900 font-bold ml-1">{product.rating || "4.8"}</span>
+                    <span className="text-gray-400 text-sm font-medium">({product.reviewsCount || "12"} reviews)</span>
+                  </div>
+
+                  <SocialShare 
+                    url={window.location.href} 
+                    title={product.name} 
+                    phone={product.seller?.phone} 
+                  />
                 </div>
 
                 <div className="space-y-4 mb-8">

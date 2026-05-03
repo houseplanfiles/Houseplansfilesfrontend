@@ -128,12 +128,13 @@ const ContractorProfilePage = () => {
   return (
     <div className="min-h-screen bg-[#fcfcfc]">
       <Helmet>
-        <title>{contractor.name} | Expert Contractor in {contractor.city}</title>
-        <meta name="description" content={`Professional contractor with ${contractor.experience || 'Expert'} experience in ${contractor.city}. Book now for premium construction services.`} />
+        <title>{contractor.seoTitle || `${contractor.name} | Expert Contractor in ${contractor.city}`}</title>
+        <meta name="description" content={contractor.seoDescription || `Professional contractor with ${contractor.experience || 'Expert'} experience in ${contractor.city}. Book now for premium construction services.`} />
+        {contractor.seoKeywords && <meta name="keywords" content={contractor.seoKeywords} />}
         
         {/* Open Graph Tags */}
-        <meta property="og:title" content={`${contractor.name} - Professional Contractor`} />
-        <meta property="og:description" content={`Top-rated construction expert in ${contractor.city}. Explore projects and service plans.`} />
+        <meta property="og:title" content={contractor.seoTitle || `${contractor.name} - Professional Contractor`} />
+        <meta property="og:description" content={contractor.seoDescription || `Top-rated construction expert in ${contractor.city}. Explore projects and service plans.`} />
         <meta property="og:image" content={getFileUrl(contractor.coverPhotoUrl)} />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:type" content="website" />
@@ -157,11 +158,11 @@ const ContractorProfilePage = () => {
               <Badge className="bg-orange-500 mb-6 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider">
                 <Star className="w-3.5 h-3.5 mr-1.5 fill-current" /> Premium Partner
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4">
                 {contractor.name}
               </h1>
-              <p className="text-orange-500 font-extrabold flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
-                <MapPin className="w-3.5 h-3.5" /> {contractor.city} • {contractor.experience || "Expert"} Experience
+              <p className="text-gray-400 font-extrabold flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
+                <MapPin className="w-3 h-3 text-orange-500" /> {contractor.city} • {contractor.experience || "Expert"} Experience
               </p>
             </div>
 
@@ -173,7 +174,7 @@ const ContractorProfilePage = () => {
                 </h3>
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-600/20 flex items-center justify-center text-orange-400 border border-orange-500/20">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-orange-500 border border-white/10">
                       <Briefcase className="w-6 h-6" />
                     </div>
                     <div>
@@ -182,7 +183,7 @@ const ContractorProfilePage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-600/20 flex items-center justify-center text-orange-400 border border-orange-500/20">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-orange-500 border border-white/10">
                       <MapPin className="w-6 h-6" />
                     </div>
                     <div>

@@ -142,12 +142,13 @@ const ArchitectProfilePage = () => {
   return (
     <div className="min-h-screen bg-[#fcfcfc]">
       <Helmet>
-        <title>{architect.name} | Expert Architect in {architect.city}</title>
-        <meta name="description" content={`${architect.profession} with ${architect.experience || 'Expert'} experience in ${architect.city}. Specializing in ${architect.skills?.join(', ') || 'Home Design'}.`} />
+        <title>{architect.seoTitle || `${architect.name} | Expert Architect in ${architect.city}`}</title>
+        <meta name="description" content={architect.seoDescription || `${architect.profession} with ${architect.experience || 'Expert'} experience in ${architect.city}. Specializing in ${architect.skills?.join(', ') || 'Home Design'}.`} />
+        {architect.seoKeywords && <meta name="keywords" content={architect.seoKeywords} />}
         
         {/* Open Graph Tags */}
-        <meta property="og:title" content={`${architect.name} - Expert Architect`} />
-        <meta property="og:description" content={`Top-rated ${architect.profession} in ${architect.city}. View qualification, skills and project portfolio.`} />
+        <meta property="og:title" content={architect.seoTitle || `${architect.name} - Expert Architect`} />
+        <meta property="og:description" content={architect.seoDescription || `Top-rated ${architect.profession} in ${architect.city}. View qualification, skills and project portfolio.`} />
         <meta property="og:image" content={getFileUrl(architect.coverPhotoUrl)} />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:type" content="website" />
@@ -157,27 +158,27 @@ const ArchitectProfilePage = () => {
 
       <main className="pb-32">
         {/* --- HERO SECTION --- */}
-        <div className="relative bg-orange-600 py-12 sm:pt-16 sm:pb-24 overflow-hidden">
+        <div className="relative bg-gray-900 py-12 sm:pt-16 sm:pb-20 overflow-hidden">
           <div className="absolute inset-0">
             <img
               src={getFileUrl(architect.coverPhotoUrl) || "/architect_hero.png"}
               alt="Cover"
               className="w-full h-full object-cover opacity-20"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-600/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
           </div>
           <div className="relative max-w-7xl mx-auto px-6 lg:px-12">
             <div className="text-center mb-12">
               {architect.contractorType === "Premium" && (
-                <Badge className="bg-white/20 text-white border-white/30 mb-6 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md">
+                <Badge className="bg-orange-600 text-white border-none mb-6 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider shadow-lg">
                   <Zap className="w-3.5 h-3.5 mr-1.5 fill-current" /> Premium Expert
                 </Badge>
               )}
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4">
                 {architect.name}
               </h1>
-              <p className="text-orange-100 font-extrabold flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
-                <MapPin className="w-3.5 h-3.5" /> {architect.city} • {architect.experience || "Expert"} Experience
+              <p className="text-gray-400 font-extrabold flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
+                <MapPin className="w-3 h-3 text-orange-500" /> {architect.city} • {architect.experience || "Expert"} Experience
               </p>
             </div>
 
@@ -185,24 +186,24 @@ const ArchitectProfilePage = () => {
               {/* Professional Info Column */}
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/10 text-white shadow-2xl">
                 <h3 className="text-xl font-extrabold mb-8 flex items-center gap-3">
-                  <BookOpen className="w-6 h-6 text-orange-200" /> Professional Info
+                  <BookOpen className="w-6 h-6 text-orange-500" /> Professional Info
                 </h3>
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-orange-100 border border-white/20">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-orange-500 border border-white/20">
                       <Award className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-orange-200 font-bold uppercase tracking-wider mb-1">Qualification</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Qualification</p>
                       <p className="text-lg font-extrabold text-white uppercase">{architect.qualification || "B.Arch"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-orange-100 border border-white/20">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-orange-500 border border-white/20">
                       <Briefcase className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-orange-200 font-bold uppercase tracking-wider mb-1">Specialization</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Specialization</p>
                       <p className="text-lg font-extrabold text-white uppercase">{architect.profession}</p>
                     </div>
                   </div>
@@ -212,11 +213,11 @@ const ArchitectProfilePage = () => {
               {/* Skills & Charges Column */}
               <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/10 text-white shadow-2xl">
                 <h3 className="text-xl font-extrabold mb-8 flex items-center gap-3">
-                  <Star className="w-6 h-6 text-orange-200 fill-orange-200" /> Service Details
+                  <Star className="w-6 h-6 text-orange-500 fill-orange-500" /> Service Details
                 </h3>
                 <div className="space-y-5">
                    <div>
-                      <p className="text-[10px] text-orange-200 font-bold uppercase tracking-wider mb-2">Expertise</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Expertise</p>
                       <div className="flex flex-wrap gap-2">
                         {architect.skills?.map((skill: string) => (
                           <Badge key={skill} variant="secondary" className="bg-white/20 text-white border-none hover:bg-white/30">
@@ -226,7 +227,7 @@ const ArchitectProfilePage = () => {
                       </div>
                    </div>
                    <div>
-                      <p className="text-[10px] text-orange-200 font-bold uppercase tracking-wider mb-1">Consultation Charges</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Consultation Charges</p>
                       <p className="text-xl font-extrabold text-white">{architect.charges || "Contact for Quote"}</p>
                    </div>
                 </div>
@@ -234,7 +235,7 @@ const ArchitectProfilePage = () => {
 
               {/* Action Buttons Column */}
               <div className="flex flex-col gap-6">
-                <Button onClick={() => handleInquiryAction()} className="w-full bg-white text-orange-600 hover:bg-orange-50 h-20 rounded-2xl text-xl font-extrabold shadow-2xl transition-all active:scale-95 border-none">
+                <Button onClick={() => handleInquiryAction()} className="w-full bg-orange-600 text-white hover:bg-orange-700 h-20 rounded-2xl text-xl font-extrabold shadow-2xl transition-all active:scale-95 border-none">
                   <Phone className="w-7 h-7 mr-4" /> Book Consultation
                 </Button>
                 {architect.portfolioUrl && (

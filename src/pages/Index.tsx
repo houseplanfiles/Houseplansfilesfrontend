@@ -8,8 +8,6 @@ import CategoriesSection from "@/components/CategoriesSection";
 import RegionalPlansSection from "@/components/RegionalPlansSection";
 import ReadymadePlansSection from "../components/ReadymadePlansSection";
 import CustomDesignSection from "../components/CustomDesignSection";
-import CorporatePackagesSection from "../components/CorporatePackagesSection";
-import BrandPartnersSection from "@/components/BrandPartnersSection";
 import SellersSection from "@/components/SellersSection";
 import ConstructionPartnersSection from "@/components/ConstructionPartnersSection";
 import TopArchitectsSection from "@/components/TopArchitectsSection";
@@ -49,9 +47,7 @@ const Index = () => {
       {/* ✅ Marketplace (Sellers Section) */}
       <SellersSection />
 
-      <CorporatePackagesSection />
       <RegionalPlansSection />
-      <BrandPartnersSection />
       <Testimonials />
       <CTA />
       <Footer />

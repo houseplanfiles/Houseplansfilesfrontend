@@ -33,6 +33,9 @@ type FormData = {
   qualification?: string;
   skills?: string;
   charges?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 };
 
 const ProfilePageProf = () => {
@@ -69,6 +72,9 @@ const ProfilePageProf = () => {
         setValue("qualification", userInfo.qualification || "");
         setValue("skills", Array.isArray(userInfo.skills) ? userInfo.skills.join(", ") : userInfo.skills || "");
         setValue("charges", userInfo.charges || "");
+        setValue("seoTitle", userInfo.seoTitle || "");
+        setValue("seoDescription", userInfo.seoDescription || "");
+        setValue("seoKeywords", userInfo.seoKeywords || "");
       }
       setPhotoPreview(userInfo.photoUrl || null);
     }
@@ -305,6 +311,53 @@ const ProfilePageProf = () => {
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+        
+        {/* SEO Settings Panel */}
+        <Card className="border-orange-100 shadow-orange-50/50">
+          <CardHeader className="bg-orange-50/30">
+            <CardTitle className="text-orange-900 flex items-center gap-2">
+              <span className="bg-orange-600 text-white text-xs px-2 py-0.5 rounded-full">SEO</span> Search Engine Optimization
+            </CardTitle>
+            <CardDescription>
+              Customize how your profile appears in Google and other search engines.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6 pt-6">
+            <div className="space-y-2">
+              <Label htmlFor="seoTitle" className="text-orange-900 font-bold">Meta Title</Label>
+              <Input
+                id="seoTitle"
+                {...register("seoTitle")}
+                placeholder="e.g., Best Architect in Mumbai | Your Name"
+                className="focus:ring-orange-500"
+              />
+              <p className="text-[11px] text-gray-500">Recommended length: 50-60 characters.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="seoDescription" className="text-orange-900 font-bold">Meta Description</Label>
+              <Textarea
+                id="seoDescription"
+                {...register("seoDescription")}
+                placeholder="Describe your services to people searching on Google..."
+                rows={3}
+                className="focus:ring-orange-500 resize-none"
+              />
+              <p className="text-[11px] text-gray-500">Recommended length: 150-160 characters.</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="seoKeywords" className="text-orange-900 font-bold">Meta Keywords (Comma separated)</Label>
+              <Input
+                id="seoKeywords"
+                {...register("seoKeywords")}
+                placeholder="e.g., modern home design, interior architect mumbai, floor plans"
+                className="focus:ring-orange-500"
+              />
+              <p className="text-[11px] text-gray-500">Add keywords related to your profession and location.</p>
+            </div>
           </CardContent>
         </Card>
 

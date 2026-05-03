@@ -36,6 +36,7 @@ import { useToast } from "@/components/ui/use-toast";
 import house1 from "@/assets/house-1.jpg";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import DisplayPrice from "@/components/DisplayPrice";
+import SocialShare from "@/components/SocialShare";
 
 // --- Icon Components (SVG) - Keeping as is ---
 const FacebookIcon = () => (
@@ -965,27 +966,11 @@ const ProductDetailContent = ({ product }: { product: any }) => {
                   </a>
                 </div>
               </div>
-              <div className="pt-4">
-                <h3 className="font-bold text-gray-700 mb-2">
-                  {" "}
-                  Share this plan{" "}
-                </h3>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {socialPlatforms.map((p) => (
-                    <a
-                      key={p.name}
-                      href={p.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={p.name}
-                      className={`w-9 h-9 flex items-center justify-center rounded-md text-white ${p.color} transition-opacity hover:opacity-80`}
-                    >
-                      {" "}
-                      {p.icon}{" "}
-                    </a>
-                  ))}
-                </div>
-              </div>
+              <SocialShare 
+                url={canonicalUrl} 
+                title={productName} 
+                phone={phoneNumber}
+              />
             </div>
           </div>
           <div className="mt-12 border-t pt-8">

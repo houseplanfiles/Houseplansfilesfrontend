@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SocialShare from "@/components/SocialShare";
 
 // --- 1. MODALS ---
 const InquiryModal = ({ product, onClose }: { product: any; onClose: () => void }) => {
@@ -386,39 +387,76 @@ const SellerStorePage: FC = () => {
               </h1>
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 text-gray-300">
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full text-sm">
-                  <MapPin size={16} className="text-orange-500" /> {sellerInfo?.city || "India"}
+                  <MapPin size={16} className="text-orange-500" /> 
+                  {sellerInfo?.businessAddress || sellerInfo?.city || "India"}
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full text-sm">
                   <Package size={16} className="text-orange-500" /> {products.length} Products
                 </span>
-              </div>
-              
-              {/* Premium Seller Buttons */}
-              {sellerInfo?.contractorType === "Premium" && (
-                <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-6">
-                  <Button 
-                    onClick={() => {
-                      const waLink = `https://wa.me/91${sellerInfo.phone}?text=${encodeURIComponent(`Hi ${sellerInfo.businessName}, I saw your shop on Houseplans Marketplace and I am interested in your products.`)}`;
-                      window.open(waLink, "_blank");
-                    }}
-                    className="bg-[#25D366] hover:bg-[#128C7E] text-white font-bold h-11 px-6 rounded-xl"
-                  >
-                    <MessageCircle size={18} className="mr-2" /> WhatsApp
-                  </Button>
-                  <Button 
-                    onClick={() => window.location.href = `tel:${sellerInfo.phone}`}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 rounded-xl"
-                  >
-                    <Phone size={18} className="mr-2" /> Call Now
-                  </Button>
+                {/* Rating Display */}
+                <div className="flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full text-sm">
+                  <div className="flex text-yellow-400">
+                    {"★".repeat(Math.round(sellerInfo?.rating || 4.5))}
+                    {"☆".repeat(5 - Math.round(sellerInfo?.rating || 4.5))}
+                  </div>
+                  <span className="text-white font-bold ml-1">{sellerInfo?.rating || "4.5"}</span>
                 </div>
-              )}
+              </div>
+
+              {/* Share Store & Action Buttons */}
+              <div className="flex flex-col gap-4 mt-8">
+                <SocialShare 
+                  url={window.location.href} 
+                  title={`Check out ${sellerInfo?.businessName}'s store on Houseplans Marketplace!`} 
+                  phone={sellerInfo?.phone} 
+                />
+                
+                {sellerInfo?.contractorType === "Premium" && (
+                  <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                    <Button 
+                      onClick={() => {
+                        const waLink = `https://wa.me/91${sellerInfo.phone}?text=${encodeURIComponent(`Hi ${sellerInfo.businessName}, I saw your shop on Houseplans Marketplace and I am interested in your products.`)}`;
+                        window.open(waLink, "_blank");
+                      }}
+                      className="bg-[#25D366] hover:bg-[#128C7E] text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-[#25D366]/20"
+                    >
+                      <MessageCircle size={18} className="mr-2" /> WhatsApp
+                    </Button>
+                    <Button 
+                      onClick={() => window.location.href = `tel:${sellerInfo.phone}`}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-blue-500/20"
+                    >
+                      <Phone size={18} className="mr-2" /> Call Now
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-10 mb-20">
+        {/* Store Image Gallery Section */}
+        {sellerInfo?.storeImages && sellerInfo.storeImages.length > 0 && (
+          <div className="bg-white rounded-2xl p-6 mb-8 shadow-xl border border-gray-100 overflow-hidden">
+             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+               <Store className="text-orange-500" size={20} /> Store Gallery
+             </h3>
+             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                {sellerInfo.storeImages.map((img: string, idx: number) => (
+                  <motion.div 
+                    key={idx}
+                    whileHover={{ scale: 1.05 }}
+                    className="min-w-[200px] h-32 rounded-xl overflow-hidden shadow-md border border-gray-100"
+                  >
+                    <img src={img} alt={`Store ${idx}`} className="w-full h-full object-cover" />
+                  </motion.div>
+                ))}
+             </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100">
           <div className="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-gray-100 gap-4">
             <h2 className="text-2xl font-bold text-gray-900">Store Collection</h2>

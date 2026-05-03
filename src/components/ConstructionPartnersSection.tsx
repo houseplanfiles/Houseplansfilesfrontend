@@ -355,17 +355,17 @@ const ConstructionPartnersSection: FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* --- HERO HEADER --- */}
-          <div className="relative bg-gray-900 p-10 md:p-16 rounded-[2rem] overflow-hidden mb-12 shadow-2xl">
+          <div className="relative bg-gray-900 p-10 md:p-14 rounded-[2rem] overflow-hidden mb-12 shadow-2xl">
             <div className="absolute inset-0 opacity-20">
                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80" alt="bg" className="w-full h-full object-cover" />
             </div>
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
               <div>
                 <Badge className="bg-orange-500 hover:bg-orange-600 mb-4 px-4 py-1.5 text-sm border-none">Trusted Network</Badge>
-                <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
                   City Partners & Contractors
                 </h2>
-                <p className="mt-4 text-lg md:text-xl text-gray-300 max-w-2xl px-2 md:px-0">
+                <p className="mt-4 text-base md:text-lg text-gray-300 max-w-2xl px-2 md:px-0">
                   Find verified professionals for your dream project. From civil work to interior design, we have the best partners.
                 </p>
               </div>

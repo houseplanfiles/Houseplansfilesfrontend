@@ -305,7 +305,7 @@ const PartnersPage: FC = () => {
       <Navbar />
 
       {/* --- Hero Section --- */}
-      <div className="relative bg-gray-900 py-16 sm:py-24 overflow-hidden">
+      <div className="relative bg-gray-900 py-16 sm:py-20 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80"
@@ -318,10 +318,10 @@ const PartnersPage: FC = () => {
           <Badge className="bg-orange-500 hover:bg-orange-600 mb-4 px-4 py-1 text-sm">
             Trusted Network
           </Badge>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
             City Partners & Contractors
           </h1>
-          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+          <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto mb-8">
             Find verified professionals for your dream project. From civil work
             to interior design, we have the best partners.
           </p>

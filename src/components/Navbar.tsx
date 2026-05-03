@@ -92,14 +92,14 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Ready Made House Plan", path: "/products" },
+    { name: "Readymade Home Design", path: "/products" },
+    { name: "Architect & Interior Designer", path: "/architects" },
+    { name: "City Contractor", path: "/city-partners" },
+    { name: "Marketplace", path: "/marketplace" },
     { name: "Services", path: "/services" },
-    { name: "Architects", path: "/architects" },
-    { name: "City Partner", path: "/city-partners" },
-    { name: "Career", path: "/careers" },
     { name: "Package", path: "/packages" },
     { name: "Gallery", path: "/gallery" },
-    { name: "Marketplace", path: "/marketplace" },
+    { name: "Career", path: "/careers" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -140,7 +140,7 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`text-[15px] font-medium relative transition-colors duration-300 group whitespace-nowrap ${
+                  className={`text-[11.5px] font-medium relative transition-colors duration-300 group whitespace-nowrap ${
                     isActive(link.path)
                       ? "text-orange-600"
                       : "text-gray-600 hover:text-orange-600"

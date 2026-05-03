@@ -300,30 +300,30 @@ const ArchitectsPage: FC = () => {
       <Navbar />
 
       {/* --- Hero Section --- */}
-      <div className="relative bg-orange-600 py-16 sm:py-24 overflow-hidden">
+      <div className="relative bg-slate-900 py-16 sm:py-20 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="/architect_hero.png"
             alt="Architects Background"
             className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-orange-600/90 via-orange-600/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="bg-white/20 text-white border-white/30 mb-4 px-4 py-1 text-sm backdrop-blur-md">
             Design Experts
           </Badge>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-6">
-            Hire Top Architects & Designers
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 uppercase">
+            Hire Your Top City Architects, Interior Designers & Professionals
           </h1>
-          <p className="text-lg sm:text-xl text-orange-50 max-w-2xl mx-auto mb-8">
-            Expert solutions for your dream home. From 2D plans to 3D elevations and structural design.
+          <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto mb-8 font-medium">
+            2D, 3D, Structural and Site Engineers
           </p>
 
           <div className="flex justify-center">
             <Button
               onClick={() => navigate("/register")}
-              className="bg-white text-orange-600 hover:bg-orange-50 font-bold py-6 px-8 rounded-full shadow-lg transition-all transform hover:-translate-y-1 text-lg"
+              className="bg-orange-600 text-white hover:bg-orange-700 font-bold py-6 px-8 rounded-full shadow-lg transition-all transform hover:-translate-y-1 text-lg"
             >
               <UserPlus className="w-5 h-5 mr-2" />
               Join as a Professional

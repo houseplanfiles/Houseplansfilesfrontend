@@ -340,23 +340,23 @@ const TopArchitectsSection: FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* --- HERO HEADER --- */}
-          <div className="relative bg-orange-600 p-10 md:p-16 rounded-[2rem] overflow-hidden mb-12 shadow-xl shadow-orange-100">
+          <div className="relative bg-gray-900 p-10 md:p-14 rounded-[2rem] overflow-hidden mb-12 shadow-2xl">
             <div className="absolute inset-0 opacity-20">
                <img src="/architect_hero.png" alt="Architectural Background" className="w-full h-full object-cover" />
             </div>
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
               <div>
-                <Badge className="bg-white/20 text-white border-white/30 mb-4 px-4 py-1.5 text-sm backdrop-blur-md">Expert Design Team</Badge>
-                <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">
-                  Top Architects & Designers
+                <Badge className="bg-orange-600 text-white border-none mb-4 px-4 py-1.5 text-sm">Expert Design Team</Badge>
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight uppercase">
+                  Hire Your Top City Architects, Interior Designers & Professionals
                 </h2>
-                <p className="mt-4 text-lg md:text-xl text-orange-50 max-w-2xl">
-                  Consult with India's most talented architects, interior designers and structural engineers for your dream home.
+                <p className="mt-4 text-base md:text-lg text-gray-300 max-w-2xl font-medium">
+                  2D, 3D, Structural and Site Engineers
                 </p>
               </div>
               <Button
                 onClick={() => navigate("/register")}
-                className="bg-white text-orange-600 hover:bg-orange-50 font-bold py-8 px-12 rounded-full shadow-2xl transition-all transform hover:-translate-y-1 text-lg flex items-center gap-3 whitespace-nowrap"
+                className="bg-orange-600 text-white hover:bg-orange-700 font-bold py-8 px-12 rounded-full shadow-2xl transition-all transform hover:-translate-y-1 text-lg flex items-center gap-3 whitespace-nowrap"
               >
                 <UserPlus className="w-6 h-6" />
                 Join as Architect

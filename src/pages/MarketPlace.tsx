@@ -257,9 +257,16 @@ const ProductCard = ({ product, onInquiryClick, onImageClick }) => (
       <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div className="flex flex-col">
           <span className="hidden sm:block text-xs text-gray-400">Price</span>
-          <span className="text-sm sm:text-xl font-extrabold text-gray-900">
-            ₹{product.price.toLocaleString()}
-          </span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-sm sm:text-xl font-extrabold text-gray-900">
+              ₹{product.price.toLocaleString()}
+            </span>
+            {product.unit && (
+              <span className="text-[10px] sm:text-xs text-gray-400 font-bold">
+                / {product.unit}
+              </span>
+            )}
+          </div>
         </div>
         <Button
           onClick={(e) => {

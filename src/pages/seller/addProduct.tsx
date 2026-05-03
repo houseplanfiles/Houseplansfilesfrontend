@@ -320,10 +320,11 @@ const AddSellerProductPage = () => {
                   <datalist id="units-list">
                     <option value="Piece" />
                     <option value="nos" />
-                    <option value="Gram" />
-                    <option value="Kil" />
-                    <option value="Kilo" />
+                    <option value="gram" />
+                    <option value="kilo" />
                     <option value="kg" />
+                    <option value="Gram" />
+                    <option value="Kilo" />
                     <option value="per sqft" />
                     <option value="per cm" />
                     <option value="bag" />
